@@ -13,7 +13,7 @@ Submitting transactions differs by source chain VM. Reference available transact
 
 <code>VmId</code>: <code>evm</code>, <code>solana</code>, <code>alt-vm</code> (any non-named VM - e.g., Bitcoin, Ripple).
 
-## Create a Swap Transaction
+## Create a swap transaction
 
 <Steps>
 <Step title="Configure the transaction request">
@@ -191,7 +191,7 @@ export async function broadcastOnSolana({ txConfig }): Promise<string> {
 </Step>
 </Steps>
 
-## Broadcast on AltVM
+## Broadcast on alt VMs
 Let's assume we set Bitcoin as the source chain in the `txConfig` used to generate our transaction.  Let's see how we can broadcast it on Bitcoin.
 
 View the alt VM transaction type [here](/api-reference/get-action#alt-vm-transaction).

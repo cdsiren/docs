@@ -11,8 +11,14 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
+          {
+            "group": "Getting started",
+            "pages": [
+              "index"
+            ]
+          },
           {
             "group": "Guides",
             "pages": [
@@ -26,38 +32,6 @@
             "group": "Resources",
             "pages": [
               "/resources/chain-list"
-            ]
-          },
-          {
-            "group": "Getting started",
-            "pages": [
-              "index",
-              "quickstart",
-              "development"
-            ]
-          },
-          {
-            "group": "Customization",
-            "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
             ]
           }
         ]
@@ -86,24 +60,17 @@
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
   },
-      "navbar": {
-      "links": [
-        {
-          "label": "Support",
-          "href": "https://swaps.xyz"
-        }
-      ],
-      "primary": {
-        "type": "button",
-        "label": "Get Started",
-        "href": "https://swaps.xyz"
-      }
-    },
-      "footer": {
-      "socials": {
-        "x": "https://x.com/swapsxyz",
-        "github": "https://github.com/swapsxyz",
-        "linkedin": "https://linkedin.com/company/swapsxyz"
-      }
+  "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Try the APIs",
+      "href": "https://docs.swaps.xyz/api-reference/api-overview"
     }
+  },
+  "footer": {
+    "socials": {
+      "x": "https://www.linkedin.com/company/moonpay",
+      "linkedin": "https://www.linkedin.com/company/moonpay"
+    }
+  }
 }
