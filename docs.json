@@ -48,20 +48,17 @@
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API Playground",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Getting Started",
             "pages": [
-              "api-reference/introduction"
+              "api-reference/api-overview"
             ]
           },
           {
             "group": "Endpoints",
-            "openapi": "api-reference/openapi.json",
-            "pages": [
-              "api-reference/endpoint/create"
-            ]
+            "openapi": "api-reference/openapi.json"
           }
         ]
       }
