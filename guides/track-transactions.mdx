@@ -29,9 +29,9 @@ The status endpoint will return a [`TxDetails` object](/api-reference/get-status
 async function getStatus(srcChainId: ChainId, srcTxHash: string): Promise<TxDetails> {
   const url = `https://ghost.swaps.xyz/api/v2/getStatus?chainId=${srcChainId}&txHash=${srcTxHash}`;
   const options = {
-  method: 'GET',
-  headers: {'x-api-key': SWAPS_API_KEY}
-};
+    method: 'GET',
+    headers: {'x-api-key': SWAPS_API_KEY}
+  };
 
 const response = await fetch(url, options);
 const txDetails = await response.json();
@@ -56,14 +56,14 @@ This endpoint does support registering multiple transactions in a single call.
 ``` typescript
 async function registerTx(srcChainId: ChainId, srcTxHash: string): Promise<{ success: true, error: string | null }> {
   const url = 'https://ghost.swaps.xyz/api/v2/webhooks/registerTxs';
-const options = {
-  method: 'POST',
-  headers: {
-    'x-api-key': SWAPS_API_KEY,
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ txHash: srcTxHash, chainId: srcChainId })
-};
+  const options = {
+    method: 'POST',
+    headers: {
+      'x-api-key': SWAPS_API_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ txHash: srcTxHash, chainId: srcChainId })
+  };
 
 const response = await fetch(url, options);
 const data = await response.json();
