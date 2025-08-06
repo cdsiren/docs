@@ -1,0 +1,9 @@
+---
+title: 'Best Practices'
+description: 'Multi-chain development best practices.'
+---
+
+## Check for approvals
+If you select an ERC20 token as the source token to complete a transaction, you will need to make sure the user has granted an approval on the source chain an approval to spend the required amount for the transaction.
+
+[EIP-7702](https://viem.sh/docs/eip7702) enables you to combine the approval and broadcast transactions into a single call.  For a basic example of the legacy approval method, please visit [this NFT mint button example](https://github.com/decentxyz/launch-nfts/blob/c2a5d7300dfe9265a42c7f3e5863606805d65039/components/MintButton.tsx#L32).

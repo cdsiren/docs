@@ -519,7 +519,7 @@
         "type": "number",
         "description": "Chain ID. Find in the list of supported networks"
       },
-      "VMId": {
+      "VmId": {
         "type": "string",
         "enum": [
           "evm",
@@ -606,9 +606,6 @@
             "type": "string",
             "pattern": "^[0-9]+n$",
             "description": "Enter amount as bigint. Will be serialized to string in API requst (e.g., 100000000000000000n)"
-          },
-          "chainId": {
-            "$ref": "#/components/schemas/ChainId"
           },
           "receiverAddress": {
             "$ref": "#/components/schemas/Address",

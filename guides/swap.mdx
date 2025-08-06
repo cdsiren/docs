@@ -1,0 +1,258 @@
+---
+title: 'Swap'
+description: 'Generate and broadcast a swap or bridge transaction.'
+---
+
+import { Callout } from '/snippets/Callout.jsx'
+
+**API Reference:** [Get Action](/api-reference/get-action)
+
+Submitting transactions differs by source chain VM. Reference available transaction types [here](/api-reference/get-action#response-tx).
+
+**Examples below demonstrate the swap process for each VM.**
+
+<code>VmId</code>: <code>evm</code>, <code>solana</code>, <code>alt-vm</code> (any non-named VM - e.g., Bitcoin, Ripple).
+
+## Generate Transaction
+
+<Steps>
+<Step title="Configure the transaction request">
+
+<Callout type="info">
+  The Swap action type covers same chain swaps, bridge, and cross-chain swap transactions.  Swaps are all just swaps!
+</Callout>
+
+**The `receiverAddress` should only be different from the `sender` if you are:**
+1. Swapping across VMs that use incompatible key formats or cryptographic curves (e.g., `EVM <> Solana`)
+2. Sending funds to another address
+
+This example prepares a swap from [USDC on Base](https://basescan.org/token/0x833589fcd6edb6e08f4c7c32d4f71b54bda02913) to [USDT on Arbitrum](https://arbiscan.io/token/0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9).  To transact across non-EVM networks, simply update the chainId and token fields to your desired pairs, no further customizations required.
+
+```typescript
+import { sendTransaction } from "@wagmi/core";
+import { arbitrum, base } from 'wagmi/chains';
+import { useAccount } from 'wagmi';
+
+const txConfig = {
+  actionType: 'swap-action',
+  sender: "0xd8da6bf26964af9d7eed9e03e53415d37aa96045", // generally the user's connected wallet address
+  srcToken: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", // USDC on Base
+  dstToken: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9", // USDT on Arbitrum
+  srcChainId: 8453, // Base Chain ID 
+  dstChainId: 42161, // Arbitrum Chain ID
+  slippage: 100, // bps
+  actionConfig: {
+    swapDirection: 'exact-amount-in',
+    amount: 10000000n, // denominated in srcToken decimals
+    receiverAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
+  }
+}
+```
+</Step>
+
+<Step title="Generate the transaction">
+
+Please visit the [Get Action](/api-reference/get-action) API reference for type definitions, including the `ActionRequest` and `ActionResponse`.  This API endpoint will return a transaction object we will use to actually execute this transaction.
+
+```typescript
+import { sendTransaction } from "@wagmi/core";
+import { arbitrum, base } from 'wagmi/chains';
+import { useAccount } from 'wagmi';
+
+const txConfig: ActionRequest = {
+  actionType: 'swap-action',
+  sender: "0xd8da6bf26964af9d7eed9e03e53415d37aa96045", // generally the user's connected wallet address
+  srcToken: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", // USDC on Base
+  dstToken: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9", // USDT on Arbitrum
+  srcChainId: 8453, // Base Chain ID
+  dstChainId: 42161, // Arbitrum Chain ID
+  slippage: 100, // bps
+  actionConfig: {
+    swapDirection: 'exact-amount-in',
+    amount: 10000000n, // denominated in srcToken decimals
+    receiverAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
+  }
+}
+
+async function getAction({ txConfig }): Promise<ActionResponse> {
+  const url = new URL("https://api-v2.swaps.xyz/api/getAction"); 
+  url.searchParams.set("arguments", JSON.stringify(txConfig, bigintSerializer));
+ 
+  const requestOptions = {
+    method: "GET", 
+    headers: { "x-api-key": SWAPS_API_KEY }, 
+  };
+ 
+  const response = await fetch(url.toString(), requestOptions); 
+  const textResponse = await response.text(); 
+  const { tx } = JSON.parse(textResponse, bigintDeserializer); 
+ 
+  return tx; 
+} 
+```
+
+<Callout type="success">
+  **That's it!** You now have a transaction you can broadcast on your source chain.
+</Callout>
+
+</Step>
+</Steps>
+
+## Broadcast on EVM
+In this step, we will broadcast the transaction we generated above on Base.  This method will work for any EVM chain.  View the EVM Transaction type [here](/api-reference/get-action#evm-transaction).
+
+<Steps>
+<Step title="Import the recommended libraries">
+
+This example uses [Wagmi](https://wagmi.sh/); however, you can use your preferred provider. The transaction we'll generate is compatible with any library.
+
+```typescript
+import { useAccount } from 'wagmi';
+import { sendTransaction, estimateGas } from "@wagmi/core";
+import { arbitrum, base } from 'wagmi/chains';
+import { wagmiConfig } from "../your_wagmi_config_path";
+```
+</Step>
+
+<Step title="Broadcast the transaction">
+
+<Callout type="warning">
+  If your source token is an ERC20, you will have to first submit a token approval.  We recommend only approving the amount required for the transaction.<br/><br/>
+  Please follow the guide [here](/guides/best-practices#check-for-approvals).
+</Callout>
+
+```typescript
+import { sendTransaction, estimateGas } from "@wagmi/core";
+import { arbitrum, base } from 'viem/chains';
+import { wagmiConfig } from "../your_wagmi_config_path";
+
+export async function broadcastOnEvm({ txConfig }): Promise<Hash> {
+  const account = useAccount({ config: wagmiConfig });
+  const tx = await getAction({ txConfig });
+  const gas = await estimateGas(wagmiConfig, { account, ...tx });
+
+  const txHash = await sendTransaction(wagmiConfig, {
+    ...tx,
+    gas
+  });
+
+  return txHash;
+}
+```
+<Callout type="success"> **Transaction broadcasted!** Use [Basescan](https://basescan.org/) to verify your transaction. </Callout>
+</Step>
+</Steps>
+
+## Broadcast on Solana
+Let's assume we set Solana as the source chain in the `txConfig` used to generate our transaction.  Let's see how we can broadcast it on Solana.
+
+View the Solana Transaction type [here](/api-reference/get-action#solana-transaction).
+
+<Steps>
+<Step title="Import the recommended libraries">
+
+We'll use `@solana/web3.js`, which is the standard SDK for interacting with the Solana blockchain.
+
+```typescript
+import {
+  Connection,
+  PublicKey,
+  sendAndConfirmTransaction,
+  Transaction,
+} from "@solana/web3.js";
+```
+</Step>
+
+<Step title="Broadcast the transaction">
+
+<Callout type="warning"> Ensure that the sender wallet has enough SOL to cover transaction fees. If the swap involves a token account that doesn't exist yet, your transaction must include an instruction to create it. </Callout>
+
+```typescript
+import {
+  Connection,
+  PublicKey,
+  sendAndConfirmTransaction,
+  Transaction,
+} from "@solana/web3.js";
+
+export async function broadcastOnSolana({ txConfig }): Promise<string> {
+  const tx = await getAction({ txConfig });
+
+  const connection = new Connection("https://api.mainnet-beta.solana.com");
+  const senderKeypair = ... // Your wallet's keypair (use secure storage)
+
+  const transaction = Transaction.from(Buffer.from(tx.rawTransaction, "base64"));
+  
+  const signature = await sendAndConfirmTransaction(connection, transaction, [senderKeypair]);
+
+  return signature;
+}
+```
+<Callout type="success"> **Transaction broadcasted!** Use a Solana explorer like [Solscan](https://solscan.io) to verify your transaction. </Callout>
+</Step>
+</Steps>
+
+## Broadcast on AltVM
+Let's assume we set Bitcoin as the source chain in the `txConfig` used to generate our transaction.  Let's see how we can broadcast it on Bitcoin.
+
+//**[LINK TO THE TX TYPE]**//
+
+<Callout type="info">
+  Alt VM transactions are all deposits: the transaction will transfer funds from the `sender` to the `to` field specified in the `AltVmTransaction` response.  This transfer triggers the swap transaction and funds will ultimately be delivered to the `receiverAddress`.  **Please note:** Alt VM transactions require an extra step to track the status of transactions.  See the required step here: **[REGISTER TRANSACTION LINK]**.
+</Callout>
+
+<Steps>
+<Step title="Install recommended package">
+```bash
+pnpm i bitcoinjs-lib
+```
+</Step>
+<Step title="Import the recommended libraries">
+
+We’ll use bitcoinjs-lib to sign the Bitcoin transaction.
+
+```typescript
+import * as bitcoin from 'bitcoinjs-lib';
+```
+</Step>
+
+<Step title="Broadcast the transaction">
+
+This example assumes your wallet supports PSBT signing. You’ll finalize and extract the raw transaction, then send it to the Bitcoin network via a public relay (e.g., Blockstream or mempool.space), or your own full node.
+
+```typescript
+import * as bitcoin from 'bitcoinjs-lib';
+
+export async function broadcastOnBitcoin({ txConfig, network = 'mainnet' }): Promise<string> {
+  const tx = await getAction({ txConfig });
+
+  const bitcoinNetwork = network === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet;
+
+  const psbt = bitcoin.Psbt.fromHex(tx.psbt, { network: bitcoinNetwork });
+
+  const keyPair = bitcoin.ECPair.fromWIF(YOUR_WIF, bitcoinNetwork);
+  psbt.signAllInputs(keyPair);
+  psbt.finalizeAllInputs();
+
+  const rawTx = psbt.extractTransaction().toHex();
+
+  const res = await fetch("https://blockstream.info/api/tx", {
+    method: "POST",
+    headers: {
+      "Content-Type": "text/plain",
+    },
+    body: rawTx
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to broadcast transaction: ${res.status} - ${errorText}`);
+  }
+
+  const txId = await res.text(); // Blockstream returns plain txid in response body
+  return txId;
+}
+```
+<Callout type="success"> **Transaction broadcasted!** Use a Bitcoin explorer like [Blockstream](https://blockstream.info) to verify your transaction. </Callout>
+</Step>
+</Steps>

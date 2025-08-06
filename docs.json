@@ -14,6 +14,16 @@
         "tab": "Guides",
         "groups": [
           {
+            "group": "Guides",
+            "pages": [
+              "/guides/swap",
+              "/guides/calldata-call",
+              "/guides/evm-function-call",
+              "/guides/track-transactions",
+              "/guides/best-practices"
+            ]
+          },
+          {
             "group": "Getting started",
             "pages": [
               "index",
