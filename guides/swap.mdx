@@ -5,7 +5,7 @@ description: 'Generate and broadcast a swap or bridge transaction.'
 
 import { Callout } from '/snippets/Callout.jsx'
 
-**API Reference:** [Get Action](/api-reference/get-action)
+**API Reference:** [Get Action](/api-reference/get-action#swap)
 
 Submitting transactions differs by source chain VM. Reference available transaction types [here](/api-reference/get-action#response-tx).
 
@@ -13,7 +13,7 @@ Submitting transactions differs by source chain VM. Reference available transact
 
 <code>VmId</code>: <code>evm</code>, <code>solana</code>, <code>alt-vm</code> (any non-named VM - e.g., Bitcoin, Ripple).
 
-## Generate Transaction
+## Create a Swap Transaction
 
 <Steps>
 <Step title="Configure the transaction request">
@@ -30,14 +30,13 @@ This example prepares a swap from [USDC on Base](https://basescan.org/token/0x83
 
 ```typescript
 import { sendTransaction } from "@wagmi/core";
-import { arbitrum, base } from 'wagmi/chains';
 import { useAccount } from 'wagmi';
 
 const txConfig = {
   actionType: 'swap-action',
-  sender: "0xd8da6bf26964af9d7eed9e03e53415d37aa96045", // generally the user's connected wallet address
-  srcToken: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", // USDC on Base
-  dstToken: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9", // USDT on Arbitrum
+  sender: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // generally the user's connected wallet address
+  srcToken: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', // USDC on Base
+  dstToken: '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9', // USDT on Arbitrum
   srcChainId: 8453, // Base Chain ID 
   dstChainId: 42161, // Arbitrum Chain ID
   slippage: 100, // bps
@@ -56,7 +55,6 @@ Please visit the [Get Action](/api-reference/get-action) API reference for type 
 
 ```typescript
 import { sendTransaction } from "@wagmi/core";
-import { arbitrum, base } from 'wagmi/chains';
 import { useAccount } from 'wagmi';
 
 const txConfig: ActionRequest = {
@@ -109,7 +107,6 @@ This example uses [Wagmi](https://wagmi.sh/); however, you can use your preferre
 ```typescript
 import { useAccount } from 'wagmi';
 import { sendTransaction, estimateGas } from "@wagmi/core";
-import { arbitrum, base } from 'wagmi/chains';
 import { wagmiConfig } from "../your_wagmi_config_path";
 ```
 </Step>

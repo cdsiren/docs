@@ -373,12 +373,12 @@
                 "$ref": "#/components/schemas/SwapActionConfig"
               },
               {
-                "title": "Calldata",
+                "title": "Calldata Tx",
                 "$ref": "#/components/schemas/EvmCalldataTxConfig"
               },
               {
-                "title": "EVM Function",
-                "$ref": "#/components/schemas/EvmFunctionConfig"
+                "title": "Function Call",
+                "$ref": "#/components/schemas/FunctionCallConfig"
               }
             ],
             "description": "Configuration for the action",
@@ -386,7 +386,7 @@
               "propertyName": "actionType",
               "mapping": {
                 "swap-action": "#/components/schemas/SwapActionConfig",
-                "evm-function": "#/components/schemas/EvmFunctionConfig",
+                "evm-function": "#/components/schemas/FunctionCallConfig",
                 "evm-calldata-tx": "#/components/schemas/EvmCalldataTxConfig"
               }
             }
@@ -622,7 +622,7 @@
           "contractAddress": {
             "$ref": "#/components/schemas/Address"
           },
-          "functionSignature": {
+          "signature": {
             "type": "string",
             "description": "Function signature"
           },
@@ -638,7 +638,7 @@
           }
         }
       },
-      "EvmFunctionConfig": {
+      "FunctionCallConfig": {
         "type": "object",
         "required": [
           "contractAddress",

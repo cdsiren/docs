@@ -18,7 +18,6 @@
             "pages": [
               "/guides/swap",
               "/guides/calldata-call",
-              "/guides/evm-function-call",
               "/guides/track-transactions",
               "/guides/best-practices"
             ]
