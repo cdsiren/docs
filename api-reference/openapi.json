@@ -11,7 +11,11 @@
   },
   "servers": [
     {
-      "url": "https://box-api-git-develop-decent-webapp.vercel.app/api",
+      "url": "https://api-v2.swaps.xyz/api",
+      "description": "Production server"
+    },
+    {
+      "url": "https://api.decentscan.xyz/api/v2",
       "description": "Production server"
     }
   ],
@@ -19,7 +23,13 @@
     "/getBoxAction": {
       "get": {
         "summary": "Get Action",
-        "description": "Generates a transaction or transaction instructions for cross-chain swaps, bridges, and calls. The action includes transaction data,\nrouting information, and fee calculations for executing the requested operation.",
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Indexer API server"
+          }
+        ],
+        "description": "Generates a transaction for cross-chain swaps, bridges, and calls. The action includes transaction data, routing information, and fee calculations for executing the requested operation.",
         "operationId": "getBoxAction",
         "parameters": [
           {
@@ -168,6 +178,247 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/getStatus": {
+      "get": {
+        "summary": "Get transaction status",
+        "servers": [
+          {
+            "url": "https://api.decentscan.xyz/api/v2",
+            "description": "Indexer API server"
+          }
+        ],
+        "description": "Retrieve the status and details of a transaction by transaction hash or transaction ID",
+        "operationId": "getTransactionStatus",
+        "parameters": [
+          {
+            "name": "txHash",
+            "in": "query",
+            "description": "Transaction hash to query (required if txId not provided)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{64}$",
+              "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+            }
+          },
+          {
+            "name": "txId",
+            "in": "query",
+            "description": "Transaction ID to query (required if txHash not provided)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "tx_123456"
+            }
+          },
+          {
+            "name": "chainId",
+            "in": "query",
+            "description": "Source chain ID for the transaction (optional but recommended)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction status response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TxDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getTransactions": {
+      "get": {
+        "summary": "Get transaction history",
+        "servers": [
+          {
+            "url": "https://api.decentscan.xyz/api/v2",
+            "description": "Indexer API server"
+          }
+        ],
+        "description": "Retrieve paginated transaction history with optional filtering",
+        "operationId": "getTransactions",
+        "parameters": [
+          {
+            "name": "appIds",
+            "in": "query",
+            "description": "Comma-separated list of your app IDs.  Each API key has a unique app ID.  Multiple app IDs can exist within a single org ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "0x5344e5a7,0x5314e6a7"
+            }
+          },
+          {
+            "name": "walletAddress",
+            "in": "query",
+            "description": "Wallet address to filter transactions by user",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$",
+              "example": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+            }
+          },
+          {
+            "name": "chainIds",
+            "in": "query",
+            "description": "Comma-separated list of chain IDs to filter by",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "1,42161,10"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of results per page (max 500)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 25,
+              "example": 25
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "description": "Time period filter",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "day",
+                "week",
+                "month",
+                "allTime"
+              ],
+              "default": "allTime",
+              "example": "week"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Start date filter (Unix timestamp)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "1640995200"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "End date filter (Unix timestamp)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "1672531200"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction history response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "txs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TxStatus"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  },
+                  "required": [
+                    "txs",
+                    "pagination"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/registerTxs": {
+      "post": {
+        "summary": "Register transaction",
+        "servers": [
+          {
+            "url": "https://api.decentscan.xyz/api/v2/webhooks",
+            "description": "Indexer API server"
+          }
+        ],
+        "description": "Register transactions for indexing.  Optionally call post transaction submission.",
+        "operationId": "registerTxs",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/TxRegistrationEvent"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TxRegistrationEvent"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction registration results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/post_200__webhooks_registerTxsSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
@@ -425,9 +676,9 @@
       "ActionType": {
         "type": "string",
         "enum": [
+          "swap-action",
           "evm-calldata-tx",
-          "evm-function",
-          "swap-action"
+          "evm-function"
         ],
         "description": "Type of action to perform."
       },
@@ -489,97 +740,82 @@
           "chainId"
         ],
         "properties": {
+          "contractAddress": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "functionSignature": {
+            "type": "string",
+            "description": "Function signature"
+          },
+          "args": {
+            "type": "array",
+            "description": "Function arguments"
+          },
           "chainId": {
             "$ref": "#/components/schemas/ChainId"
           },
           "cost": {
-            "$ref": "#/components/schemas/ActionPayment",
-            "description": "Cost for the action"
-          },
-          "allowSwapping": {
-            "type": "boolean",
-            "description": "Whether to allow swapping"
-          },
-          "allowBridging": {
-            "type": "boolean",
-            "description": "Whether to allow bridging"
-          },
-          "onlyAllowTokens": {
-            "type": "object",
-            "description": "Lookup of chain IDs to allowed token addresses"
+            "$ref": "#/components/schemas/Payment"
           }
         }
       },
-      "BaseActionWithContractConfig": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseActionConfig"
-          },
-          {
-            "type": "object",
-            "required": [
-              "contractAddress"
-            ],
-            "properties": {
-              "contractAddress": {
-                "$ref": "#/components/schemas/Address",
-                "description": "Contract address for the action"
-              },
-              "paymentOperator": {
-                "$ref": "#/components/schemas/Address",
-                "description": "Payment operator address"
-              }
-            }
-          }
-        ]
-      },
       "EvmFunctionConfig": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseActionWithContractConfig"
+        "type": "object",
+        "required": [
+          "contractAddress",
+          "functinSignature",
+          "args",
+          "chainId"
+        ],
+        "properties": {
+          "contractAddress": {
+            "$ref": "#/components/schemas/Address"
           },
-          {
-            "type": "object",
-            "required": [
-              "signature",
-              "args"
-            ],
-            "properties": {
-              "signature": {
-                "type": "string",
-                "description": "Function signature"
-              },
-              "args": {
-                "type": "array",
-                "description": "Function arguments"
-              }
-            }
+          "functionSignature": {
+            "type": "string",
+            "description": "Function signature"
+          },
+          "args": {
+            "type": "array",
+            "description": "Function arguments"
+          },
+          "chainId": {
+            "$ref": "#/components/schemas/ChainId"
+          },
+          "cost": {
+            "$ref": "#/components/schemas/Payment"
           }
-        ]
+        }
       },
       "EvmCalldataTxConfig": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseActionWithContractConfig"
+        "type": "object",
+        "required": [
+          "contractAddress",
+          "chainId",
+          "value",
+          "cost",
+          "data"
+        ],
+        "properties": {
+          "contractAddress": {
+            "$ref": "#/components/schemas/Address"
           },
-          {
-            "type": "object",
-            "required": [
-              "value"
-            ],
-            "properties": {
-              "value": {
-                "type": "string",
-                "pattern": "^[0-9]+n$",
-                "description": "Value to send with transaction as string with 'n' suffix (bigint serialized)"
-              },
-              "data": {
-                "$ref": "#/components/schemas/Hex",
-                "description": "Calldata for the transaction"
-              }
-            }
+          "chainId": {
+            "$ref": "#/components/schemas/ChainId"
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^[0-9]+n$",
+            "description": "Value to send with transaction as string with 'n' suffix (bigint serialized)"
+          },
+          "cost": {
+            "$ref": "#/components/schemas/Payment"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Hex",
+            "description": "Calldata for the transaction"
           }
-        ]
+        }
       },
       "EvmTransaction": {
         "type": "object",
@@ -781,6 +1017,418 @@
             "description": "Additional error details"
           }
         }
+      },
+      "TxRegistrationEvent": {
+        "type": "object",
+        "properties": {
+          "transaction_hash": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "description": "Transaction hash",
+            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          },
+          "chain_id": {
+            "type": "integer",
+            "description": "Chain ID where the transaction occurred",
+            "example": 1
+          }
+        },
+        "required": [
+          "transaction_hash",
+          "chain_id"
+        ]
+      },
+      "ValidatedTxId": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the transaction registration was successful",
+            "example": true
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message if registration failed",
+            "example": null
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "TxStatus": {
+        "type": "object",
+        "properties": {
+          "statusMessage": {
+            "type": "string",
+            "enum": [
+              "success",
+              "pending",
+              "refunded",
+              "failed"
+            ],
+            "description": "Status of the transaction",
+            "example": "success"
+          },
+          "sender": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$",
+            "description": "Sender wallet address",
+            "example": "0x1234567890123456789012345678901234567890"
+          },
+          "srcChainId": {
+            "type": "integer",
+            "description": "Source chain ID",
+            "example": 1
+          },
+          "dstChainId": {
+            "type": "integer",
+            "description": "Destination chain ID",
+            "example": 42161
+          },
+          "srcTxHash": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "description": "Source transaction hash",
+            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          },
+          "dstTxHash": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "description": "Destination transaction hash",
+            "example": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+          },
+          "bridgeDetails": {
+            "$ref": "#/components/schemas/BridgeDetails"
+          },
+          "txId": {
+            "type": "string",
+            "description": "Unique transaction identifier",
+            "example": "tx_123456"
+          }
+        },
+        "required": [
+          "statusMessage",
+          "sender",
+          "srcChainId",
+          "dstChainId",
+          "srcTxHash",
+          "dstTxHash",
+          "bridgeDetails",
+          "txId"
+        ]
+      },
+      "TxDetails": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TxStatus"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "org": {
+                "nullable": true,
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Org"
+                  }
+                ]
+              },
+              "decentScanLink": {
+                "type": "string",
+                "format": "uri",
+                "description": "Link to Decent Scan for this transaction",
+                "example": "https://decentscan.xyz?chainId=1&txHash=0x1234..."
+              },
+              "usdValue": {
+                "type": "number",
+                "nullable": true,
+                "description": "USD value of the transaction",
+                "example": 100.5
+              },
+              "srcTx": {
+                "$ref": "#/components/schemas/OnchainTx"
+              },
+              "dstTx": {
+                "$ref": "#/components/schemas/OnchainTx"
+              }
+            },
+            "required": [
+              "org",
+              "decentScanLink",
+              "usdValue",
+              "srcTx",
+              "dstTx"
+            ]
+          }
+        ]
+      },
+      "BridgeDetails": {
+        "type": "object",
+        "properties": {
+          "isBridge": {
+            "type": "boolean",
+            "description": "Whether this transaction involves bridging",
+            "example": true
+          },
+          "bridgeTime": {
+            "type": "number",
+            "nullable": true,
+            "description": "Bridge time in seconds (null if not a bridge)",
+            "example": 420
+          },
+          "txPath": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TxNode"
+            },
+            "description": "Transaction path through different chains"
+          }
+        },
+        "required": [
+          "isBridge",
+          "bridgeTime",
+          "txPath"
+        ]
+      },
+      "TxNode": {
+        "type": "object",
+        "properties": {
+          "chainId": {
+            "type": "integer",
+            "description": "Chain ID for this step",
+            "example": 1
+          },
+          "txHash": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "description": "Transaction hash for this step",
+            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp as bigint string",
+            "example": "1640995200000000000"
+          },
+          "nextBridge": {
+            "type": "string",
+            "description": "Bridge type for the next hop",
+            "example": "optimism"
+          }
+        },
+        "required": [
+          "chainId",
+          "txHash",
+          "timestamp",
+          "nextBridge"
+        ]
+      },
+      "OnchainTx": {
+        "type": "object",
+        "properties": {
+          "toAddress": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "description": "Recipient address",
+            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          },
+          "txHash": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "description": "Transaction hash",
+            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          },
+          "chainId": {
+            "type": "integer",
+            "description": "Chain ID",
+            "example": 1
+          },
+          "blockExplorer": {
+            "type": "string",
+            "format": "uri",
+            "description": "Block explorer URL",
+            "example": "https://etherscan.io"
+          },
+          "gasProvided": {
+            "type": "string",
+            "description": "Gas provided as bigint string",
+            "example": "21000n"
+          },
+          "gasUsed": {
+            "type": "string",
+            "description": "Gas used as bigint string",
+            "example": "21000n"
+          },
+          "value": {
+            "type": "string",
+            "description": "Transaction value as bigint string",
+            "example": "1000000000000000000n"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp as bigint string",
+            "example": "1640995200000000000"
+          },
+          "blockNumber": {
+            "type": "integer",
+            "description": "Block number",
+            "example": 16000000
+          },
+          "input": {
+            "type": "string",
+            "description": "Transaction input data",
+            "example": "0x"
+          },
+          "revertReason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Revert reason if transaction failed",
+            "example": null
+          },
+          "paymentToken": {
+            "$ref": "#/components/schemas/Token"
+          }
+        },
+        "required": [
+          "toAddress",
+          "txHash",
+          "chainId",
+          "blockExplorer",
+          "gasProvided",
+          "gasUsed",
+          "value",
+          "timestamp",
+          "blockNumber",
+          "input",
+          "revertReason",
+          "paymentToken"
+        ]
+      },
+      "Token": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Token name",
+            "example": "Ethereum"
+          },
+          "symbol": {
+            "type": "string",
+            "description": "Token symbol",
+            "example": "ETH"
+          },
+          "decimals": {
+            "type": "integer",
+            "description": "Token decimals",
+            "example": 18
+          },
+          "amount": {
+            "type": "string",
+            "description": "Token amount as bigint string",
+            "example": "1000000000000000000n"
+          },
+          "address": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$",
+            "description": "Token contract address",
+            "example": "0x1234567890123456789012345678901234567890"
+          }
+        },
+        "required": [
+          "name",
+          "symbol",
+          "decimals",
+          "amount",
+          "address"
+        ]
+      },
+      "Org": {
+        "type": "object",
+        "properties": {
+          "appId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Application ID",
+            "example": "app_123"
+          },
+          "affiliateId": {
+            "type": "string",
+            "description": "Affiliate ID",
+            "example": "affiliate_123"
+          },
+          "appFees": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "recipient": {
+                  "type": "string",
+                  "pattern": "^0x[a-fA-F0-9]{40}$",
+                  "description": "Fee recipient address"
+                },
+                "token": {
+                  "type": "string",
+                  "pattern": "^0x[a-fA-F0-9]{40}$",
+                  "description": "Fee token address"
+                },
+                "amount": {
+                  "type": "string",
+                  "description": "Fee amount"
+                }
+              },
+              "required": [
+                "recipient",
+                "token",
+                "amount"
+              ]
+            }
+          }
+        },
+        "required": [
+          "appId",
+          "affiliateId",
+          "appFees"
+        ]
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Current page number",
+            "example": 1
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Results per page",
+            "example": 25
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of results",
+            "example": 150
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "Total number of pages",
+            "example": 6
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages"
+        ]
+      },
+      "get_400__api_getStatusSchema": {
+        "$ref": "#/components/schemas/ErrorResponse"
+      },
+      "post_200__webhooks_registerTxsSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ValidatedTxId"
+        }
       }
     },
     "securitySchemes": {
@@ -788,7 +1436,25 @@
         "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "description": "API key for authentication.  Limited demo key: `e2c440ee9c0cf66bb58ede58ac0eb7f1`.  You must generate a unique key."
+        "description": "Limited demo key for API Playground: `e2c440ee9c0cf66bb58ede58ac0eb7f1`."
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "Authentication required",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Unauthorized - API key required"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
