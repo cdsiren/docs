@@ -67,23 +67,7 @@
       }
     ],
     "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://swaps.xyz/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Support",
-          "href": "https://swaps.xyz/support",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://swaps.xyz/blog",
-          "icon": "newspaper"
-        }
-      ]
+      "anchors": []
     }
   },
   "logo": {

@@ -31,17 +31,15 @@
               "$ref": "#/components/schemas/BoxActionRequest"
             },
             "x-display-as": "individual-fields",
-            "x-serialization": {
-              "format": "json-string",
-              "coerceTypes": true
-            },
+            "style": "deepObject",
+            "explode": true,
             "example": "{\"sender\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"srcChainId\":8453,\"dstChainId\":42161,\"srcToken\":\"0x0000000000000000000000000000000000000000\",\"dstToken\":\"0x0000000000000000000000000000000000000000\",\"slippage\":1,\"actionType\":\"swap-action\",\"actionConfig\":{\"chainId\":8453,\"swapDirection\":\"exact-amount-in\",\"receiverAddress\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"amount\":\"1000000000000000000n\"}}"
           },          
           {
             "name": "sender",
             "in": "query",
             "required": false,
-            "description": "The address of the sender/user (display only - use arguments parameter for actual API calls)",
+            "description": "The address of the sender/user",
             "schema": {
               "$ref": "#/components/schemas/Address"
             },
@@ -52,7 +50,7 @@
             "name": "srcChainId",
             "in": "query",
             "required": false,
-            "description": "Source chain ID (display only - use arguments parameter for actual API calls)",
+            "description": "Source chain ID",
             "schema": {
               "$ref": "#/components/schemas/ChainId"
             },
@@ -63,7 +61,7 @@
             "name": "dstChainId",
             "in": "query",
             "required": false,
-            "description": "Destination chain ID (display only - use arguments parameter for actual API calls)",
+            "description": "Destination chain ID",
             "schema": {
               "$ref": "#/components/schemas/ChainId"
             },
@@ -74,7 +72,7 @@
             "name": "srcToken",
             "in": "query",
             "required": false,
-            "description": "Source token address (display only - use arguments parameter for actual API calls)",
+            "description": "Source token address",
             "schema": {
               "$ref": "#/components/schemas/Address"
             },
@@ -85,7 +83,7 @@
             "name": "dstToken",
             "in": "query",
             "required": false,
-            "description": "Destination token address (display only - use arguments parameter for actual API calls)",
+            "description": "Destination token address",
             "schema": {
               "$ref": "#/components/schemas/Address"
             },
@@ -96,7 +94,7 @@
             "name": "slippage",
             "in": "query",
             "required": false,
-            "description": "Slippage tolerance in percentage (display only - use arguments parameter for actual API calls)",
+            "description": "Slippage tolerance in percentage",
             "schema": {
               "type": "number",
               "format": "int32",
@@ -110,7 +108,7 @@
             "name": "actionType",
             "in": "query",
             "required": false,
-            "description": "Type of action to perform (display only - use arguments parameter for actual API calls)",
+            "description": "Type of action to perform",
             "schema": {
               "$ref": "#/components/schemas/ActionType"
             },
@@ -441,18 +439,8 @@
         }
       },
       "ChainId": {
-        "type": "integer",
-        "enum": [
-          1,
-          10,
-          56,
-          137,
-          324,
-          42161,
-          8453
-        ],
-        "format": "float",
-        "description": "Supported chain IDs. 155 chains and counting, select primary networks displayed here."
+        "type": "number",
+        "description": "View list of supported chains and Ids [HERE]"
       },
       "VMId": {
         "type": "string",
@@ -522,7 +510,7 @@
           "amount": {
             "type": "string",
             "pattern": "^[0-9]+n$",
-            "description": "Amount as a string with 'n' suffix (bigint serialized, e.g., '1000000000000000000n')"
+            "description": "Enter amount as bigint. Will be serialized to string in API requst (e.g., 100000000000000000n)"
           },
           "chainId": {
             "$ref": "#/components/schemas/ChainId"
