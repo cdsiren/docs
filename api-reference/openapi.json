@@ -20,7 +20,7 @@
     }
   ],
   "paths": {
-    "/getBoxAction": {
+    "/getAction": {
       "get": {
         "summary": "Get Action",
         "servers": [
@@ -30,7 +30,7 @@
           }
         ],
         "description": "Generates a transaction for cross-chain swaps, bridges, and calls. The action includes transaction data, routing information, and fee calculations for executing the requested operation.",
-        "operationId": "getBoxAction",
+        "operationId": "getAction",
         "parameters": [
           {
             "name": "arguments",
@@ -38,14 +38,14 @@
             "required": true,
             "description": "JSON object containing all request parameters. Rendered below as individual fields and serialized to a string.",
             "schema": {
-              "$ref": "#/components/schemas/BoxActionRequest"
+              "$ref": "#/components/schemas/ActionRequest"
             },
             "x-display-as": "individual-fields",
             "x-serialization": {
               "format": "json-string",
               "coerceTypes": true
             },
-            "example": "{\"sender\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"srcChainId\":8453,\"dstChainId\":42161,\"srcToken\":\"0x0000000000000000000000000000000000000000\",\"dstToken\":\"0x0000000000000000000000000000000000000000\",\"slippage\":1,\"actionType\":\"swap-action\",\"actionConfig\":{\"chainId\":8453,\"swapDirection\":\"exact-amount-in\",\"receiverAddress\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"amount\":\"1000000000000000000n\"}}"
+            "example": "{\"sender\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"srcChainId\":8453,\"dstChainId\":42161,\"srcToken\":\"0x0000000000000000000000000000000000000000\",\"dstToken\":\"0x0000000000000000000000000000000000000000\",\"slippage\":1,\"actionType\":\"swap-action\",\"actionConfig\":{\"swapDirection\":\"exact-amount-in\",\"receiverAddress\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"amount\":\"1000000000000000000n\"}}"
           }
         ],
         "responses": {
@@ -54,7 +54,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BoxActionResponse"
+                  "$ref": "#/components/schemas/ActionResponse"
                 }
               }
             }
@@ -308,7 +308,7 @@
   },
   "components": {
     "schemas": {
-      "BoxActionRequest": {
+      "ActionRequest": {
         "type": "object",
         "required": [
           "sender",
@@ -335,7 +335,7 @@
           },
           "srcToken": {
             "$ref": "#/components/schemas/Address",
-            "description": "Source token address (optional, defaults to native token)"
+            "description": "Source token address"
           },
           "dstChainId": {
             "$ref": "#/components/schemas/ChainId",
@@ -343,7 +343,7 @@
           },
           "dstToken": {
             "$ref": "#/components/schemas/Address",
-            "description": "Destination token address (optional, defaults to native token)"
+            "description": "Destination token address"
           },
           "bridgeIds": {
             "type": "array",
@@ -351,13 +351,6 @@
               "$ref": "#/components/schemas/BridgeId"
             },
             "description": "Specific bridge protocols to use"
-          },
-          "dexIds": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DexId"
-            },
-            "description": "Specific DEX protocols to use"
           },
           "slippage": {
             "type": "number",
@@ -397,7 +390,7 @@
           }
         }
       },
-      "BoxActionResponse": {
+      "ActionResponse": {
         "type": "object",
         "required": [
           "tx",
@@ -423,6 +416,10 @@
               {
                 "title": "Solana Transaction",
                 "$ref": "#/components/schemas/SerializedSolTransaction"
+              },
+              {
+                "title": "Alt VM Transaction",
+                "$ref": "#/components/schemas/AltVmTransaction"
               }
             ],
             "description": "Transaction data for execution"
@@ -487,43 +484,114 @@
           "allRoutes": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/PerRouteResponse"
+              "$ref": "#/components/schemas/BaseActionResponse"
             },
             "description": "All available routes for the action."
           }
         }
       },
-      "ActionResponseWithRoutes": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BoxActionResponse"
-          },
-          {
-            "type": "object",
-            "required": [
-              "allRoutes"
-            ],
-            "properties": {
-              "allRoutes": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/BoxActionResponse"
-                },
-                "description": "All available routes for the action."
+      "BaseActionResponse": {
+        "type": "object",
+        "required": [
+          "tx",
+          "txId",
+          "amountIn",
+          "amountInMax",
+          "amountOutMin",
+          "amountOut",
+          "protocolFee",
+          "applicationFee",
+          "exchangeRate",
+          "estimatedTxTime",
+          "estimatedPriceImpact"
+        ],
+        "properties": {
+          "tx": {
+            "oneOf": [
+              {
+                "title": "EVM Transaction",
+                "$ref": "#/components/schemas/EvmTransaction"
+              },
+              {
+                "title": "Solana Transaction",
+                "$ref": "#/components/schemas/SerializedSolTransaction"
+              },
+              {
+                "title": "Alt VM Transaction",
+                "$ref": "#/components/schemas/AltVmTransaction"
               }
-            }
+            ],
+            "description": "Transaction data for execution"
+          },
+          "txId": {
+            "$ref": "#/components/schemas/Hex",
+            "description": "Transaction ID"
+          },
+          "amountIn": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Expected amount to input (exclusive of slippage - recommended value to display in frontend)"
+          },
+          "amountInMax": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Maximum amount to input (inclusive of slippage)"
+          },
+          "amountOut": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Expected amount delivered to users (exclusive of slippage - recommended value to display in frontend)"
+          },
+          "amountOutMin": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Minimum amount delivered to users (inclusive of slippage)"
+          },
+          "protocolFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Swaps.xyz fee"
+          },
+          "applicationFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Application fee (your fee!)"
+          },
+          "bridgeFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Bridge fee (from aggregated providers)"
+          },
+          "bridgeIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BridgeId"
+            },
+            "description": "Bridge IDs used in the route."
+          },
+          "bridgeRoute": {
+            "$ref": "#/components/schemas/BridgeRoute",
+            "description": "Bridge route information (src chain + token, dst chain + token, BridgeId)"
+          },
+          "exchangeRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Exchange rate for the swap."
+          },
+          "estimatedTxTime": {
+            "type": "integer",
+            "description": "Estimated transaction time in seconds."
+          },
+          "estimatedPriceImpact": {
+            "type": "number",
+            "format": "float",
+            "description": "Estimated price impact percentage."
           }
-        ]
+        }
       },
       "ChainId": {
         "type": "number",
         "description": "Chain ID. Find in the list of supported networks"
       },
-      "VMId": {
+      "VmId": {
         "type": "string",
         "enum": [
           "evm",
-          "solana"
+          "solana",
+          "alt-vm"
         ],
         "description": "Virtual machine identifier."
       },
@@ -541,19 +609,6 @@
           "relay"
         ],
         "description": "Bridge protocol identifier."
-      },
-      "DexId": {
-        "type": "string",
-        "enum": [
-          "camelot",
-          "uniV2",
-          "uniV3",
-          "curve",
-          "merchantMoe",
-          "anyswapper",
-          "0x"
-        ],
-        "description": "DEX protocol identifier. AnySwapper provides compatibility with any DEX."
       },
       "ActionType": {
         "type": "string",
@@ -594,9 +649,7 @@
         "type": "object",
         "required": [
           "swapDirection",
-          "amount",
-          "chainId",
-          "receiverAddress"
+          "amount"
         ],
         "properties": {
           "swapDirection": {
@@ -606,9 +659,6 @@
             "type": "string",
             "pattern": "^[0-9]+n$",
             "description": "Enter amount as bigint. Will be serialized to string in API requst (e.g., 100000000000000000n)"
-          },
-          "chainId": {
-            "$ref": "#/components/schemas/ChainId"
           },
           "receiverAddress": {
             "$ref": "#/components/schemas/Address",
@@ -622,22 +672,11 @@
           "chainId"
         ],
         "properties": {
-          "contractAddress": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "functionSignature": {
-            "type": "string",
-            "description": "Function signature"
-          },
-          "args": {
-            "type": "array",
-            "description": "Function arguments"
-          },
           "chainId": {
             "$ref": "#/components/schemas/ChainId"
           },
           "cost": {
-            "$ref": "#/components/schemas/Payment"
+            "$ref": "#/components/schemas/ActionPayment"
           }
         }
       },
@@ -645,7 +684,7 @@
         "type": "object",
         "required": [
           "contractAddress",
-          "functinSignature",
+          "signature",
           "args",
           "chainId"
         ],
@@ -653,7 +692,7 @@
           "contractAddress": {
             "$ref": "#/components/schemas/Address"
           },
-          "functionSignature": {
+          "signature": {
             "type": "string",
             "description": "Function signature"
           },
@@ -665,7 +704,11 @@
             "$ref": "#/components/schemas/ChainId"
           },
           "cost": {
-            "$ref": "#/components/schemas/Payment"
+            "$ref": "#/components/schemas/ActionPayment"
+          },
+          "paymentOperator": {
+            "$ref": "#/components/schemas/Address",
+            "description": "Payment operator address"
           }
         }
       },
@@ -674,9 +717,7 @@
         "required": [
           "contractAddress",
           "chainId",
-          "value",
-          "cost",
-          "data"
+          "value"
         ],
         "properties": {
           "contractAddress": {
@@ -691,11 +732,15 @@
             "description": "Value to send with transaction as string with 'n' suffix (bigint serialized)"
           },
           "cost": {
-            "$ref": "#/components/schemas/Payment"
+            "$ref": "#/components/schemas/ActionPayment"
           },
           "data": {
             "$ref": "#/components/schemas/Hex",
             "description": "Calldata for the transaction"
+          },
+          "paymentOperator": {
+            "$ref": "#/components/schemas/Address",
+            "description": "The Erc20 spender requiring approval for the transaction call"
           }
         }
       },
@@ -765,20 +810,63 @@
           }
         }
       },
-      "Payment": {
+      "AltVmTransaction": {
         "type": "object",
         "required": [
-          "amount"
+          "to",
+          "value",
+          "chainId",
+          "chainKey"
         ],
         "properties": {
-          "amount": {
+          "to": {
+            "$ref": "#/components/schemas/ExchangeAddress",
+            "description": "Exchange address"
+          },
+          "value": {
             "type": "string",
             "pattern": "^[0-9]+n$",
-            "description": "Amount as string with 'n' suffix (bigint serialized)"
+            "description": "Value as string with 'n' suffix (bigint serialized)"
           },
+          "chainId": {
+            "$ref": "#/components/schemas/ChainId"
+          },
+          "chainKey": {
+            "type": "string",
+            "description": "Chain key identifier"
+          }
+        }
+      },
+      "Payment": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TokenInfo"
+          },
+          {
+            "type": "object",
+            "required": [
+              "amount"
+            ],
+            "properties": {
+              "amount": {
+                "type": "string",
+                "pattern": "^[0-9]+n$",
+                "description": "Amount as string with 'n' suffix (bigint serialized)"
+              }
+            }
+          }
+        ]
+      },
+      "ExchangeAddress": {
+        "type": "string",
+        "description": "Exchange address format"
+      },
+      "TokenInfo": {
+        "type": "object",
+        "properties": {
           "tokenAddress": {
             "$ref": "#/components/schemas/Address",
-            "description": "Token address (optional for native tokens)"
+            "description": "Token address"
           },
           "decimals": {
             "type": "integer",
