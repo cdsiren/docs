@@ -3,26 +3,26 @@ title: 'Best Practices'
 description: 'Multi-chain development best practices.'
 ---
 
-## Check for approvals
-If you select an ERC20 token as the source token to complete a transaction, you will need to make sure the user has granted an approval on the source chain an approval to spend the required amount for the transaction.
+## Check for Approvals
+If you select an ERC20 token as the source token to complete a transaction, you will need to make sure the user has granted approval on the source chain to spend the required amount for the transaction.
 
-[EIP-7702](https://viem.sh/docs/eip7702) enables you to combine the approval and broadcast transactions into a single call.  For a basic example of the legacy approval method, please visit [this NFT mint button example](https://github.com/decentxyz/launch-nfts/blob/c2a5d7300dfe9265a42c7f3e5863606805d65039/components/MintButton.tsx#L32).
+[EIP-7702](https://viem.sh/docs/eip7702) enables you to combine the approval and broadcast transactions into a single call. For a basic example of the legacy approval method, please visit [this NFT mint button example](https://github.com/decentxyz/launch-nfts/blob/c2a5d7300dfe9265a42c7f3e5863606805d65039/components/MintButton.tsx#L32).
 
-## Managing Permissioned Functions
+## Manage Permissioned Functions
 
-Some smart contracts include permissioned functions that resolve based on the wallet address sending the transaction.  Often, you will see a check based on the `msg.sender`.
+Some smart contracts include permissioned functions that resolve based on the wallet address sending the transaction. Often, you will see a check based on the `msg.sender`.
 
-Cross-chain transactions are executed from relayer accounts versus the user's wallet directly.  As a result, a `msg.sender` check will fail even if it _actually is_ the authorized wallet address sending the source chain transaction.
+Cross-chain transactions are executed from relayer accounts, not directly from the user's wallet. As a result, a `msg.sender` check will fail even if it _actually is_ the authorized wallet address sending the source chain transaction.
 
-`msg.sender` are typically impractical in a multi-chain context.  Instead, we recommend a signature-based approach to authentication.
+`msg.sender` checks are typically impractical in a multi-chain context. Instead, we recommend a signature-based approach to authentication.
 
-For example,the [Songcamp](https://song.camp/) team wanted users to mint NFTs without metadata and then send a permissioned function to write metadata to the NFT based on certain traits of the user's wallet address.
+For example, the [Songcamp](https://song.camp/) team wanted users to mint NFTs without metadata and then send a permissioned function to write metadata to the NFT based on certain traits of the user's wallet address.
 
-To authenticate wallets while enabling cross-chain execution of this arbitrary function, Songcamp included a hash of the user's wallet address in the transaction calldata and recovered the singer's address as follows:
+To enable cross-chain execution while still authenticating wallets, Songcamp included a hash of the user's wallet address in the transaction calldata and recovered the singer's address as follows:
 
 [View full contract](https://explorer.zora.energy/address/0x38898cadb5241121620a81e7bca47eab8a87402a?tab=contract)
 
-``` solidity
+```solidity
   function multiWriteToDiscSignature( // [!code focus]
       uint256[] memory tokenIds, // [!code focus]
       uint256[] memory songSelections, // [!code focus]

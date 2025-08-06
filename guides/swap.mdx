@@ -195,7 +195,11 @@ Let's assume we set Bitcoin as the source chain in the `txConfig` used to genera
 //**[LINK TO THE TX TYPE]**//
 
 <Callout type="info">
-  Alt VM transactions are all deposits: the transaction will transfer funds from the `sender` to the `to` field specified in the `AltVmTransaction` response.  This transfer triggers the swap transaction and funds will ultimately be delivered to the `receiverAddress`.  **Please note:** Alt VM transactions require an extra step to track the status of transactions.  See the required step here: **[REGISTER TRANSACTION LINK]**.
+  Alt VM transactions are all deposits: the transaction will transfer funds from the `sender` to the `to` field specified in the `AltVmTransaction` response.  This transfer triggers the swap transaction and funds will ultimately be delivered to the `receiverAddress`.
+</Callout>
+
+<Callout type="info">
+  Alt VM transactions require an extra step to track the status of transactions.  **See the required step [here](/guides/track-transactions#register-transaction).
 </Callout>
 
 <Steps>

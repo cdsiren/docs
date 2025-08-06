@@ -1,0 +1,71 @@
+---
+title: 'Track Transactions'
+description: 'Monitor the status of transactions and trigger indexing for alt VM transactions.'
+---
+
+import { Callout } from '/snippets/Callout.jsx'
+
+Swaps provides a status endpoint you can use to track your transactions. The endpoint provides status updates and key transaction data for any transaction type.  Key transaction data includes the USD value of the transaction, transaction fees, execution path, and other useful on-chain information.
+
+For transactions originating on alt VMs (e.g., Bitcoin, Ripple), you will need to register your transaction by submitting a `POST` request containing the transaction's `chainId` and `txHash`.
+
+## Get Status
+
+**API Reference:** [Get Status](/api-reference/get-status)
+
+The status endpoint supports three query parameters:
+
+| Parameter | Description |
+|:-----|:------------|
+| `chainId` | Source chain ID of the transaction |
+| `txHash` | Source or destination transaction hash |
+| `txId` | Unique identifier applied to each transaction by the Swaps protocol |
+
+We recommend using the source chain ID and the transaction hash.  The example below assumes this approach.
+
+The status endpoint will return a [`TxDetails` object](/api-reference/get-status#response-status-message).
+
+``` typescript
+async function getStatus(srcChainId: ChainId, srcTxHash: string): Promise<TxDetails> {
+  const url = `https://ghost.swaps.xyz/api/v2/getStatus?chainId=${srcChainId}&txHash=${srcTxHash}`;
+  const options = {
+  method: 'GET',
+  headers: {'x-api-key': SWAPS_API_KEY}
+};
+
+const response = await fetch(url, options);
+const txDetails = await response.json();
+}
+```
+
+## Register Transaction
+
+**API Reference:** [Register Transaction](/api-reference/register-transaction)
+
+Registering a transaction triggers indexing after it is broadcasted on the source chain. 
+
+This is only required for transactions originating on alt VMs.  The [Get Action](/api-reference/get-action) request used to generate the transaction will return a `VmId` in the response.  If the `VmId` is `alt-vm`, you know you will need to register your transaction.  This is covered in the [alt VM broadcast guide](/guides/swap#broadcast-on-altvm).  Swaps will automatically register any transaction submitted to a named VM.
+
+This endpoint does support registering multiple transactions in a single call.
+
+| Parameter | Description |
+|:-----|:------------|
+| `chainId` | Source chain ID of the transaction |
+| `txHash` | Source chain transaction hash |
+
+``` typescript
+async function registerTx(srcChainId: ChainId, srcTxHash: string): Promise<{ success: true, error: string | null }> {
+  const url = 'https://ghost.swaps.xyz/api/v2/webhooks/registerTxs';
+const options = {
+  method: 'POST',
+  headers: {
+    'x-api-key': SWAPS_API_KEY,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ txHash: srcTxHash, chainId: srcChainId })
+};
+
+const response = await fetch(url, options);
+const data = await response.json();
+}
+```

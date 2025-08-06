@@ -15,7 +15,7 @@
       "description": "Production server"
     },
     {
-      "url": "https://api.decentscan.xyz/api/v2",
+      "url": "https://ghost.swaps.xyz/api/v2",
       "description": "Production server"
     }
   ],
@@ -67,7 +67,7 @@
         "summary": "Get Status",
         "servers": [
           {
-            "url": "https://api.decentscan.xyz/api/v2",
+            "url": "https://ghost.swaps.xyz/api/v2",
             "description": "Indexer API server"
           }
         ],
@@ -82,7 +82,7 @@
             "schema": {
               "type": "string",
               "pattern": "^0x[a-fA-F0-9]{64}$",
-              "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+              "example": "0xd56968cf4fede6a0773f3e6dfad7d1088aacd3994bada55d44faee9596dadff2"
             }
           },
           {
@@ -92,7 +92,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "example": "tx_123456"
+              "example": "0x49b1d3d38176e45864fd55500c6c1879ab318609e1ed0c8eb9abd818e6c811fd"
             }
           },
           {
@@ -125,7 +125,7 @@
         "summary": "Get Transactions",
         "servers": [
           {
-            "url": "https://api.decentscan.xyz/api/v2",
+            "url": "https://ghost.swaps.xyz/api/v2",
             "description": "Indexer API server"
           }
         ],
@@ -260,7 +260,7 @@
         "summary": "Register Transaction",
         "servers": [
           {
-            "url": "https://api.decentscan.xyz/api/v2/webhooks",
+            "url": "https://ghost.swaps.xyz/api/v2/webhooks",
             "description": "Indexer API server"
           }
         ],
@@ -298,9 +298,6 @@
                 }
               }
             }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
@@ -900,21 +897,21 @@
       "TxRegistrationEvent": {
         "type": "object",
         "properties": {
-          "transaction_hash": {
+          "txHash": {
             "type": "string",
             "pattern": "^0x[a-fA-F0-9]{64}$",
             "description": "Transaction hash",
-            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+            "example": "0x62d0e13123852791446c6f923c2d0b9247bda10f1eb5eb48ff5b4bc42d22ab42"
           },
-          "chain_id": {
+          "chainId": {
             "type": "integer",
             "description": "Chain ID where the transaction occurred",
-            "example": 1
+            "example": 42161
           }
         },
         "required": [
-          "transaction_hash",
-          "chain_id"
+          "txHash",
+          "chainId"
         ]
       },
       "ValidatedTxId": {
@@ -1316,24 +1313,6 @@
         "in": "header",
         "name": "x-api-key",
         "description": "Limited demo key for API Playground: `e2c440ee9c0cf66bb58ede58ac0eb7f1`."
-      }
-    },
-    "responses": {
-      "UnauthorizedError": {
-        "description": "Authentication required",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "example": "Unauthorized - API key required"
-                }
-              }
-            }
-          }
-        }
       }
     }
   },
