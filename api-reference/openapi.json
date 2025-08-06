@@ -463,6 +463,20 @@
             "$ref": "#/components/schemas/Address",
             "description": "Destination token address (optional, defaults to native token)"
           },
+          "bridgeIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BridgeId"
+            },
+            "description": "Specific bridge protocols to use"
+          },
+          "dexIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DexId"
+            },
+            "description": "Specific DEX protocols to use"
+          },
           "slippage": {
             "type": "number",
             "format": "float",
@@ -494,6 +508,10 @@
                 "evm-calldata-tx": "#/components/schemas/EvmCalldataTxConfig"
               }
             }
+          },
+          "refundTo": {
+            "$ref": "#/components/schemas/Address",
+            "description": "Address to receive refunds"
           }
         }
       },
@@ -502,7 +520,6 @@
         "required": [
           "tx",
           "txId",
-          "tokenPayment",
           "amountIn",
           "amountInMax",
           "amountOutMin",
@@ -532,9 +549,9 @@
             "$ref": "#/components/schemas/Hex",
             "description": "Transaction ID"
           },
-          "tokenPayment": {
+          "amountIn": {
             "$ref": "#/components/schemas/Payment",
-            "description": "Token payment information (`amount` is `amountIn` exclusive of slippage - recommended value to display in frontend)"
+            "description": "Expected amount to input (exclusive of slippage - recommended value to display in frontend)"
           },
           "amountInMax": {
             "$ref": "#/components/schemas/Payment",
@@ -584,10 +601,6 @@
             "type": "number",
             "format": "float",
             "description": "Estimated price impact percentage."
-          },
-          "amountIn": {
-            "$ref": "#/components/schemas/Payment",
-            "description": "Amount to input (exclusive of slippage)"
           },
           "allRoutes": {
             "type": "array",
@@ -598,98 +611,27 @@
           }
         }
       },
-      "PerRouteResponse": {
-        "type": "object",
-        "required": [
-          "tx",
-          "txId",
-          "tokenPayment",
-          "amountIn",
-          "amountInMax",
-          "amountOutMin",
-          "amountOut",
-          "protocolFee",
-          "applicationFee",
-          "exchangeRate",
-          "estimatedTxTime",
-          "estimatedPriceImpact"
-        ],
-        "properties": {
-          "tx": {
-            "oneOf": [
-              {
-                "title": "EVM Transaction",
-                "$ref": "#/components/schemas/EvmTransaction"
-              },
-              {
-                "title": "Solana Transaction",
-                "$ref": "#/components/schemas/SerializedSolTransaction"
-              }
+      "ActionResponseWithRoutes": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BoxActionResponse"
+          },
+          {
+            "type": "object",
+            "required": [
+              "allRoutes"
             ],
-            "description": "Transaction data for execution"
-          },
-          "txId": {
-            "$ref": "#/components/schemas/Hex",
-            "description": "Transaction ID"
-          },
-          "tokenPayment": {
-            "$ref": "#/components/schemas/Payment",
-            "description": "Token payment information (`amount` is `amountIn` exclusive of slippage - recommended value to display in frontend)"
-          },
-          "amountInMax": {
-            "$ref": "#/components/schemas/Payment",
-            "description": "Maximum amount to input (inclusive of slippage)"
-          },
-          "amountOut": {
-            "$ref": "#/components/schemas/Payment",
-            "description": "Expected amount delivered to users (exclusive of slippage - recommended value to display in frontend)"
-          },
-          "amountOutMin": {
-            "$ref": "#/components/schemas/Payment",
-            "description": "Minimum amount delivered to users (inclusive of slippage)"
-          },
-          "protocolFee": {
-            "$ref": "#/components/schemas/Payment",
-            "description": "Swaps.xyz fee"
-          },
-          "applicationFee": {
-            "$ref": "#/components/schemas/Payment",
-            "description": "Application fee (your fee!)"
-          },
-          "bridgeFee": {
-            "$ref": "#/components/schemas/Payment",
-            "description": "Bridge fee (from aggregated providers)"
-          },
-          "bridgeIds": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BridgeId"
-            },
-            "description": "Bridge IDs used in the route."
-          },
-          "bridgeRoute": {
-            "$ref": "#/components/schemas/BridgeRoute",
-            "description": "Bridge route information (src chain + token, dst chain + token, BridgeId)"
-          },
-          "exchangeRate": {
-            "type": "number",
-            "format": "float",
-            "description": "Exchange rate for the swap."
-          },
-          "estimatedTxTime": {
-            "type": "integer",
-            "description": "Estimated transaction time in seconds."
-          },
-          "estimatedPriceImpact": {
-            "type": "number",
-            "format": "float",
-            "description": "Estimated price impact percentage."
-          },
-          "amountIn": {
-            "$ref": "#/components/schemas/Payment",
-            "description": "Amount to input (exclusive of slippage)"
+            "properties": {
+              "allRoutes": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BoxActionResponse"
+                },
+                "description": "All available routes for the action."
+              }
+            }
           }
-        }
+        ]
       },
       "ChainId": {
         "type": "number",
@@ -734,9 +676,9 @@
       "ActionType": {
         "type": "string",
         "enum": [
+          "swap-action",
           "evm-calldata-tx",
-          "evm-function",
-          "swap-action"
+          "evm-function"
         ],
         "description": "Type of action to perform."
       },
@@ -747,6 +689,24 @@
           "exact-amount-out"
         ],
         "description": "Swap direction for the action."
+      },
+      "ActionPayment": {
+        "type": "object",
+        "required": [
+          "amount",
+          "address"
+        ],
+        "properties": {
+          "amount": {
+            "type": "string",
+            "pattern": "^[0-9]+n$",
+            "description": "Amount as string with 'n' suffix (bigint serialized)"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address",
+            "description": "Token address for the payment"
+          }
+        }
       },
       "SwapActionConfig": {
         "type": "object",
@@ -771,6 +731,31 @@
           "receiverAddress": {
             "$ref": "#/components/schemas/Address",
             "description": "Address to receive the swapped tokens"
+          }
+        }
+      },
+      "BaseActionConfig": {
+        "type": "object",
+        "required": [
+          "chainId"
+        ],
+        "properties": {
+          "contractAddress": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "functionSignature": {
+            "type": "string",
+            "description": "Function signature"
+          },
+          "args": {
+            "type": "array",
+            "description": "Function arguments"
+          },
+          "chainId": {
+            "$ref": "#/components/schemas/ChainId"
+          },
+          "cost": {
+            "$ref": "#/components/schemas/Payment"
           }
         }
       },
@@ -899,21 +884,9 @@
         }
       },
       "Payment": {
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/TokenPayment"
-          },
-          {
-            "$ref": "#/components/schemas/NativePayment"
-          }
-        ]
-      },
-      "TokenPayment": {
         "type": "object",
         "required": [
-          "amount",
-          "tokenAddress",
-          "isNative"
+          "amount"
         ],
         "properties": {
           "amount": {
@@ -922,60 +895,24 @@
             "description": "Amount as string with 'n' suffix (bigint serialized)"
           },
           "tokenAddress": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "isNative": {
-            "type": "boolean",
-            "enum": [
-              false
-            ]
+            "$ref": "#/components/schemas/Address",
+            "description": "Token address (optional for native tokens)"
           },
           "decimals": {
-            "type": "integer"
+            "type": "integer",
+            "description": "Token decimals"
           },
           "symbol": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "chainId": {
-            "$ref": "#/components/schemas/ChainId"
-          }
-        }
-      },
-      "NativePayment": {
-        "type": "object",
-        "required": [
-          "amount",
-          "isNative"
-        ],
-        "properties": {
-          "amount": {
             "type": "string",
-            "pattern": "^[0-9]+n$",
-            "description": "Amount as string with 'n' suffix (bigint serialized)"
-          },
-          "isNative": {
-            "type": "boolean",
-            "enum": [
-              true
-            ]
-          },
-          "tokenAddress": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "decimals": {
-            "type": "integer"
-          },
-          "symbol": {
-            "type": "string"
+            "description": "Token symbol"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Token name"
           },
           "chainId": {
-            "$ref": "#/components/schemas/ChainId"
+            "$ref": "#/components/schemas/ChainId",
+            "description": "Chain ID for the token"
           }
         }
       },
