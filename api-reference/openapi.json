@@ -31,8 +31,10 @@
               "$ref": "#/components/schemas/BoxActionRequest"
             },
             "x-display-as": "individual-fields",
-            "style": "deepObject",
-            "explode": true,
+            "x-serialization": {
+              "format": "json-string",
+              "coerceTypes": true
+            },
             "example": "{\"sender\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"srcChainId\":8453,\"dstChainId\":42161,\"srcToken\":\"0x0000000000000000000000000000000000000000\",\"dstToken\":\"0x0000000000000000000000000000000000000000\",\"slippage\":1,\"actionType\":\"swap-action\",\"actionConfig\":{\"chainId\":8453,\"swapDirection\":\"exact-amount-in\",\"receiverAddress\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"amount\":\"1000000000000000000n\"}}"
           },          
           {
