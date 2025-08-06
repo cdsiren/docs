@@ -395,6 +395,7 @@
         "required": [
           "tx",
           "txId",
+          "vmId",
           "amountIn",
           "amountInMax",
           "amountOutMin",
@@ -427,6 +428,15 @@
           "txId": {
             "$ref": "#/components/schemas/Hex",
             "description": "Transaction ID"
+          },
+          "VmId": {
+            "type": "string",
+            "enum": [
+              "evm",
+              "solana",
+              "alt-vm"
+            ],
+            "description": "Virtual machine identifier."
           },
           "amountIn": {
             "$ref": "#/components/schemas/Payment",
@@ -496,6 +506,7 @@
           "tx",
           "txId",
           "amountIn",
+          "vmId",
           "amountInMax",
           "amountOutMin",
           "amountOut",
@@ -526,6 +537,15 @@
           "txId": {
             "$ref": "#/components/schemas/Hex",
             "description": "Transaction ID"
+          },
+          "VmId": {
+            "type": "string",
+            "enum": [
+              "evm",
+              "solana",
+              "alt-vm"
+            ],
+            "description": "Virtual machine identifier."
           },
           "amountIn": {
             "$ref": "#/components/schemas/Payment",
