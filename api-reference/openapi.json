@@ -122,7 +122,7 @@
             "schema": {
               "type": "string",
               "pattern": "^0x[a-fA-F0-9]{64}$",
-              "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+              "example": "0x07af4dfe9d0a6ee02bfa9d4885ab741c5d492f351bd76df9f31e99f91634ca8c"
             }
           },
           {
@@ -132,7 +132,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "example": "tx_123456"
+              "example": "0x49b1d3d38176e45864fd55500c6c1879ab318609e1ed0c8eb9abd818e6c811fd"
             }
           },
           {
