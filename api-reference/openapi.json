@@ -46,86 +46,6 @@
               "coerceTypes": true
             },
             "example": "{\"sender\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"srcChainId\":8453,\"dstChainId\":42161,\"srcToken\":\"0x0000000000000000000000000000000000000000\",\"dstToken\":\"0x0000000000000000000000000000000000000000\",\"slippage\":1,\"actionType\":\"swap-action\",\"actionConfig\":{\"chainId\":8453,\"swapDirection\":\"exact-amount-in\",\"receiverAddress\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"amount\":\"1000000000000000000n\"}}"
-          },
-          {
-            "name": "sender",
-            "in": "query",
-            "required": false,
-            "description": "The address of the sender/user",
-            "schema": {
-              "$ref": "#/components/schemas/Address"
-            },
-            "example": "0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E",
-            "x-display-only": true
-          },
-          {
-            "name": "srcChainId",
-            "in": "query",
-            "required": false,
-            "description": "Source chain ID",
-            "schema": {
-              "$ref": "#/components/schemas/ChainId"
-            },
-            "example": 8453,
-            "x-display-only": true
-          },
-          {
-            "name": "dstChainId",
-            "in": "query",
-            "required": false,
-            "description": "Destination chain ID",
-            "schema": {
-              "$ref": "#/components/schemas/ChainId"
-            },
-            "example": 42161,
-            "x-display-only": true
-          },
-          {
-            "name": "srcToken",
-            "in": "query",
-            "required": false,
-            "description": "Source token address",
-            "schema": {
-              "$ref": "#/components/schemas/Address"
-            },
-            "example": "0x0000000000000000000000000000000000000000",
-            "x-display-only": true
-          },
-          {
-            "name": "dstToken",
-            "in": "query",
-            "required": false,
-            "description": "Destination token address",
-            "schema": {
-              "$ref": "#/components/schemas/Address"
-            },
-            "example": "0x0000000000000000000000000000000000000000",
-            "x-display-only": true
-          },
-          {
-            "name": "slippage",
-            "in": "query",
-            "required": false,
-            "description": "Slippage tolerance in percentage",
-            "schema": {
-              "type": "number",
-              "format": "int32",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "example": 1,
-            "x-display-only": true
-          },
-          {
-            "name": "actionType",
-            "in": "query",
-            "required": false,
-            "description": "Type of action to perform",
-            "schema": {
-              "$ref": "#/components/schemas/ActionType"
-            },
-            "example": "swap-action",
-            "x-display-only": true
           }
         ],
         "responses": {
@@ -511,7 +431,7 @@
           },
           "refundTo": {
             "$ref": "#/components/schemas/Address",
-            "description": "Address to receive refunds"
+            "description": "Alternate address to receive refunds. Will default to the `sender`"
           }
         }
       },
@@ -635,7 +555,7 @@
       },
       "ChainId": {
         "type": "number",
-        "description": "View list of supported chains and Ids [HERE]"
+        "description": "Chain ID. Find in the list of supported networks"
       },
       "VMId": {
         "type": "string",
