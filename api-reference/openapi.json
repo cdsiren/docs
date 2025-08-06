@@ -7,26 +7,18 @@
     "contact": {
       "name": "Swaps.xyz",
       "url": "https://swaps.xyz"
-    },
-    "license": {
-      "name": "Proprietary",
-      "url": "https://swaps.xyz"
     }
   },
   "servers": [
     {
-      "url": "https://api.decent.xyz",
+      "url": "https://ghost-v1-0-0.api.decentxyz.com/api",
       "description": "Production server"
-    },
-    {
-      "url": "http://localhost:4000",
-      "description": "Development server"
     }
   ],
   "paths": {
-    "/api/getBoxAction": {
+    "/getBoxAction": {
       "get": {
-        "summary": "Get Swap Action",
+        "summary": "Get Action",
         "description": "Generates a transaction or transaction instructions for cross-chain swaps, bridges, and calls. The action includes transaction data,\nrouting information, and fee calculations for executing the requested operation.",
         "operationId": "getBoxAction",
         "parameters": [
@@ -34,20 +26,96 @@
             "name": "arguments",
             "in": "query",
             "required": true,
-            "description": "JSON string containing the ActionRequest object",
+            "description": "JSON object containing all request parameters. Rendered below as individual fields and serialized to a string.",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/BoxActionRequest"
             },
-            "example": "{\"sender\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"srcChainId\":42161,\"dstChainId\":8453,\"actionType\":\"swap-action\",\"actionConfig\":{\"swapDirection\":\"exact-amount-in\",\"amount\":\"1000000000000000000\",\"chainId\":142161},\"slippage\":1}"
+            "x-display-as": "individual-fields",
+            "x-serialization": {
+              "format": "json-string",
+              "coerceTypes": true
+            },
+            "example": "{\"sender\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"srcChainId\":8453,\"dstChainId\":42161,\"srcToken\":\"0x0000000000000000000000000000000000000000\",\"dstToken\":\"0x0000000000000000000000000000000000000000\",\"slippage\":1,\"actionType\":\"swap-action\",\"actionConfig\":{\"chainId\":8453,\"swapDirection\":\"exact-amount-in\",\"receiverAddress\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"amount\":\"1000000000000000000n\"}}"
+          },          
+          {
+            "name": "sender",
+            "in": "query",
+            "required": false,
+            "description": "The address of the sender/user (display only - use arguments parameter for actual API calls)",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "example": "0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E",
+            "x-display-only": true
           },
           {
-            "name": "x-api-key",
-            "in": "header",
-            "required": true,
-            "description": "API key for authentication",
+            "name": "srcChainId",
+            "in": "query",
+            "required": false,
+            "description": "Source chain ID (display only - use arguments parameter for actual API calls)",
             "schema": {
-              "type": "string"
-            }
+              "$ref": "#/components/schemas/ChainId"
+            },
+            "example": 8453,
+            "x-display-only": true
+          },
+          {
+            "name": "dstChainId",
+            "in": "query",
+            "required": false,
+            "description": "Destination chain ID (display only - use arguments parameter for actual API calls)",
+            "schema": {
+              "$ref": "#/components/schemas/ChainId"
+            },
+            "example": 42161,
+            "x-display-only": true
+          },
+          {
+            "name": "srcToken",
+            "in": "query",
+            "required": false,
+            "description": "Source token address (display only - use arguments parameter for actual API calls)",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "example": "0x0000000000000000000000000000000000000000",
+            "x-display-only": true
+          },
+          {
+            "name": "dstToken",
+            "in": "query",
+            "required": false,
+            "description": "Destination token address (display only - use arguments parameter for actual API calls)",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "example": "0x0000000000000000000000000000000000000000",
+            "x-display-only": true
+          },
+          {
+            "name": "slippage",
+            "in": "query",
+            "required": false,
+            "description": "Slippage tolerance in percentage (display only - use arguments parameter for actual API calls)",
+            "schema": {
+              "type": "number",
+              "format": "int32",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "example": 1,
+            "x-display-only": true
+          },
+          {
+            "name": "actionType",
+            "in": "query",
+            "required": false,
+            "description": "Type of action to perform (display only - use arguments parameter for actual API calls)",
+            "schema": {
+              "$ref": "#/components/schemas/ActionType"
+            },
+            "example": "swap-action",
+            "x-display-only": true
           }
         ],
         "responses": {
@@ -113,11 +181,17 @@
           "sender",
           "srcChainId",
           "dstChainId",
+          "srcToken",
+          "dstToken",
           "slippage",
           "actionType",
           "actionConfig"
         ],
         "properties": {
+          "actionType": {
+            "$ref": "#/components/schemas/ActionType",
+            "description": "Type of action to perform"
+          },
           "sender": {
             "$ref": "#/components/schemas/Address",
             "description": "The address of the sender/user"
@@ -138,20 +212,6 @@
             "$ref": "#/components/schemas/Address",
             "description": "Destination token address (optional, defaults to native token)"
           },
-          "bridgeIds": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BridgeId"
-            },
-            "description": "List of bridge IDs to use (optional, uses all available if not specified)"
-          },
-          "dexIds": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DexId"
-            },
-            "description": "List of DEX IDs to use (optional, uses all available if not specified)"
-          },
           "slippage": {
             "type": "number",
             "format": "float",
@@ -159,35 +219,30 @@
             "maximum": 100,
             "description": "Slippage tolerance in percentage"
           },
-          "actionType": {
-            "$ref": "#/components/schemas/ActionType",
-            "description": "Type of action to perform"
-          },
           "actionConfig": {
             "oneOf": [
               {
+                "title": "Swap",
                 "$ref": "#/components/schemas/SwapActionConfig"
               },
               {
-                "$ref": "#/components/schemas/EvmFunctionConfig"
+                "title": "Calldata",
+                "$ref": "#/components/schemas/EvmCalldataTxConfig"
               },
               {
-                "$ref": "#/components/schemas/EvmCalldataTxConfig"
+                "title": "EVM Function",
+                "$ref": "#/components/schemas/EvmFunctionConfig"
               }
             ],
-            "description": "Configuration for the action"
-          },
-          "srcAnyDexConfig": {
-            "$ref": "#/components/schemas/AnyDexConfig",
-            "description": "Source chain AnyDex configuration (optional; it is recommended in most cases to not use)"
-          },
-          "dstAnyDexConfig": {
-            "$ref": "#/components/schemas/AnyDexConfig",
-            "description": "Destination chain AnyDex configuration (optional; it is recommended in most cases to not use)"
-          },
-          "refundTo": {
-            "$ref": "#/components/schemas/Address",
-            "description": "Address to refund excess tokens to (defaults to sender if not specified)"
+            "description": "Configuration for the action",
+            "discriminator": {
+              "propertyName": "actionType",
+              "mapping": {
+                "swap-action": "#/components/schemas/SwapActionConfig",
+                "evm-function": "#/components/schemas/EvmFunctionConfig",
+                "evm-calldata-tx": "#/components/schemas/EvmCalldataTxConfig"
+              }
+            }
           }
         }
       },
@@ -212,9 +267,11 @@
           "tx": {
             "oneOf": [
               {
+                "title": "EVM Transaction",
                 "$ref": "#/components/schemas/EvmTransaction"
               },
               {
+                "title": "Solana Transaction",
                 "$ref": "#/components/schemas/SerializedSolTransaction"
               }
             ],
@@ -234,7 +291,7 @@
           },
           "amountOut": {
             "$ref": "#/components/schemas/Payment",
-            "description": "Expected amout delivered to users (exclusive of slippage - recommeded value to display in frontend)"
+            "description": "Expected amount delivered to users (exclusive of slippage - recommended value to display in frontend)"
           },
           "amountOutMin": {
             "$ref": "#/components/schemas/Payment",
@@ -277,12 +334,109 @@
             "format": "float",
             "description": "Estimated price impact percentage."
           },
+          "amountIn": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Amount to input (exclusive of slippage)"
+          },
           "allRoutes": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/BoxActionResponse"
+              "$ref": "#/components/schemas/PerRouteResponse"
             },
             "description": "All available routes for the action."
+          }
+        }
+      },
+      "PerRouteResponse": {
+        "type": "object",
+        "required": [
+          "tx",
+          "txId",
+          "tokenPayment",
+          "amountIn",
+          "amountInMax",
+          "amountOutMin",
+          "amountOut",
+          "protocolFee",
+          "applicationFee",
+          "exchangeRate",
+          "estimatedTxTime",
+          "estimatedPriceImpact"
+        ],
+        "properties": {
+          "tx": {
+            "oneOf": [
+              {
+                "title": "EVM Transaction",
+                "$ref": "#/components/schemas/EvmTransaction"
+              },
+              {
+                "title": "Solana Transaction",
+                "$ref": "#/components/schemas/SerializedSolTransaction"
+              }
+            ],
+            "description": "Transaction data for execution"
+          },
+          "txId": {
+            "$ref": "#/components/schemas/Hex",
+            "description": "Transaction ID"
+          },
+          "tokenPayment": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Token payment information (`amount` is `amountIn` exclusive of slippage - recommended value to display in frontend)"
+          },
+          "amountInMax": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Maximum amount to input (inclusive of slippage)"
+          },
+          "amountOut": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Expected amount delivered to users (exclusive of slippage - recommended value to display in frontend)"
+          },
+          "amountOutMin": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Minimum amount delivered to users (inclusive of slippage)"
+          },
+          "protocolFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Swaps.xyz fee"
+          },
+          "applicationFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Application fee (your fee!)"
+          },
+          "bridgeFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Bridge fee (from aggregated providers)"
+          },
+          "bridgeIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BridgeId"
+            },
+            "description": "Bridge IDs used in the route."
+          },
+          "bridgeRoute": {
+            "$ref": "#/components/schemas/BridgeRoute",
+            "description": "Bridge route information (src chain + token, dst chain + token, BridgeId)"
+          },
+          "exchangeRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Exchange rate for the swap."
+          },
+          "estimatedTxTime": {
+            "type": "integer",
+            "description": "Estimated transaction time in seconds."
+          },
+          "estimatedPriceImpact": {
+            "type": "number",
+            "format": "float",
+            "description": "Estimated price impact percentage."
+          },
+          "amountIn": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Amount to input (exclusive of slippage)"
           }
         }
       },
@@ -290,21 +444,15 @@
         "type": "integer",
         "enum": [
           1,
-          5,
           10,
           56,
-          100,
           137,
-          250,
           324,
           42161,
-          43114,
-          8453,
-          11155111,
-          1399811149,
-          69420
+          8453
         ],
-        "description": "Supported chain IDs"
+        "format": "float",
+        "description": "Supported chain IDs. 155 chains and counting, select primary networks displayed here."
       },
       "VMId": {
         "type": "string",
@@ -327,7 +475,7 @@
           "across",
           "relay"
         ],
-        "description": "Bridge protocol identifie."
+        "description": "Bridge protocol identifier."
       },
       "DexId": {
         "type": "string",
@@ -364,7 +512,8 @@
         "required": [
           "swapDirection",
           "amount",
-          "chainId"
+          "chainId",
+          "receiverAddress"
         ],
         "properties": {
           "swapDirection": {
@@ -372,8 +521,8 @@
           },
           "amount": {
             "type": "string",
-            "pattern": "^[0-9]+$",
-            "description": "Amount as a string (bigint serialized)"
+            "pattern": "^[0-9]+n$",
+            "description": "Amount as a string with 'n' suffix (bigint serialized, e.g., '1000000000000000000n')"
           },
           "chainId": {
             "$ref": "#/components/schemas/ChainId"
@@ -381,24 +530,6 @@
           "receiverAddress": {
             "$ref": "#/components/schemas/Address",
             "description": "Address to receive the swapped tokens"
-          },
-          "cost": {
-            "$ref": "#/components/schemas/Payment"
-          },
-          "allowSwapping": {
-            "type": "boolean"
-          },
-          "allowBridging": {
-            "type": "boolean"
-          },
-          "onlyAllowTokens": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/Address"
-              }
-            }
           }
         }
       },
@@ -406,7 +537,7 @@
         "type": "object",
         "required": [
           "contractAddress",
-          "signature",
+          "functinSignature",
           "args",
           "chainId"
         ],
@@ -414,7 +545,7 @@
           "contractAddress": {
             "$ref": "#/components/schemas/Address"
           },
-          "signature": {
+          "functionSignature": {
             "type": "string",
             "description": "Function signature"
           },
@@ -425,26 +556,8 @@
           "chainId": {
             "$ref": "#/components/schemas/ChainId"
           },
-          "paymentOperator": {
-            "$ref": "#/components/schemas/Address"
-          },
           "cost": {
             "$ref": "#/components/schemas/Payment"
-          },
-          "allowSwapping": {
-            "type": "boolean"
-          },
-          "allowBridging": {
-            "type": "boolean"
-          },
-          "onlyAllowTokens": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/Address"
-              }
-            }
           }
         }
       },
@@ -452,45 +565,29 @@
         "type": "object",
         "required": [
           "contractAddress",
+          "chainId",
           "value",
-          "chainId"
+          "cost",
+          "data"
         ],
         "properties": {
           "contractAddress": {
             "$ref": "#/components/schemas/Address"
           },
-          "data": {
-            "$ref": "#/components/schemas/Hex",
-            "description": "Calldata for the transaction"
-          },
-          "value": {
-            "type": "string",
-            "pattern": "^[0-9]+$",
-            "description": "Value to send with transaction (bigint serialized)"
-          },
           "chainId": {
             "$ref": "#/components/schemas/ChainId"
           },
-          "paymentOperator": {
-            "$ref": "#/components/schemas/Address"
+          "value": {
+            "type": "string",
+            "pattern": "^[0-9]+n$",
+            "description": "Value to send with transaction as string with 'n' suffix (bigint serialized)"
           },
           "cost": {
             "$ref": "#/components/schemas/Payment"
           },
-          "allowSwapping": {
-            "type": "boolean"
-          },
-          "allowBridging": {
-            "type": "boolean"
-          },
-          "onlyAllowTokens": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/Address"
-              }
-            }
+          "data": {
+            "$ref": "#/components/schemas/Hex",
+            "description": "Calldata for the transaction"
           }
         }
       },
@@ -510,38 +607,31 @@
           },
           "value": {
             "type": "string",
-            "pattern": "^[0-9]+$",
-            "description": "Value in wei (bigint serialized)"
+            "pattern": "^[0-9]+n$",
+            "description": "Value in wei as string with 'n' suffix (bigint serialized)"
           },
           "gasPrice": {
             "type": "string",
-            "pattern": "^[0-9]+$",
-            "description": "Gas price in wei (bigint serialized)"
+            "pattern": "^[0-9]+n$",
+            "description": "Gas price in wei as string with 'n' suffix (bigint serialized)"
           },
           "gasLimit": {
             "type": "string",
-            "pattern": "^[0-9]+$",
-            "description": "Gas limit (bigint serialized)"
+            "pattern": "^[0-9]+n$",
+            "description": "Gas limit as string with 'n' suffix (bigint serialized)"
           },
           "maxFeePerGas": {
             "type": "string",
-            "pattern": "^[0-9]+$",
-            "description": "Max fee per gas (bigint serialized)"
+            "pattern": "^[0-9]+n$",
+            "description": "Max fee per gas as string with 'n' suffix (bigint serialized)"
           },
           "maxPriorityFeePerGas": {
             "type": "string",
-            "pattern": "^[0-9]+$",
-            "description": "Max priority fee per gas (bigint serialized)"
+            "pattern": "^[0-9]+n$",
+            "description": "Max priority fee per gas as string with 'n' suffix (bigint serialized)"
           },
           "chainId": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/ChainId"
-              },
-              {
-                "type": "integer"
-              }
-            ]
+            "$ref": "#/components/schemas/ChainId"
           }
         }
       },
@@ -587,15 +677,17 @@
         "properties": {
           "amount": {
             "type": "string",
-            "pattern": "^[0-9]+$",
-            "description": "Amount as string (bigint serialized)"
+            "pattern": "^[0-9]+n$",
+            "description": "Amount as string with 'n' suffix (bigint serialized)"
           },
           "tokenAddress": {
             "$ref": "#/components/schemas/Address"
           },
           "isNative": {
             "type": "boolean",
-            "enum": [false]
+            "enum": [
+              false
+            ]
           },
           "decimals": {
             "type": "integer"
@@ -620,12 +712,14 @@
         "properties": {
           "amount": {
             "type": "string",
-            "pattern": "^[0-9]+$",
-            "description": "Amount as string (bigint serialized)"
+            "pattern": "^[0-9]+n$",
+            "description": "Amount as string with 'n' suffix (bigint serialized)"
           },
           "isNative": {
             "type": "boolean",
-            "enum": [true]
+            "enum": [
+              true
+            ]
           },
           "tokenAddress": {
             "$ref": "#/components/schemas/Address"
@@ -678,27 +772,6 @@
         },
         "description": "Array of bridge steps"
       },
-      "AnyDexConfig": {
-        "type": "object",
-        "required": [
-          "swapCalldata",
-          "swapDirection",
-          "amount"
-        ],
-        "properties": {
-          "swapCalldata": {
-            "$ref": "#/components/schemas/Hex"
-          },
-          "swapDirection": {
-            "$ref": "#/components/schemas/SwapDirection"
-          },
-          "amount": {
-            "type": "string",
-            "pattern": "^[0-9]+$",
-            "description": "Amount as string (bigint serialized)"
-          }
-        }
-      },
       "EvmAction": {
         "type": "object",
         "required": [
@@ -725,8 +798,8 @@
           },
           "value": {
             "type": "string",
-            "pattern": "^[0-9]+$",
-            "description": "Value in wei (bigint serialized)"
+            "pattern": "^[0-9]+n$",
+            "description": "Value in wei as string with 'n' suffix (bigint serialized)"
           }
         }
       },
@@ -773,7 +846,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "description": "API key for authentication"
+        "description": "API key for authentication.  Limited demo key: `e2c440ee9c0cf66bb58ede58ac0eb7f1`.  You must generate a unique key."
       }
     }
   },
@@ -782,4 +855,4 @@
       "ApiKeyAuth": []
     }
   ]
-} 
+}

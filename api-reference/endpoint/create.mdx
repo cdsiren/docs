@@ -1,4 +1,136 @@
 ---
-title: 'Create Plant'
-openapi: 'POST /plants'
+title: 'Get Swap Action'
+openapi: 'GET /api/getBoxAction'
 ---
+
+This endpoint generates a transaction or transaction instructions for cross-chain swaps, bridges, and calls. The action includes transaction data, routing information, and fee calculations for executing the requested operation.
+
+## Use Cases
+
+- **Cross-chain swaps**: Swap tokens between different blockchains
+- **Bridging**: Transfer tokens from one chain to another
+- **Custom transactions**: Execute custom EVM function calls or calldata transactions
+
+## Request Parameters
+
+The endpoint accepts a single `arguments` parameter containing a JSON object with all request parameters. For API playground convenience, individual field parameters are also available for display purposes.
+
+### Required Parameters
+
+- **arguments**: JSON object containing all request parameters (required for actual API calls)
+- **sender**: The address of the sender/user (display only)
+- **srcChainId**: Source chain ID (display only)
+- **dstChainId**: Destination chain ID (display only)
+- **slippage**: Slippage tolerance in percentage (0-100) (display only)
+- **actionType**: Type of action to perform (display only)
+
+### Optional Parameters
+
+- **srcToken**: Source token address (defaults to native token) (display only)
+- **dstToken**: Destination token address (defaults to native token) (display only)
+- **bridgeIds**: Array of bridge IDs to use (display only)
+- **dexIds**: Array of DEX IDs to use (display only)
+- **refundTo**: Address to refund excess tokens to (display only)
+
+### Action Configuration (actionConfig)
+
+The `actionConfig` parameter is a JSON object with structure that depends on the `actionType`.
+
+### Important Note
+
+The individual field parameters (sender, srcChainId, etc.) are for display purposes only in API playgrounds. For actual API calls, you must use the `arguments` parameter with a JSON object containing all the required data.
+
+**Data Type Handling**: The playground may send some values as strings (e.g., chain IDs as "8453"), but the actual API expects proper data types (e.g., chain IDs as numbers). The `arguments` parameter ensures proper JSON serialization.
+
+#### For swap-action:
+- **swapDirection**: Swap direction (`exact-amount-in`, `exact-amount-out`)
+- **amount**: Amount as a string with 'n' suffix (bigint serialized, e.g., "1000000000000000000n")
+- **chainId**: Chain ID for the action
+- **receiverAddress**: Address to receive swapped tokens (required)
+- **cost**: Payment configuration (optional)
+- **allowSwapping**: Boolean to allow swapping (optional)
+- **allowBridging**: Boolean to allow bridging (optional)
+- **onlyAllowTokens**: Object mapping chain IDs to allowed token addresses (optional)
+
+#### For evm-function:
+- **contractAddress**: Contract address to call
+- **signature**: Function signature
+- **args**: Function arguments array
+- **chainId**: Chain ID for the action
+- **paymentOperator**: Payment operator address (optional)
+- **cost**: Payment configuration (optional)
+- **allowSwapping**: Boolean to allow swapping (optional)
+- **allowBridging**: Boolean to allow bridging (optional)
+- **onlyAllowTokens**: Object mapping chain IDs to allowed token addresses (optional)
+
+#### For evm-calldata-tx:
+- **contractAddress**: Contract address
+- **value**: Value to send with transaction as string with 'n' suffix (bigint serialized)
+- **data**: Calldata for the transaction (hex string)
+- **chainId**: Chain ID for the action
+- **paymentOperator**: Payment operator address (optional)
+- **cost**: Payment configuration (optional)
+- **allowSwapping**: Boolean to allow swapping (optional)
+- **allowBridging**: Boolean to allow bridging (optional)
+- **onlyAllowTokens**: Object mapping chain IDs to allowed token addresses (optional)
+
+## Authentication
+
+All requests require an API key passed in the `x-api-key` header.
+
+## Example Request
+
+### Swap Action Example
+
+```bash
+curl -X GET "https://api.decent.xyz/api/getBoxAction?arguments=%7B%22sender%22%3A%220xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E%22%2C%22srcChainId%22%3A8453%2C%22dstChainId%22%3A42161%2C%22srcToken%22%3A%220x0000000000000000000000000000000000000000%22%2C%22dstToken%22%3A%220x0000000000000000000000000000000000000000%22%2C%22slippage%22%3A1%2C%22actionType%22%3A%22swap-action%22%2C%22actionConfig%22%3A%7B%22chainId%22%3A8453%2C%22swapDirection%22%3A%22exact-amount-in%22%2C%22receiverAddress%22%3A%220xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E%22%2C%22amount%22%3A%221000000000000000000n%22%7D%7D" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+**Note**: The URL-encoded JSON above represents:
+```json
+{
+  "sender": "0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E",
+  "srcChainId": 8453,
+  "dstChainId": 42161,
+  "srcToken": "0x0000000000000000000000000000000000000000",
+  "dstToken": "0x0000000000000000000000000000000000000000",
+  "slippage": 1,
+  "actionType": "swap-action",
+  "actionConfig": {
+    "chainId": 8453,
+    "swapDirection": "exact-amount-in",
+    "receiverAddress": "0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E",
+    "amount": "1000000000000000000n"
+  }
+}
+```
+
+### EVM Function Example
+
+```bash
+curl -X GET "https://api.decent.xyz/api/getBoxAction?sender=0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E&srcChainId=42161&dstChainId=8453&actionType=evm-function&actionConfig[contractAddress]=0x1234567890123456789012345678901234567890&actionConfig[signature]=transfer(address,uint256)&actionConfig[args][0]=0x1234567890123456789012345678901234567890&actionConfig[args][1]=1000000000000000000&actionConfig[chainId]=42161&slippage=1" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+### EVM Calldata Transaction Example
+
+```bash
+curl -X GET "https://api.decent.xyz/api/getBoxAction?sender=0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E&srcChainId=42161&dstChainId=8453&actionType=evm-calldata-tx&actionConfig[contractAddress]=0x1234567890123456789012345678901234567890&actionConfig[value]=0&actionConfig[data]=0x1234567890abcdef&actionConfig[chainId]=42161&slippage=1" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+## Response
+
+The response includes:
+
+- **tx**: Transaction data for execution (EVM or Solana)
+- **txId**: Transaction ID
+- **tokenPayment**: Token payment information
+- **amountIn/amountOut**: Input and output amounts
+- **protocolFee**: Swaps.xyz fee
+- **applicationFee**: Application fee
+- **exchangeRate**: Exchange rate for the swap
+- **estimatedTxTime**: Estimated transaction time
+- **estimatedPriceImpact**: Estimated price impact percentage
+- **allRoutes**: All available routes for the action
