@@ -97,7 +97,9 @@ async function getAction({ txConfig }): Promise<ActionResponse> {
 </Steps>
 
 ## Broadcast on EVM
-In this step, we will broadcast the transaction we generated above on Base.  This method will work for any EVM chain.  View the EVM Transaction type [here](/api-reference/get-action#evm-transaction).
+In this step, we will broadcast the transaction we generated above on Base.  This method will work for any EVM chain.
+
+View the EVM transaction type [here](/api-reference/get-action#evm-transaction).
 
 <Steps>
 <Step title="Import the recommended libraries">
@@ -143,7 +145,7 @@ export async function broadcastOnEvm({ txConfig }): Promise<Hash> {
 ## Broadcast on Solana
 Let's assume we set Solana as the source chain in the `txConfig` used to generate our transaction.  Let's see how we can broadcast it on Solana.
 
-View the Solana Transaction type [here](/api-reference/get-action#solana-transaction).
+View the Solana transaction type [here](/api-reference/get-action#solana-transaction).
 
 <Steps>
 <Step title="Import the recommended libraries">
@@ -192,7 +194,7 @@ export async function broadcastOnSolana({ txConfig }): Promise<string> {
 ## Broadcast on AltVM
 Let's assume we set Bitcoin as the source chain in the `txConfig` used to generate our transaction.  Let's see how we can broadcast it on Bitcoin.
 
-//**[LINK TO THE TX TYPE]**//
+View the alt VM transaction type [here](/api-reference/get-action#alt-vm-transaction).
 
 <Callout type="info">
   Alt VM transactions are all deposits: the transaction will transfer funds from the `sender` to the `to` field specified in the `AltVmTransaction` response.  This transfer triggers the swap transaction and funds will ultimately be delivered to the `receiverAddress`.
