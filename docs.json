@@ -23,6 +23,12 @@
             ]
           },
           {
+            "group": "Resources",
+            "pages": [
+              "/resources/chain-list"
+            ]
+          },
+          {
             "group": "Getting started",
             "pages": [
               "index",

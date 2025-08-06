@@ -353,8 +353,8 @@
             "type": "number",
             "format": "float",
             "minimum": 0,
-            "maximum": 100,
-            "description": "Slippage tolerance in percentage"
+            "maximum": 10000,
+            "description": "Slippage tolerance in bps"
           },
           "actionConfig": {
             "oneOf": [
