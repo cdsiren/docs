@@ -29,7 +29,7 @@
             "description": "Indexer API server"
           }
         ],
-        "description": "Generates a transaction or transaction instructions for cross-chain swaps, bridges, and calls. The action includes transaction data,\nrouting information, and fee calculations for executing the requested operation.",
+        "description": "Generates a transaction for cross-chain swaps, bridges, and calls. The action includes transaction data, routing information, and fee calculations for executing the requested operation.",
         "operationId": "getBoxAction",
         "parameters": [
           {
@@ -232,23 +232,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/get_200__api_getStatusSchema"
+                  "$ref": "#/components/schemas/TxDetails"
                 }
               }
             }
-          },
-          "400": {
-            "description": "Bad request - missing required parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/get_400__api_getStatusSchema"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
@@ -365,13 +352,25 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/get_200__api_getTransactionsSchema"
+                  "type": "object",
+                  "properties": {
+                    "txs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TxStatus"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  },
+                  "required": [
+                    "txs",
+                    "pagination"
+                  ]
                 }
               }
             }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
