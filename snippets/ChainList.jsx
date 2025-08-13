@@ -13,6 +13,7 @@ export const ChainList = () => {
   const formatChainName = (name) => {
     const overrides = {
       btc: 'Bitcoin',
+      xrp: 'XRP Ledger'
     };
   
     if (!name || typeof name !== 'string') return name;
