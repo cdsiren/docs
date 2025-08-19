@@ -33,19 +33,174 @@
         "operationId": "getAction",
         "parameters": [
           {
-            "name": "arguments",
+            "name": "actionType",
             "in": "query",
             "required": true,
-            "description": "JSON object containing all request parameters. Rendered below as individual fields and serialized to a string.",
+            "description": "Type of action to perform",
             "schema": {
-              "$ref": "#/components/schemas/ActionRequest"
-            },
-            "x-display-as": "individual-fields",
-            "x-serialization": {
-              "format": "json-string",
-              "coerceTypes": true
-            },
-            "example": "{\"sender\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"srcChainId\":8453,\"dstChainId\":42161,\"srcToken\":\"0x0000000000000000000000000000000000000000\",\"dstToken\":\"0x0000000000000000000000000000000000000000\",\"slippage\":1,\"actionType\":\"swap-action\",\"actionConfig\":{\"swapDirection\":\"exact-amount-in\",\"receiverAddress\":\"0xAcCC1fe6537eb8EB56b31CcFC48Eb9363e8dd32E\",\"amount\":\"1000000000000000000n\"}}"
+              "$ref": "#/components/schemas/ActionType"
+            }
+          },
+          {
+            "name": "sender",
+            "in": "query",
+            "required": true,
+            "description": "The address of the sender/user",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "srcChainId",
+            "in": "query",
+            "required": true,
+            "description": "Source chain ID",
+            "schema": {
+              "$ref": "#/components/schemas/ChainId"
+            }
+          },
+          {
+            "name": "srcToken",
+            "in": "query",
+            "required": true,
+            "description": "Source token address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "dstChainId",
+            "in": "query",
+            "required": true,
+            "description": "Destination chain ID",
+            "schema": {
+              "$ref": "#/components/schemas/ChainId"
+            }
+          },
+          {
+            "name": "dstToken",
+            "in": "query",
+            "required": true,
+            "description": "Destination token address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "slippage",
+            "in": "query",
+            "required": true,
+            "description": "Slippage tolerance in bps",
+            "schema": {
+              "type": "number",
+              "format": "float",
+              "minimum": 0,
+              "maximum": 10000
+            }
+          },
+          {
+            "name": "amount",
+            "in": "query",
+            "required": false,
+            "description": "The amount of the swap, or erc20 being transferred\n\n\n`swap-action` `evm-function`",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]$"
+            }
+          },
+          {
+            "name": "swapDirection",
+            "in": "query",
+            "required": false,
+            "description": "Swap direction for the action\n\n`swap-action`",
+            "schema": {
+              "$ref": "#/components/schemas/SwapDirection"
+            }
+          },
+          {
+            "name": "recipient",
+            "in": "query",
+            "required": false,
+            "description": "Address to receive the swapped tokens\n\n`swap-action`",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "contractAddress",
+            "in": "query",
+            "required": false,
+            "description": "The EVM address of the target contract (20 bytes hex)\n\n`evm-calldata-tx` `evm-function`",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "paymentOperator",
+            "in": "query",
+            "required": false,
+            "description": "The Erc20 spender requiring approval for the transaction call\n\n`evm-calldata-tx` `evm-function`",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "data",
+            "in": "query",
+            "required": false,
+            "description": "Calldata for the transaction\n\n`evm-calldata-tx`",
+            "schema": {
+              "$ref": "#/components/schemas/Hex"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "description": "Value to send with transaction\n\n`evm-calldata-tx`",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]$"
+            }
+          },
+          {
+            "name": "signature",
+            "in": "query",
+            "required": false,
+            "description": "Function signature\n\n`evm-function`",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "args",
+            "in": "query",
+            "required": false,
+            "description": "Function arguments\n\n`evm-function`",
+            "schema": {
+              "type": "array"
+            }
+          },
+          {
+            "name": "bridgeIds",
+            "in": "query",
+            "required": false,
+            "description": "Specific bridge protocols to use",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/BridgeId"
+              }
+            }
+          },
+          {
+            "name": "refundTo",
+            "in": "query",
+            "required": false,
+            "description": "Alternate address to receive refunds. Will default to the `sender`",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
           }
         ],
         "responses": {
@@ -305,88 +460,6 @@
   },
   "components": {
     "schemas": {
-      "ActionRequest": {
-        "type": "object",
-        "required": [
-          "sender",
-          "srcChainId",
-          "dstChainId",
-          "srcToken",
-          "dstToken",
-          "slippage",
-          "actionType",
-          "actionConfig"
-        ],
-        "properties": {
-          "actionType": {
-            "$ref": "#/components/schemas/ActionType",
-            "description": "Type of action to perform"
-          },
-          "sender": {
-            "$ref": "#/components/schemas/Address",
-            "description": "The address of the sender/user"
-          },
-          "srcChainId": {
-            "$ref": "#/components/schemas/ChainId",
-            "description": "Source chain ID"
-          },
-          "srcToken": {
-            "$ref": "#/components/schemas/Address",
-            "description": "Source token address"
-          },
-          "dstChainId": {
-            "$ref": "#/components/schemas/ChainId",
-            "description": "Destination chain ID"
-          },
-          "dstToken": {
-            "$ref": "#/components/schemas/Address",
-            "description": "Destination token address"
-          },
-          "bridgeIds": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BridgeId"
-            },
-            "description": "Specific bridge protocols to use"
-          },
-          "slippage": {
-            "type": "number",
-            "format": "float",
-            "minimum": 0,
-            "maximum": 10000,
-            "description": "Slippage tolerance in bps"
-          },
-          "actionConfig": {
-            "oneOf": [
-              {
-                "title": "Swap",
-                "$ref": "#/components/schemas/SwapActionConfig"
-              },
-              {
-                "title": "Calldata Tx",
-                "$ref": "#/components/schemas/EvmCalldataTxConfig"
-              },
-              {
-                "title": "Function Call",
-                "$ref": "#/components/schemas/FunctionCallConfig"
-              }
-            ],
-            "description": "Configuration for the action",
-            "discriminator": {
-              "propertyName": "actionType",
-              "mapping": {
-                "swap-action": "#/components/schemas/SwapActionConfig",
-                "evm-function": "#/components/schemas/FunctionCallConfig",
-                "evm-calldata-tx": "#/components/schemas/EvmCalldataTxConfig"
-              }
-            }
-          },
-          "refundTo": {
-            "$ref": "#/components/schemas/Address",
-            "description": "Alternate address to receive refunds. Will default to the `sender`"
-          }
-        }
-      },
       "ActionResponse": {
         "type": "object",
         "required": [
@@ -644,134 +717,6 @@
         ],
         "description": "Swap direction for the action."
       },
-      "ActionPayment": {
-        "type": "object",
-        "required": [
-          "amount",
-          "address"
-        ],
-        "properties": {
-          "amount": {
-            "type": "string",
-            "pattern": "^[0-9]+n$",
-            "description": "Amount as string with 'n' suffix (bigint serialized)"
-          },
-          "address": {
-            "$ref": "#/components/schemas/Address",
-            "description": "Token address for the payment"
-          }
-        }
-      },
-      "SwapActionConfig": {
-        "type": "object",
-        "required": [
-          "swapDirection",
-          "amount"
-        ],
-        "properties": {
-          "swapDirection": {
-            "$ref": "#/components/schemas/SwapDirection"
-          },
-          "amount": {
-            "type": "string",
-            "pattern": "^[0-9]+n$",
-            "description": "Enter amount as bigint. Will be serialized to string in API requst (e.g., 100000000000000000n)"
-          },
-          "receiverAddress": {
-            "$ref": "#/components/schemas/Address",
-            "description": "Address to receive the swapped tokens"
-          }
-        }
-      },
-      "BaseActionConfig": {
-        "type": "object",
-        "required": [
-          "chainId"
-        ],
-        "properties": {
-          "contractAddress": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "signature": {
-            "type": "string",
-            "description": "Function signature"
-          },
-          "args": {
-            "type": "array",
-            "description": "Function arguments"
-          },
-          "chainId": {
-            "$ref": "#/components/schemas/ChainId"
-          },
-          "cost": {
-            "$ref": "#/components/schemas/ActionPayment"
-          }
-        }
-      },
-      "FunctionCallConfig": {
-        "type": "object",
-        "required": [
-          "contractAddress",
-          "signature",
-          "args",
-          "chainId"
-        ],
-        "properties": {
-          "contractAddress": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "signature": {
-            "type": "string",
-            "description": "Function signature"
-          },
-          "args": {
-            "type": "array",
-            "description": "Function arguments"
-          },
-          "chainId": {
-            "$ref": "#/components/schemas/ChainId"
-          },
-          "cost": {
-            "$ref": "#/components/schemas/ActionPayment"
-          },
-          "paymentOperator": {
-            "$ref": "#/components/schemas/Address",
-            "description": "Payment operator address"
-          }
-        }
-      },
-      "EvmCalldataTxConfig": {
-        "type": "object",
-        "required": [
-          "contractAddress",
-          "chainId",
-          "value"
-        ],
-        "properties": {
-          "contractAddress": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "chainId": {
-            "$ref": "#/components/schemas/ChainId"
-          },
-          "value": {
-            "type": "string",
-            "pattern": "^[0-9]+n$",
-            "description": "Value to send with transaction as string with 'n' suffix (bigint serialized)"
-          },
-          "cost": {
-            "$ref": "#/components/schemas/ActionPayment"
-          },
-          "data": {
-            "$ref": "#/components/schemas/Hex",
-            "description": "Calldata for the transaction"
-          },
-          "paymentOperator": {
-            "$ref": "#/components/schemas/Address",
-            "description": "The Erc20 spender requiring approval for the transaction call"
-          }
-        }
-      },
       "EvmTransaction": {
         "type": "object",
         "required": [
@@ -947,37 +892,6 @@
           "$ref": "#/components/schemas/BridgeStep"
         },
         "description": "Array of bridge steps"
-      },
-      "EvmAction": {
-        "type": "object",
-        "required": [
-          "address",
-          "signatures",
-          "args",
-          "functionName"
-        ],
-        "properties": {
-          "address": {
-            "$ref": "#/components/schemas/EvmAddress"
-          },
-          "signatures": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "args": {
-            "type": "array"
-          },
-          "functionName": {
-            "type": "string"
-          },
-          "value": {
-            "type": "string",
-            "pattern": "^[0-9]+n$",
-            "description": "Value in wei as string with 'n' suffix (bigint serialized)"
-          }
-        }
       },
       "Address": {
         "type": "string",
