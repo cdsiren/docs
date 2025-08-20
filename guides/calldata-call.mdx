@@ -54,7 +54,7 @@ const txConfig: ActionRequest = {
   srcChainId: 42161, // Arbitrum Chain ID
   dstChainId: 8453, // Base Chain ID
   slippage: 100, // bps
-  contractAddress: aaveOnBase,
+  to: aaveOnBase,
   data: supplyTxCalldata,
   value: ethDepositAmount,
 }

@@ -102,7 +102,7 @@
             "name": "amount",
             "in": "query",
             "required": false,
-            "description": "The amount of the swap, or erc20 being transferred\n\n\n`swap-action` `evm-function`",
+            "description": "The exact in or exact out amount of the swap\n\n\n`swap-action`",
             "schema": {
               "type": "string",
               "pattern": "^[0-9]$"
@@ -127,19 +127,29 @@
             }
           },
           {
-            "name": "contractAddress",
+            "name": "to",
             "in": "query",
             "required": false,
-            "description": "The EVM address of the target contract (20 bytes hex)\n\n`evm-calldata-tx` `evm-function`",
+            "description": "The EVM address of the target contract (20 bytes hex)\n\n`evm-calldata-tx`",
             "schema": {
               "$ref": "#/components/schemas/Address"
             }
           },
           {
-            "name": "paymentOperator",
+            "name": "erc20Amount",
             "in": "query",
             "required": false,
-            "description": "The Erc20 spender requiring approval for the transaction call\n\n`evm-calldata-tx` `evm-function`",
+            "description": "The amount of erc20 being transferred\n\n`evm-calldata-tx`",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]$"
+            }
+          },
+          {
+            "name": "erc20Spender",
+            "in": "query",
+            "required": false,
+            "description": "The Erc20 spender requiring approval for the transaction call\n\n`evm-calldata-tx`",
             "schema": {
               "$ref": "#/components/schemas/Address"
             }
@@ -161,24 +171,6 @@
             "schema": {
               "type": "string",
               "pattern": "^[0-9]$"
-            }
-          },
-          {
-            "name": "signature",
-            "in": "query",
-            "required": false,
-            "description": "Function signature\n\n`evm-function`",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "args",
-            "in": "query",
-            "required": false,
-            "description": "Function arguments\n\n`evm-function`",
-            "schema": {
-              "type": "array"
             }
           },
           {
@@ -704,8 +696,7 @@
         "type": "string",
         "enum": [
           "swap-action",
-          "evm-calldata-tx",
-          "evm-function"
+          "evm-calldata-tx"
         ],
         "description": "Type of action to perform."
       },
