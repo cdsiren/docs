@@ -136,25 +136,6 @@
             }
           },
           {
-            "name": "erc20Amount",
-            "in": "query",
-            "required": false,
-            "description": "The amount of Erc20 being transferred\n\n**Optional:** Use for calls requiring Erc20 transfers\n\n`evm-calldata-tx`",
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9]$"
-            }
-          },
-          {
-            "name": "Erc20Spender",
-            "in": "query",
-            "required": false,
-            "description": "The Erc20 spender requiring approval for the transaction call\n\n**Optional:** Will default to the `to` address\n\n`evm-calldata-tx`",
-            "schema": {
-              "$ref": "#/components/schemas/Address"
-            }
-          },
-          {
             "name": "data",
             "in": "query",
             "required": false,
@@ -174,10 +155,29 @@
             }
           },
           {
+            "name": "erc20Amount",
+            "in": "query",
+            "required": false,
+            "description": "The amount of Erc20 being transferred\n\n**Optional:** Use for calls requiring Erc20 transfers\n\n`evm-calldata-tx`",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]$"
+            }
+          },
+          {
+            "name": "Erc20Spender",
+            "in": "query",
+            "required": false,
+            "description": "The Erc20 spender requiring approval for the transaction call\n\n**Optional:** Will default to the `to` address\n\n`evm-calldata-tx`",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
             "name": "bridgeIds",
             "in": "query",
             "required": false,
-            "description": "Specific bridge protocols to use",
+            "description": "Specific bridge protocols to use\n\n**Optional:** Will default to all available protocols",
             "schema": {
               "type": "array",
               "items": {
