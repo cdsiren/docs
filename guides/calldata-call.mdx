@@ -5,21 +5,16 @@ description: 'Execute cross-chain transactions.'
 
 import { Callout } from '/snippets/Callout.jsx'
 
-**API Reference:** [Get Calldata Tx Action](/api-reference/get-action#calldata-tx) | [Get Function Action](/api-reference/get-action#function-call)
+**API Reference:** [Get Action](/api-reference/get-action#swap)
 
 This guide will only cover the process of generating calldata transactions.  You can submit this transaction exactly as outlined in the [swap broadcast flows](/guides/swap#broadcast-on-evm).
-
-Swaps offers two methods for preparing cross-chain transactions:
-1. **Calldata Transaction:** wrap your existing transaction into a chain agnostic version.
-2. **Function Call:** define the function and arguments directly in the `txConfig`.
-The guide below walks through both versions.  We recommend calldata method for teams that want to leverage an existing transaction execution flow.
 
 ## Create a cross-chain transaction
 
 In this example, we are going to deposit 1 ETH liquidity in Aave on Base using USDC on Arbitrum.
 
 <Steps>
-<Step title="Build your destination transaction (only required for the calldata method).">
+<Step title="Build your destination transaction.">
 We'll use helper functions from [Viem](https://viem.sh/); however, you can use your preferred library.
 
 ```typescript
@@ -30,7 +25,7 @@ const aaveOnBase = '0xA238Dd80C259a72e81d7e4664a9801593F98d1c5';
 const ethDepositAmount = 1000000000000000000n;
 const sender = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'; // generally the user's connected wallet address
 
-const data: Hex = encodeFunctionData({
+const supplyTxCalldata: Hex = encodeFunctionData({
   abi: parseAbiItem('function supply(address asset, uint256 amount, address onBehalfOf, uint16 referralCode)'),
   functionName: 'supply',
   args: [
@@ -39,13 +34,6 @@ const data: Hex = encodeFunctionData({
     sender,
     0n
   ],
-});
-
-const dstTx = await walletClient.prepareTransactionRequest({
-  account,
-  to: aaveOnBase,
-  value: ethDepositAmount,
-  data
 });
 ```
 </Step>
@@ -63,47 +51,12 @@ const txConfig: ActionRequest = {
   sender,
   srcToken: '0xaf88d065e77c8cc2239327c5edb3a432268e5831', // USDC on Arbitrum
   dstToken: '0x0000000000000000000000000000000000000000', // ETH on Base
-  srcChainId: 42161, // Arbitrum Chain ID 
+  srcChainId: 42161, // Arbitrum Chain ID
   dstChainId: 8453, // Base Chain ID
   slippage: 100, // bps
-  actionConfig: {
-    contractAddress: aaveOnBase,
-    chainId: 8453,
-    cost: {
-      amount: ethDepositAmount,
-      address: '0x0000000000000000000000000000000000000000'
-    },
-    data: dstTx.data,
-    value: dstTx.value
-  }
-}
-```
-
-**Function Call Config**
-```typescript
-const txConfig: ActionRequest = {
-  actionType: 'evm-function',
-  sender: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // generally the user's connected wallet address
-  srcToken: '0xaf88d065e77c8cc2239327c5edb3a432268e5831', // USDC on Arbitrum
-  dstToken: '0x0000000000000000000000000000000000000000', // ETH on Base
-  srcChainId: 42161, // Arbitrum Chain ID 
-  dstChainId: 8453, // Base Chain ID
-  slippage: 100, // bps
-  actionConfig: {
-    contractAddress: aaveOnBase,
-    chainId: 8453,
-    cost: {
-      amount: ethDepositAmount,
-      address: '0x0000000000000000000000000000000000000000'
-    },
-    signature: 'function supply(address asset, uint256 amount, address onBehalfOf, uint16 referralCode)',
-    args: [
-    '0x0000000000000000000000000000000000000000',
-    ethDepositAmount,
-    '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
-    0n
-  ]
-  }
+  to: aaveOnBase,
+  data: supplyTxCalldata,
+  value: ethDepositAmount,
 }
 ```
 </Step>
@@ -113,21 +66,22 @@ const txConfig: ActionRequest = {
 Please visit the [Get Action](/api-reference/get-action) API reference for type definitions, including the `ActionRequest` and `ActionResponse`.  This API endpoint will return a transaction object we will use to actually execute this transaction.
 
 ```typescript
-async function getAction({ txConfig }): Promise<ActionResponse> {
-  const url = new URL("https://api-v2.swaps.xyz/api/getAction"); 
-  url.searchParams.set("arguments", JSON.stringify(txConfig, bigintSerializer));
- 
+async function getAction({ actionRequest }): Promise<ActionResponse> {
+  const url = new URL("https://api-v2.swaps.xyz/api/getAction");
+
+  Object.entries(actionRequest).forEach(([key, value]) => {
+    url.searchParams.set(key, String(value));
+  }
+
   const requestOptions = {
-    method: "GET", 
-    headers: { "x-api-key": SWAPS_API_KEY }, 
+    method: "GET",
+    headers: { "x-api-key": SWAPS_API_KEY },
   };
- 
-  const response = await fetch(url.toString(), requestOptions); 
-  const textResponse = await response.text(); 
-  const { tx } = JSON.parse(textResponse, bigintDeserializer); 
- 
-  return tx; 
-} 
+
+  const response = await fetch(url.toString(), requestOptions);
+
+  return await response.json();
+}
 ```
 
 <Callout type="success">

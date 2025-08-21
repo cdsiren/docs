@@ -22,7 +22,7 @@ Submitting transactions differs by source chain VM. Reference available transact
   The Swap action type covers same chain swaps, bridge, and cross-chain swap transactions.  Swaps are all just swaps!
 </Callout>
 
-**The `receiverAddress` should only be different from the `sender` if you are:**
+**The `recipient` should only be different from the `sender` if you are:**
 1. Swapping across VMs that use incompatible key formats or cryptographic curves (e.g., `EVM <> Solana`)
 2. Sending funds to another address
 
@@ -32,19 +32,17 @@ This example prepares a swap from [USDC on Base](https://basescan.org/token/0x83
 import { sendTransaction } from "@wagmi/core";
 import { useAccount } from 'wagmi';
 
-const txConfig = {
+const actionRequest = {
   actionType: 'swap-action',
   sender: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // generally the user's connected wallet address
   srcToken: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', // USDC on Base
   dstToken: '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9', // USDT on Arbitrum
-  srcChainId: 8453, // Base Chain ID 
+  srcChainId: 8453, // Base Chain ID
   dstChainId: 42161, // Arbitrum Chain ID
   slippage: 100, // bps
-  actionConfig: {
-    swapDirection: 'exact-amount-in',
-    amount: 10000000n, // denominated in srcToken decimals
-    receiverAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
-  }
+  swapDirection: 'exact-amount-in',
+  amount: 10000000n, // denominated in srcToken decimals
+  recipient: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
 }
 ```
 </Step>
@@ -57,7 +55,7 @@ Please visit the [Get Action](/api-reference/get-action) API reference for type 
 import { sendTransaction } from "@wagmi/core";
 import { useAccount } from 'wagmi';
 
-const txConfig: ActionRequest = {
+const actionRequest: ActionRequest = {
   actionType: 'swap-action',
   sender: "0xd8da6bf26964af9d7eed9e03e53415d37aa96045", // generally the user's connected wallet address
   srcToken: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", // USDC on Base
@@ -65,28 +63,27 @@ const txConfig: ActionRequest = {
   srcChainId: 8453, // Base Chain ID
   dstChainId: 42161, // Arbitrum Chain ID
   slippage: 100, // bps
-  actionConfig: {
-    swapDirection: 'exact-amount-in',
-    amount: 10000000n, // denominated in srcToken decimals
-    receiverAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
-  }
+  swapDirection: 'exact-amount-in',
+  amount: 10000000n, // denominated in srcToken decimals
+  recipient: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
 }
 
-async function getAction({ txConfig }): Promise<ActionResponse> {
-  const url = new URL("https://api-v2.swaps.xyz/api/getAction"); 
-  url.searchParams.set("arguments", JSON.stringify(txConfig, bigintSerializer));
- 
+async function getAction({ actionRequest }): Promise<ActionResponse> {
+  const url = new URL("https://api-v2.swaps.xyz/api/getAction");
+
+  Object.entries(actionRequest).forEach(([key, value]) => {
+    url.searchParams.set(key, String(value));
+  }
+
   const requestOptions = {
-    method: "GET", 
-    headers: { "x-api-key": SWAPS_API_KEY }, 
+    method: "GET",
+    headers: { "x-api-key": SWAPS_API_KEY },
   };
- 
-  const response = await fetch(url.toString(), requestOptions); 
-  const textResponse = await response.text(); 
-  const { tx } = JSON.parse(textResponse, bigintDeserializer); 
- 
-  return tx; 
-} 
+
+  const response = await fetch(url.toString(), requestOptions);
+
+  return await response.json();
+}
 ```
 
 <Callout type="success">
@@ -125,9 +122,9 @@ import { sendTransaction, estimateGas } from "@wagmi/core";
 import { arbitrum, base } from 'viem/chains';
 import { wagmiConfig } from "../your_wagmi_config_path";
 
-export async function broadcastOnEvm({ txConfig }): Promise<Hash> {
+export async function broadcastOnEvm({ actionRequest }): Promise<Hash> {
   const account = useAccount({ config: wagmiConfig });
-  const tx = await getAction({ txConfig });
+  const { tx } = await getAction({ actionRequest });
   const gas = await estimateGas(wagmiConfig, { account, ...tx });
 
   const txHash = await sendTransaction(wagmiConfig, {
@@ -143,7 +140,7 @@ export async function broadcastOnEvm({ txConfig }): Promise<Hash> {
 </Steps>
 
 ## Broadcast on Solana
-Let's assume we set Solana as the source chain in the `txConfig` used to generate our transaction.  Let's see how we can broadcast it on Solana.
+Let's assume we set Solana as the source chain in the `actionRequest` used to generate our transaction.  Let's see how we can broadcast it on Solana.
 
 View the Solana transaction type [here](/api-reference/get-action#solana-transaction).
 
@@ -174,14 +171,14 @@ import {
   Transaction,
 } from "@solana/web3.js";
 
-export async function broadcastOnSolana({ txConfig }): Promise<string> {
-  const tx = await getAction({ txConfig });
+export async function broadcastOnSolana({ actionRequest }): Promise<string> {
+  const { tx } = await getAction({ actionRequest });
 
   const connection = new Connection("https://api.mainnet-beta.solana.com");
   const senderKeypair = ... // Your wallet's keypair (use secure storage)
 
   const transaction = Transaction.from(Buffer.from(tx.rawTransaction, "base64"));
-  
+
   const signature = await sendAndConfirmTransaction(connection, transaction, [senderKeypair]);
 
   return signature;
@@ -192,12 +189,12 @@ export async function broadcastOnSolana({ txConfig }): Promise<string> {
 </Steps>
 
 ## Broadcast on alt VMs
-Let's assume we set Bitcoin as the source chain in the `txConfig` used to generate our transaction.  Let's see how we can broadcast it on Bitcoin.
+Let's assume we set Bitcoin as the source chain in the `actionRequest` used to generate our transaction.  Let's see how we can broadcast it on Bitcoin.
 
 View the alt VM transaction type [here](/api-reference/get-action#alt-vm-transaction).
 
 <Callout type="info">
-  Alt VM transactions are all deposits: the transaction will transfer funds from the `sender` to the `to` field specified in the `AltVmTransaction` response.  This transfer triggers the swap transaction and funds will ultimately be delivered to the `receiverAddress`.
+  Alt VM transactions are all deposits: the transaction will transfer funds from the `sender` to the `to` field specified in the `AltVmTransaction` response.  This transfer triggers the swap transaction and funds will ultimately be delivered to the `recipient`.
 </Callout>
 
 <Callout type="info">
@@ -226,8 +223,8 @@ This example assumes your wallet supports PSBT signing. You’ll finalize and ex
 ```typescript
 import * as bitcoin from 'bitcoinjs-lib';
 
-export async function broadcastOnBitcoin({ txConfig, network = 'mainnet' }): Promise<string> {
-  const tx = await getAction({ txConfig });
+export async function broadcastOnBitcoin({ actionRequest, network = 'mainnet' }): Promise<string> {
+  const { tx } = await getAction({ actionRequest });
 
   const bitcoinNetwork = network === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet;
 
