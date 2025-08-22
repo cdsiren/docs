@@ -7,22 +7,76 @@ description: "Swaps offers flexible APIs for lightning-fast swaps, bridging, and
 
 Welcome to the Swaps documentation! Here, you’ll find an interactive API playground and detailed integration guides to help you seamlessly send your first swap, bridge, or cross-chain call transaction.
 
-Get started below:
+To get started, check out our:
 
-<Card
-  title="Start Here"
-  icon="map"
-  href="/guides/swap"
-  horizontal
->
-  Follow our swap integration guide for a comprehensive walkthrough.
+<Card title="Swap integration guide" icon="map" href="/guides/swap" horizontal>
+  Follow our guide for step-by-step walkthrough of integration recommendations.
 </Card>
 
+or test each step of the flow yourself!
+
+<Columns cols={2}>
+  <Card
+    title="1. Check available routes"
+    icon="route"
+    href="/api-reference/get-paths"
+    horizontal
+  >
+    Get available paths for a given source token.
+  </Card>
+  
+  <Card
+    title="2. Request a quote"
+    icon="quotes"
+    href="/api-reference/get-action"
+    horizontal
+  >
+    Call the `/getAction` endpoint to return a serialized swap or cross-chain-call
+    transaction.
+  </Card>
+
+{" "}
+
 <Card
-  title="Make Your First Swap Request"
-  icon="rocket"
-  href="/api-reference/api-overview"
+  title="3. Broadcast your tx"
+  icon="paper-plane-top"
+  href="/guides/swap#broadcast-on-evm"
   horizontal
 >
-  Use the API playground to request your first swap quote.
+  Reference the broadcast methods in the Swap Guide for each VM.
 </Card>
+
+{" "}
+
+<Card
+  title="4. Register your tx"
+  icon="bullseye"
+  href="/api-reference/get-action"
+  horizontal
+>
+  For [Alt VMs](/resources/best-practices#pay-attention-to-named-vs-alt-vms),
+  register your transaction to trigger indexing.
+</Card>
+
+{" "}
+
+<Card
+  title="5. Track your tx's status"
+  icon="magnifying-glass-arrows-rotate"
+  href="/api-reference/get-status"
+  horizontal
+>
+  Leverage the status endpoint or webhooks to track end-to-end execution.
+</Card>
+
+{" "}
+
+  <Card
+    title="6. Maintain historical tx data"
+    icon="database"
+    href="/api-reference/get-transactions"
+    horizontal
+  >
+    Return all transactions for your org.
+  </Card>
+</Columns>

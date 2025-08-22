@@ -209,6 +209,53 @@
         }
       }
     },
+    "/registerTxs": {
+      "post": {
+        "summary": "Register Transaction",
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Indexer API server"
+          }
+        ],
+        "description": "Register transactions for indexing. Mandatory for `alt-vm` transactions. Optional for any named VM.",
+        "operationId": "registerTxs",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "title": "Single Transaction",
+                    "$ref": "#/components/schemas/TxRegistrationEvent"
+                  },
+                  {
+                    "title": "Multiple Transactions",
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TxRegistrationEvent"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction registration results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/post_200__webhooks_registerTxsSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/getStatus": {
       "get": {
         "summary": "Get Status",
@@ -392,46 +439,104 @@
         }
       }
     },
-    "/registerTxs": {
-      "post": {
-        "summary": "Register Transaction",
-        "servers": [
+    "/getPaths": {
+      "get": {
+        "summary": "Get Paths",
+        "description": "Retrieve available token paths across chains with filtering options. Includes token info, supported swap directions, and optional amount limits for alt VM chains.",
+        "operationId": "getPaths",
+        "parameters": [
           {
-            "url": "https://api-v2.swaps.xyz/api",
-            "description": "Indexer API server"
+            "name": "srcChainId",
+            "in": "query",
+            "required": true,
+            "description": "Source chain ID",
+            "schema": { "$ref": "#/components/schemas/ChainId" }
+          },
+          {
+            "name": "srcToken",
+            "in": "query",
+            "required": true,
+            "description": "Source token address",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "dstChainId",
+            "in": "query",
+            "required": false,
+            "description": "Optional destination chain ID",
+            "schema": { "$ref": "#/components/schemas/ChainId" }
+          },
+          {
+            "name": "dstToken",
+            "in": "query",
+            "required": false,
+            "description": "Optional destination token address",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "excludeBridgeIds",
+            "in": "query",
+            "required": false,
+            "description": "Bridge IDs to exclude from routing",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/BridgeId" }
+            }
+          },
+          {
+            "name": "excludeDexIds",
+            "in": "query",
+            "required": false,
+            "description": "DEX IDs to exclude from routing",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/DexId" }
+            }
           }
         ],
-        "description": "Register transactions for indexing. Mandatory for `altVM` transactions. Optional for any named VM.",
-        "operationId": "registerTxs",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "oneOf": [
-                  {
-                    "title": "Single Transaction",
-                    "$ref": "#/components/schemas/TxRegistrationEvent"
-                  },
-                  {
-                    "title": "Multiple Transactions",
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/TxRegistrationEvent"
-                    }
-                  }
-                ]
+        "responses": {
+          "200": {
+            "description": "Paths response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetPathsOutput" }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to missing or invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
               }
             }
           }
-        },
+        }
+      }
+    },
+    "/getChainList": {
+      "get": {
+        "summary": "Get Chain List",
+        "description": "Retrieve a list of supported chains, their names, and virtual machine identifiers. Raw data for the [supported chains list](/resources/chain-list)",
+        "operationId": "getChainList",
         "responses": {
           "200": {
-            "description": "Transaction registration results",
+            "description": "List of supported chains",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/post_200__webhooks_registerTxsSchema"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChainListResponse"
+                  }
                 }
               }
             }
@@ -481,7 +586,7 @@
             "$ref": "#/components/schemas/Hex",
             "description": "Transaction ID"
           },
-          "VmId": {
+          "vmId": {
             "type": "string",
             "enum": ["evm", "solana", "alt-vm"],
             "description": "Virtual machine identifier."
@@ -586,7 +691,7 @@
             "$ref": "#/components/schemas/Hex",
             "description": "Transaction ID"
           },
-          "VmId": {
+          "vmId": {
             "type": "string",
             "enum": ["evm", "solana", "alt-vm"],
             "description": "Virtual machine identifier."
@@ -878,6 +983,94 @@
           }
         }
       },
+      "ChainListResponse": {
+        "type": "object",
+        "properties": {
+          "chainId": { "$ref": "#/components/schemas/ChainId" },
+          "name": {
+            "type": "string",
+            "description": "Human-readable chain name"
+          },
+          "vmId": { "$ref": "#/components/schemas/VmId" }
+        },
+        "required": ["chainId", "name", "vmId"]
+      },
+      "DexId": {
+        "type": "string",
+        "description": "DEX identifier (depends on integration)"
+      },
+      "TokenInfoWithAmounts": {
+        "allOf": [
+          { "$ref": "#/components/schemas/TokenInfo" },
+          {
+            "type": "object",
+            "properties": {
+              "minAmount": {
+                "type": "string",
+                "description": "Minimum amount (Alt VM only)"
+              },
+              "maxAmount": {
+                "type": "string",
+                "description": "Maximum amount (Alt VM only)"
+              }
+            }
+          }
+        ]
+      },
+      "AmountLimits": {
+        "type": "object",
+        "properties": {
+          "minAmount": {
+            "type": "string",
+            "description": "Minimum amount of source token required for swap to destination token \n `null` indicates no minumum"
+          },
+          "maxAmount": {
+            "type": "string",
+            "description": "Maximum amount of source token that can be swapped to destination token \n `null` indicates no maximum"
+          }
+        },
+        "required": ["minAmount", "maxAmount"]
+      },
+      "ChainPath": {
+        "type": "object",
+        "properties": {
+          "chainId": { "$ref": "#/components/schemas/ChainId" },
+          "tokens": {
+            "description": "Available destination tokens for given source token \n `all` indicates all tokens on destination chain are eligible",
+            "oneOf": [
+              { "title": "Named VM", "type": "string", "enum": ["all"] },
+              {
+                "title": "Alt VM",
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/TokenInfoWithAmounts" }
+              }
+            ]
+          },
+          "supportsExactAmountIn": { "type": "boolean" },
+          "supportsExactAmountOut": { "type": "boolean" },
+          "amountLimits": { "$ref": "#/components/schemas/AmountLimits" }
+        },
+        "required": [
+          "chainId",
+          "tokens",
+          "supportsExactAmountIn",
+          "supportsExactAmountOut"
+        ]
+      },
+      "GetPathsOutput": {
+        "type": "object",
+        "properties": {
+          "paths": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ChainPath" }
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Response timestamp (ISO string) for cache validation"
+          }
+        },
+        "required": ["paths", "timestamp"]
+      },
       "TxRegistrationEvent": {
         "type": "object",
         "properties": {
@@ -954,7 +1147,7 @@
           "txId": {
             "type": "string",
             "description": "Unique transaction identifier",
-            "example": "tx_123456"
+            "example": "0x49b1d3d38176e45864fd55500c6c1879ab318609e1ed0c8eb9abd818e6c811fd"
           }
         }
       },
@@ -1188,7 +1381,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "description": "Limited demo key for API Playground: `e2c440ee9c0cf66bb58ede58ac0eb7f1`."
+        "description": "Limited demo key for API Playground: `5c951bc81da566bbd030ba8e20724063`."
       }
     }
   },

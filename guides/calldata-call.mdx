@@ -1,13 +1,13 @@
 ---
-title: 'Cross-Chain Calls'
-description: 'Execute cross-chain transactions.'
+title: "Cross-Chain Calls"
+description: "Execute cross-chain transactions."
 ---
 
-import { Callout } from '/snippets/Callout.jsx'
+import { Callout } from "/snippets/Callout.jsx";
 
 **API Reference:** [Get Action](/api-reference/get-action#swap)
 
-This guide will only cover the process of generating calldata transactions.  You can submit this transaction exactly as outlined in the [swap broadcast flows](/guides/swap#broadcast-on-evm).
+This guide will only cover the process of generating calldata transactions. You can submit this transaction exactly as outlined in the [swap broadcast flows](/guides/swap#broadcast-on-evm).
 
 ## Create a cross-chain transaction
 
@@ -18,52 +18,60 @@ In this example, we are going to deposit 1 ETH liquidity in Aave on Base using U
 We'll use helper functions from [Viem](https://viem.sh/); however, you can use your preferred library.
 
 ```typescript
-import { account, walletClient } from './your_viem_config';
+import { account, walletClient } from "./your_viem_config";
 import { encodeFunctionData, parseAbiItem, Hex } from "viem";
 
-const aaveOnBase = '0xA238Dd80C259a72e81d7e4664a9801593F98d1c5';
+const aaveOnBase = "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5";
 const ethDepositAmount = 1000000000000000000n;
-const sender = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'; // generally the user's connected wallet address
+const sender = "0xd8da6bf26964af9d7eed9e03e53415d37aa96045"; // generally the user's connected wallet address
 
 const supplyTxCalldata: Hex = encodeFunctionData({
-  abi: parseAbiItem('function supply(address asset, uint256 amount, address onBehalfOf, uint16 referralCode)'),
-  functionName: 'supply',
+  abi: parseAbiItem(
+    "function supply(address asset, uint256 amount, address onBehalfOf, uint16 referralCode)"
+  ),
+  functionName: "supply",
   args: [
-    '0x0000000000000000000000000000000000000000',
+    "0x0000000000000000000000000000000000000000",
     ethDepositAmount,
     sender,
-    0n
+    0n,
   ],
 });
 ```
+
 </Step>
 
 <Step title="Configure the transaction request">
 
 <Callout type="warning">
-  Cross-chain calls can handle all non-permissioned functions. If your function includes a `msg.sender` check, please consider updating it to a multi-chain compatible sender authentication method based on [this guide](/guides/best-practices#permissioned-functions).
+  Cross-chain calls can handle all non-permissioned functions. If your function
+  includes a `msg.sender` check, please consider updating it to a multi-chain
+  compatible sender authentication method based on [this
+  guide](/guides/best-practices#permissioned-functions).
 </Callout>
 
 **Calldata Transaction Config**
+
 ```typescript
 const txConfig: ActionRequest = {
-  actionType: 'evm-calldata-tx',
+  actionType: "evm-calldata-tx",
   sender,
-  srcToken: '0xaf88d065e77c8cc2239327c5edb3a432268e5831', // USDC on Arbitrum
-  dstToken: '0x0000000000000000000000000000000000000000', // ETH on Base
+  srcToken: "0xaf88d065e77c8cc2239327c5edb3a432268e5831", // USDC on Arbitrum
+  dstToken: "0x0000000000000000000000000000000000000000", // ETH on Base
   srcChainId: 42161, // Arbitrum Chain ID
   dstChainId: 8453, // Base Chain ID
   slippage: 100, // bps
   to: aaveOnBase,
   data: supplyTxCalldata,
   value: ethDepositAmount,
-}
+};
 ```
+
 </Step>
 
 <Step title="Generate the transaction">
 
-Please visit the [Get Action](/api-reference/get-action) API reference for type definitions, including the `ActionRequest` and `ActionResponse`.  This API endpoint will return a transaction object we will use to actually execute this transaction.
+Please visit the [Get Action](/api-reference/get-action) API reference for type definitions, including the `ActionRequest` and `ActionResponse`. This API endpoint will return a transaction object we will use to actually execute this transaction.
 
 ```typescript
 async function getAction({ actionRequest }): Promise<ActionResponse> {
@@ -85,7 +93,9 @@ async function getAction({ actionRequest }): Promise<ActionResponse> {
 ```
 
 <Callout type="success">
-  **That's it!** You now have a transaction you can broadcast on your source chain.
+  **That's it!** You now have a transaction you can broadcast on your source
+  chain. Please see the [swap broadcast flows](/guides/swap#broadcast-on-evm)
+  for how you can send this transaction on chain.
 </Callout>
 
 </Step>

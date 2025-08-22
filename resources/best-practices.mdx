@@ -1,9 +1,25 @@
 ---
-title: 'Best Practices'
-description: 'Multi-chain development best practices.'
+title: "Best Practices"
+description: "Get the most out of Swaps with our multi-chain development best practices."
 ---
 
+## Pay attention to named vs. alt VMs
+
+We classify chains by their execution environment. Our routing and transaction tracking primarily differs based on whether chains in your quote request include named vs. alt VMs. The `/getAction` response includes a [`vmId` field](/api-reference/get-action#response-vm-id) that informs you which routing strategy will applies to your quote. You can also find this information on the Supported Chains page.
+
+**When the `vmId` is `alt-vm`, please note that you must:**
+
+1. Use the `/getPaths` endpoint to validate your destination token andj source token swap amount ([reference](/resources/best-practices#cache-available-paths)).
+2. Register your transaction after broadcasting to initiate tracking ([reference](/guides/track-transactions#register-transaction)).
+
+## Cache available paths
+
+The [`/getPaths` endpoint](/api-reference/get-paths) returns all available destinations for a given source token and set of filters. For alternative VMs, there may be minimum or maximum transfer amounts, or only a subset of the total tokens available on a network may be supported. We recommend caching available paths with ~15 minute expiries and checking against it as part of the [quoting process](/guides/swap#create-a-swap-transaction) to ensure your requests are executable.
+
+For named VMs, it is safe to assume any token in any size is available.
+
 ## Check for approvals
+
 If you select an ERC20 token as the source token to complete a transaction, you will need to make sure the user has granted approval on the source chain to spend the required amount for the transaction.
 
 [EIP-7702](https://viem.sh/docs/eip7702) enables you to combine the approval and broadcast transactions into a single call. For a basic example of the legacy approval method, please visit [this NFT mint button example](https://github.com/decentxyz/launch-nfts/blob/c2a5d7300dfe9265a42c7f3e5863606805d65039/components/MintButton.tsx#L32).

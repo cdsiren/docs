@@ -15,24 +15,19 @@
         "groups": [
           {
             "group": "Getting started",
-            "pages": [
-              "index"
-            ]
+            "pages": ["index"]
           },
           {
             "group": "Guides",
             "pages": [
               "/guides/swap",
               "/guides/calldata-call",
-              "/guides/track-transactions",
-              "/guides/best-practices"
+              "/guides/track-transactions"
             ]
           },
           {
             "group": "Resources",
-            "pages": [
-              "/resources/chain-list"
-            ]
+            "pages": ["/resources/best-practices", "/resources/chain-list"]
           }
         ]
       },
@@ -41,9 +36,7 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": [
-              "api-reference/api-overview"
-            ]
+            "pages": ["api-reference/api-overview"]
           },
           {
             "group": "Endpoints",

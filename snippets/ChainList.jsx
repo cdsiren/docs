@@ -8,7 +8,7 @@ export const ChainList = () => {
   const [error, setError] = useState(null);
 
   const url = 'https://api-v2.swaps.xyz/api/getChainList';
-  const demoKeyFromPlayground = 'e2c440ee9c0cf66bb58ede58ac0eb7f1';
+  const demoKeyFromPlayground = '5c951bc81da566bbd030ba8e20724063';
 
   const formatChainName = (name) => {
     const overrides = {
