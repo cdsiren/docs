@@ -214,7 +214,7 @@
         "summary": "Get Status",
         "servers": [
           {
-            "url": "https://ghost.swaps.xyz/api/v2",
+            "url": "https://api-v2.swaps.xyz/api",
             "description": "Indexer API server"
           }
         ],
@@ -272,7 +272,7 @@
         "summary": "Get Transactions",
         "servers": [
           {
-            "url": "https://ghost.swaps.xyz/api/v2",
+            "url": "https://api-v2.swaps.xyz/api",
             "description": "Indexer API server"
           }
         ],
@@ -282,8 +282,7 @@
           {
             "name": "appIds",
             "in": "query",
-            "description": "Comma-separated list of your app IDs.  Each API key has a unique app ID.  Multiple app IDs can exist within a single org ID.",
-            "required": true,
+            "description": "Comma-separated list of your app IDs. By default, a request to this endpoint will return transactions across all appIds in your org. Each API key has a unique app ID.  Multiple app IDs can exist within a single org ID.",
             "schema": {
               "type": "string",
               "example": "0x5344e5a7,0x5314e6a7"
@@ -342,12 +341,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "day",
-                "week",
-                "month",
-                "allTime"
-              ],
+              "enum": ["day", "week", "month", "allTime"],
               "default": "allTime",
               "example": "week"
             }
@@ -384,17 +378,13 @@
                     "txs": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/TxStatus"
+                        "$ref": "#/components/schemas/TxDetails"
                       }
                     },
                     "pagination": {
                       "$ref": "#/components/schemas/Pagination"
                     }
-                  },
-                  "required": [
-                    "txs",
-                    "pagination"
-                  ]
+                  }
                 }
               }
             }
@@ -407,7 +397,7 @@
         "summary": "Register Transaction",
         "servers": [
           {
-            "url": "https://ghost.swaps.xyz/api/v2/webhooks",
+            "url": "https://api-v2.swaps.xyz/api",
             "description": "Indexer API server"
           }
         ],
@@ -493,11 +483,7 @@
           },
           "VmId": {
             "type": "string",
-            "enum": [
-              "evm",
-              "solana",
-              "alt-vm"
-            ],
+            "enum": ["evm", "solana", "alt-vm"],
             "description": "Virtual machine identifier."
           },
           "amountIn": {
@@ -602,11 +588,7 @@
           },
           "VmId": {
             "type": "string",
-            "enum": [
-              "evm",
-              "solana",
-              "alt-vm"
-            ],
+            "enum": ["evm", "solana", "alt-vm"],
             "description": "Virtual machine identifier."
           },
           "amountIn": {
@@ -670,11 +652,7 @@
       },
       "VmId": {
         "type": "string",
-        "enum": [
-          "evm",
-          "solana",
-          "alt-vm"
-        ],
+        "enum": ["evm", "solana", "alt-vm"],
         "description": "Virtual machine identifier."
       },
       "BridgeId": {
@@ -694,27 +672,17 @@
       },
       "ActionType": {
         "type": "string",
-        "enum": [
-          "swap-action",
-          "evm-calldata-tx"
-        ],
+        "enum": ["swap-action", "evm-calldata-tx"],
         "description": "Type of action to perform."
       },
       "SwapDirection": {
         "type": "string",
-        "enum": [
-          "exact-amount-in",
-          "exact-amount-out"
-        ],
+        "enum": ["exact-amount-in", "exact-amount-out"],
         "description": "Swap direction for the action."
       },
       "EvmTransaction": {
         "type": "object",
-        "required": [
-          "to",
-          "data",
-          "value"
-        ],
+        "required": ["to", "data", "value"],
         "properties": {
           "to": {
             "$ref": "#/components/schemas/EvmAddress"
@@ -754,11 +722,7 @@
       },
       "SerializedSolTransaction": {
         "type": "object",
-        "required": [
-          "base64Tx",
-          "recentBlockhash",
-          "payer"
-        ],
+        "required": ["base64Tx", "recentBlockhash", "payer"],
         "properties": {
           "base64Tx": {
             "type": "string",
@@ -776,12 +740,7 @@
       },
       "AltVmTransaction": {
         "type": "object",
-        "required": [
-          "to",
-          "value",
-          "chainId",
-          "chainKey"
-        ],
+        "required": ["to", "value", "chainId", "chainKey"],
         "properties": {
           "to": {
             "$ref": "#/components/schemas/ExchangeAddress",
@@ -808,9 +767,7 @@
           },
           {
             "type": "object",
-            "required": [
-              "amount"
-            ],
+            "required": ["amount"],
             "properties": {
               "amount": {
                 "type": "string",
@@ -936,10 +893,7 @@
             "example": 42161
           }
         },
-        "required": [
-          "txHash",
-          "chainId"
-        ]
+        "required": ["txHash", "chainId"]
       },
       "ValidatedTxId": {
         "type": "object",
@@ -955,21 +909,14 @@
             "example": null
           }
         },
-        "required": [
-          "success"
-        ]
+        "required": ["success"]
       },
       "TxStatus": {
         "type": "object",
         "properties": {
           "statusMessage": {
             "type": "string",
-            "enum": [
-              "success",
-              "pending",
-              "refunded",
-              "failed"
-            ],
+            "enum": ["success", "pending", "refunded", "failed"],
             "description": "Status of the transaction",
             "example": "success"
           },
@@ -1009,17 +956,7 @@
             "description": "Unique transaction identifier",
             "example": "tx_123456"
           }
-        },
-        "required": [
-          "statusMessage",
-          "sender",
-          "srcChainId",
-          "dstChainId",
-          "srcTxHash",
-          "dstTxHash",
-          "bridgeDetails",
-          "txId"
-        ]
+        }
       },
       "TxDetails": {
         "allOf": [
@@ -1037,12 +974,6 @@
                   }
                 ]
               },
-              "decentScanLink": {
-                "type": "string",
-                "format": "uri",
-                "description": "Link to Decent Scan for this transaction",
-                "example": "https://decentscan.xyz?chainId=1&txHash=0x1234..."
-              },
               "usdValue": {
                 "type": "number",
                 "nullable": true,
@@ -1055,14 +986,7 @@
               "dstTx": {
                 "$ref": "#/components/schemas/OnchainTx"
               }
-            },
-            "required": [
-              "org",
-              "decentScanLink",
-              "usdValue",
-              "srcTx",
-              "dstTx"
-            ]
+            }
           }
         ]
       },
@@ -1088,11 +1012,7 @@
             "description": "Transaction path through different chains"
           }
         },
-        "required": [
-          "isBridge",
-          "bridgeTime",
-          "txPath"
-        ]
+        "required": ["isBridge", "bridgeTime", "txPath"]
       },
       "TxNode": {
         "type": "object",
@@ -1116,15 +1036,9 @@
           "nextBridge": {
             "type": "string",
             "description": "Bridge type for the next hop",
-            "example": "optimism"
+            "example": "layerZero"
           }
-        },
-        "required": [
-          "chainId",
-          "txHash",
-          "timestamp",
-          "nextBridge"
-        ]
+        }
       },
       "OnchainTx": {
         "type": "object",
@@ -1146,22 +1060,6 @@
             "description": "Chain ID",
             "example": 1
           },
-          "blockExplorer": {
-            "type": "string",
-            "format": "uri",
-            "description": "Block explorer URL",
-            "example": "https://etherscan.io"
-          },
-          "gasProvided": {
-            "type": "string",
-            "description": "Gas provided as bigint string",
-            "example": "21000n"
-          },
-          "gasUsed": {
-            "type": "string",
-            "description": "Gas used as bigint string",
-            "example": "21000n"
-          },
           "value": {
             "type": "string",
             "description": "Transaction value as bigint string",
@@ -1172,40 +1070,10 @@
             "description": "Timestamp as bigint string",
             "example": "1640995200000000000"
           },
-          "blockNumber": {
-            "type": "integer",
-            "description": "Block number",
-            "example": 16000000
-          },
-          "input": {
-            "type": "string",
-            "description": "Transaction input data",
-            "example": "0x"
-          },
-          "revertReason": {
-            "type": "string",
-            "nullable": true,
-            "description": "Revert reason if transaction failed",
-            "example": null
-          },
           "paymentToken": {
             "$ref": "#/components/schemas/Token"
           }
-        },
-        "required": [
-          "toAddress",
-          "txHash",
-          "chainId",
-          "blockExplorer",
-          "gasProvided",
-          "gasUsed",
-          "value",
-          "timestamp",
-          "blockNumber",
-          "input",
-          "revertReason",
-          "paymentToken"
-        ]
+        }
       },
       "Token": {
         "type": "object",
@@ -1237,13 +1105,7 @@
             "example": "0x1234567890123456789012345678901234567890"
           }
         },
-        "required": [
-          "name",
-          "symbol",
-          "decimals",
-          "amount",
-          "address"
-        ]
+        "required": ["name", "symbol", "decimals", "amount", "address"]
       },
       "Org": {
         "type": "object",
@@ -1279,19 +1141,11 @@
                   "description": "Fee amount"
                 }
               },
-              "required": [
-                "recipient",
-                "token",
-                "amount"
-              ]
+              "required": ["recipient", "token", "amount"]
             }
           }
         },
-        "required": [
-          "appId",
-          "affiliateId",
-          "appFees"
-        ]
+        "required": ["appId", "affiliateId", "appFees"]
       },
       "Pagination": {
         "type": "object",
@@ -1317,12 +1171,7 @@
             "example": 6
           }
         },
-        "required": [
-          "page",
-          "limit",
-          "total",
-          "totalPages"
-        ]
+        "required": ["page", "limit", "total", "totalPages"]
       },
       "get_400__api_getStatusSchema": {
         "$ref": "#/components/schemas/ErrorResponse"
