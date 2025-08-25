@@ -1074,6 +1074,11 @@
       "TxRegistrationEvent": {
         "type": "object",
         "properties": {
+          "txId": {
+            "type": "string",
+            "description": "Unique transaction identifier",
+            "example": "0x49b1d3d38176e45864fd55500c6c1879ab318609e1ed0c8eb9abd818e6c811fd"
+          },
           "txHash": {
             "type": "string",
             "pattern": "^0x[a-fA-F0-9]{64}$",
@@ -1086,7 +1091,7 @@
             "example": 42161
           }
         },
-        "required": ["txHash", "chainId"]
+        "required": ["txHash", "chainId", "txId"]
       },
       "ValidatedTxId": {
         "type": "object",
