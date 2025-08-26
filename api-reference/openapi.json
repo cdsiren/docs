@@ -800,26 +800,6 @@
             "pattern": "^[0-9]+n$",
             "description": "Value in wei as string with 'n' suffix (bigint serialized)"
           },
-          "gasPrice": {
-            "type": "string",
-            "pattern": "^[0-9]+n$",
-            "description": "Gas price in wei as string with 'n' suffix (bigint serialized)"
-          },
-          "gasLimit": {
-            "type": "string",
-            "pattern": "^[0-9]+n$",
-            "description": "Gas limit as string with 'n' suffix (bigint serialized)"
-          },
-          "maxFeePerGas": {
-            "type": "string",
-            "pattern": "^[0-9]+n$",
-            "description": "Max fee per gas as string with 'n' suffix (bigint serialized)"
-          },
-          "maxPriorityFeePerGas": {
-            "type": "string",
-            "pattern": "^[0-9]+n$",
-            "description": "Max priority fee per gas as string with 'n' suffix (bigint serialized)"
-          },
           "chainId": {
             "$ref": "#/components/schemas/ChainId"
           }
