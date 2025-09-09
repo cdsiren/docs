@@ -165,7 +165,7 @@
             }
           },
           {
-            "name": "Erc20Spender",
+            "name": "erc20Spender",
             "in": "query",
             "required": false,
             "description": "The Erc20 spender requiring approval for the transaction call\n\n**Optional:** Will default to the `to` address\n\n`evm-calldata-tx`",
@@ -218,7 +218,7 @@
             "description": "Indexer API server"
           }
         ],
-        "description": "Register transactions for indexing. Mandatory for `alt-vm` transactions. Optional for any named VM.",
+        "description": "Register transactions for indexing. Mandatory for transactions with an 'alt-vm' `bridgeId` or `vmId`.",
         "operationId": "registerTxs",
         "requestBody": {
           "required": true,
@@ -776,7 +776,8 @@
           "ghost",
           "mayan",
           "across",
-          "relay"
+          "relay",
+          "alt-vm"
         ],
         "description": "Bridge protocol identifier."
       },
