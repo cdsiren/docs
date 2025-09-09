@@ -562,7 +562,8 @@
           "exchangeRate",
           "estimatedTxTime",
           "estimatedPriceImpact",
-          "allRoutes"
+          "allRoutes",
+          "requiresApproval"
         ],
         "properties": {
           "tx": {
@@ -643,6 +644,10 @@
             "type": "number",
             "format": "float",
             "description": "Estimated price impact percentage."
+          },
+          "requiresApproval": {
+            "type": "boolean",
+            "description": "Flag indicating whether the transaction object requires a source token approval check."
           },
           "allRoutes": {
             "type": "array",
@@ -856,8 +861,7 @@
             "properties": {
               "amount": {
                 "type": "string",
-                "pattern": "^[0-9]+n$",
-                "description": "Amount as string with 'n' suffix (bigint serialized)"
+                "pattern": "^[0-9]+n$"
               }
             }
           }
@@ -870,7 +874,7 @@
       "TokenInfo": {
         "type": "object",
         "properties": {
-          "tokenAddress": {
+          "address": {
             "$ref": "#/components/schemas/Address",
             "description": "Token address"
           },
@@ -889,6 +893,10 @@
           "chainId": {
             "$ref": "#/components/schemas/ChainId",
             "description": "Chain ID for the token"
+          },
+          "isNative": {
+            "type": "boolean",
+            "description": "Boolean flag for whether token is the chain's gas token."
           }
         }
       },
@@ -987,11 +995,11 @@
             "properties": {
               "minAmount": {
                 "type": "string",
-                "description": "Minimum amount (Alt VM only)"
+                "description": "Minimum amount of source token (Alt VM only). \n `null` if no min."
               },
               "maxAmount": {
                 "type": "string",
-                "description": "Maximum amount (Alt VM only)"
+                "description": "Maximum amount of source token (Alt VM only). \n `null` if no max."
               }
             }
           }
@@ -1002,14 +1010,13 @@
         "properties": {
           "minAmount": {
             "type": "string",
-            "description": "Minimum amount of source token required for swap to destination token \n `null` indicates no minumum"
+            "description": "Minimum amount of source token required for swap to destination token. \n `null` if no min."
           },
           "maxAmount": {
             "type": "string",
-            "description": "Maximum amount of source token that can be swapped to destination token \n `null` indicates no maximum"
+            "description": "Maximum amount of source token that can be swapped to destination token. \n `null` if no max."
           }
-        },
-        "required": ["minAmount", "maxAmount"]
+        }
       },
       "ChainPath": {
         "type": "object",
@@ -1097,7 +1104,7 @@
       "TxStatus": {
         "type": "object",
         "properties": {
-          "statusMessage": {
+          "status": {
             "type": "string",
             "enum": ["success", "pending", "refunded", "failed"],
             "description": "Status of the transaction",
