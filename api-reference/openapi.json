@@ -563,7 +563,7 @@
           "estimatedTxTime",
           "estimatedPriceImpact",
           "allRoutes",
-          "requiresApproval"
+          "requiresTokenApproval"
         ],
         "properties": {
           "tx": {
@@ -645,7 +645,7 @@
             "format": "float",
             "description": "Estimated price impact percentage."
           },
-          "requiresApproval": {
+          "requiresTokenApproval": {
             "type": "boolean",
             "description": "Flag indicating whether the transaction object requires a source token approval check."
           },
@@ -980,7 +980,7 @@
             "type": "string",
             "description": "Human-readable chain name"
           },
-          "vmId": { "$ref": "#/components/schemas/VmId" }
+          "vmId": { "$ref": "#/components/schemas/" }
         },
         "required": ["chainId", "name", "vmId"]
       },

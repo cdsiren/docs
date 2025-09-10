@@ -214,11 +214,14 @@ Let's assume we set Bitcoin as the source chain in the `actionRequest` used to g
 
 View the alt VM transaction type [here](/api-reference/get-action#alt-vm-transaction).
 
+Alt VM transactions are all deposits: the transaction will transfer funds from
+the `sender` to the `to` field specified in the `AltVmTransaction` response.
+This transfer triggers the swap transaction and funds will ultimately be
+delivered to the `recipient`.
+
 <Callout type="info">
-  Alt VM transactions are all deposits: the transaction will transfer funds from
-  the `sender` to the `to` field specified in the `AltVmTransaction` response.
-  This transfer triggers the swap transaction and funds will ultimately be
-  delivered to the `recipient`.
+  Please note XRP Ledger requires an extra memo tag to submit transactions. This
+  is included in the `tx` response object.
 </Callout>
 
 <Callout type="info">
@@ -245,48 +248,186 @@ import * as bitcoin from "bitcoinjs-lib";
 
 <Step title="Broadcast the transaction">
 
-This example assumes your wallet supports PSBT signing. You’ll finalize and extract the raw transaction, then send it to the Bitcoin network via a public relay (e.g., Blockstream or mempool.space), or your own full node.
+This example provides sample code to construct a Bitcoin transaction given the `actionResponse` transaction object and broadcast it to the network.
 
-```typescript
-import * as bitcoin from "bitcoinjs-lib";
+<CodeGroup>
+```typescript sendBtcTx.ts
+import { prepareBtcTx } from "./prepareBtcTx";
 
-export async function broadcastOnBitcoin({
-  actionRequest,
-  network = "mainnet",
-}): Promise<string> {
+export async function sendTransaction() {
   const { tx } = await getAction({ actionRequest });
+  const privateKeyWIF = "YOUR_PRIVATE_KEY_IN_WIF_FORMAT";
 
-  const bitcoinNetwork =
-    network === "mainnet" ? bitcoin.networks.bitcoin : bitcoin.networks.testnet;
+const keyPair = ECPair.fromWIF(privateKeyWIF, NET);
+const payment = bitcoin.payments.p2wpkh({
+pubkey: keyPair.publicKey,
+network: NET,
+});
 
-  const psbt = bitcoin.Psbt.fromHex(tx.psbt, { network: bitcoinNetwork });
+const utxos = await getUtxosForAddress(payment.address);
+const rawTransaction = prepareBtcTx({
+tx,
+privateKeyWIF,
+utxos,
+feeRate: 15,
+});
 
-  const keyPair = bitcoin.ECPair.fromWIF(YOUR_WIF, bitcoinNetwork);
-  psbt.signAllInputs(keyPair);
-  psbt.finalizeAllInputs();
+const response = await fetch("https://blockstream.info/api/tx", {
+method: "POST",
+headers: { "Content-Type": "text/plain" },
+body: rawTransaction,
+});
 
-  const rawTx = psbt.extractTransaction().toHex();
+if (!response.ok) {
+const errorText = await response.text();
+throw new Error(`Broadcast failed: ${response.status} - ${errorText}`);
+}
 
-  const res = await fetch("https://blockstream.info/api/tx", {
-    method: "POST",
-    headers: {
-      "Content-Type": "text/plain",
-    },
-    body: rawTx,
-  });
+return await response.text();
+}
 
-  if (!res.ok) {
-    const errorText = await res.text();
-    throw new Error(
-      `Failed to broadcast transaction: ${res.status} - ${errorText}`
-    );
+````
+```typescript prepareBtcTx.ts
+import * as bitcoin from "bitcoinjs-lib";
+import * as ecc from "tiny-secp256k1";
+import { ECPairFactory } from "ecpair";
+
+bitcoin.initEccLib(ecc);
+const ECPair = ECPairFactory(ecc);
+
+const NET = bitcoin.networks.bitcoin;
+const P2WPKH_DUST = 294;
+const RBF_SEQUENCE = 0xfffffffd;
+
+interface UTXO {
+  txid: string;
+  vout: number;
+  value: number;
+  address: string;
+}
+
+interface TxData {
+  to: string;
+  value: string;
+  chainId: number;
+  chainKey: string;
+}
+
+function estimateVsize(inputs: number, outputs: number): number {
+  return 10 + 68 * inputs + 31 * outputs;
+}
+
+function selectUtxos(utxos: UTXO[], target: number) {
+  const selected = [];
+  let total = 0;
+  for (const utxo of utxos) {
+    selected.push(utxo);
+    total += utxo.value;
+    if (total >= target) break;
+  }
+  return { selected, total };
+}
+
+export function prepareBtcTx({
+  tx,
+  privateKeyWIF,
+  utxos,
+  feeRate = 15,
+}: {
+  tx: TxData;
+  privateKeyWIF: string;
+  utxos: UTXO[];
+  feeRate?: number;
+}): string {
+  const outputValue = Number.parseInt(tx.value, 10);
+  if (!Number.isFinite(outputValue) || outputValue <= 0) {
+    throw new Error(`Invalid tx.value: ${tx.value}`);
   }
 
-  const txId = await res.text(); // Blockstream returns plain txid in response body
-  return txId;
+  // Validate destination address
+  bitcoin.address.toOutputScript(tx.to, NET);
+
+  // Derive change address
+  const keyPair = ECPair.fromWIF(privateKeyWIF, NET);
+  const payment = bitcoin.payments.p2wpkh({
+    pubkey: keyPair.publicKey,
+    network: NET
+  });
+
+  if (!payment.address) {
+    throw new Error("Could not derive P2WPKH address from private key");
+  }
+
+  // Estimate fee and select UTXOs
+  const vsize2 = estimateVsize(utxos.length, 2);
+  const fee2 = Math.ceil(vsize2 * feeRate);
+  let target = outputValue + fee2;
+  let { selected, total } = selectUtxos(utxos, target);
+
+  // If insufficient, try with single output (no change)
+  if (total < target) {
+    const vsize1 = estimateVsize(utxos.length, 1);
+    const fee1 = Math.ceil(vsize1 * feeRate);
+    const target1 = outputValue + fee1;
+    const retry = selectUtxos(utxos, target1);
+
+    if (retry.total < target1) {
+      throw new Error(`Insufficient funds. Need ${target1} sats, have ${retry.total}`);
+    }
+    selected = retry.selected;
+    total = retry.total;
+  }
+
+  // Calculate final outputs
+  const inputsCount = selected.length;
+  const feeTwoOut = Math.ceil(estimateVsize(inputsCount, 2) * feeRate);
+  let change = total - outputValue - feeTwoOut;
+
+  // Handle dust change
+  if (change > 0 && change < P2WPKH_DUST) {
+    const feeOneOut = Math.ceil(estimateVsize(inputsCount, 1) * feeRate);
+    change = total - outputValue - feeOneOut;
+    if (change < 0) {
+      throw new Error("Fee calculation error");
+    }
+  }
+
+  // Build transaction
+  const psbt = new bitcoin.Psbt({ network: NET });
+
+  // Add inputs
+  for (const utxo of selected) {
+    psbt.addInput({
+      hash: utxo.txid,
+      index: utxo.vout,
+      sequence: RBF_SEQUENCE,
+      witnessUtxo: {
+        script: bitcoin.address.toOutputScript(utxo.address, NET),
+        value: utxo.value,
+      },
+    });
+  }
+
+  // Add outputs
+  psbt.addOutput({ address: tx.to, value: outputValue });
+
+  if (change >= P2WPKH_DUST) {
+    psbt.addOutput({ address: payment.address, value: change });
+  }
+
+  // Sign all inputs
+  for (let i = 0; i < selected.length; i++) {
+    psbt.signInput(i, keyPair);
+  }
+
+  psbt.finalizeAllInputs();
+  return psbt.extractTransaction().toHex();
 }
-```
+````
+
+</CodeGroup>
 
 <Callout type="success"> **Transaction broadcasted!** Use a Bitcoin explorer like [Blockstream](https://blockstream.info) to verify your transaction. </Callout>
 </Step>
 </Steps>
+```
