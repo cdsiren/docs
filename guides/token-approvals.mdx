@@ -1,0 +1,94 @@
+---
+title: "EVM Token Approvals"
+description: "Check for approvals and broadcast both the approval and Swaps transaction in a single call."
+---
+
+## Batch token approvals with Swaps transactions
+
+On EVM chains, you will need to grant token approvals to submit transactions. The `spender` in the approval should be the `to` address in the transaction object returned by the `/getAction` endpoint.
+
+Recent EIPs enable applications to batch the approval and Swaps transactions. This means EVM ERC20 transactions are still only a single transaction for your users.
+
+We recommend the [`wallet_sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls#sendcalls) method enabled by [EIP 5792](https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md).
+
+The example below generates a cross-chain swap for 10 USDC on Base to USDT on Arbitrum. It demonstrates how to call the `/getAction` endpoint and batch the returned transaction with an approval for 10 USDC on Base so that both the approval and swap can be submitted in a single transaction. Refer to the [EVM Broadcast Guide]
+
+  <CodeGroup>
+  ```typescript sendBatchedTx.ts
+    import { getAction } from "./getAction";
+    import { parseAbiItem } from "viem";
+    import { walletClient } from "./config";
+
+    const actionRequest: ActionRequest = {
+      actionType: "swap-action",
+      sender: "0xd8da6bf26964af9d7eed9e03e53415d37aa96045", // generally the user's connected wallet address
+      srcToken: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", // USDC on Base
+      dstToken: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9", // USDT on Arbitrum
+      srcChainId: 8453, // Base Chain ID
+      dstChainId: 42161, // Arbitrum Chain ID
+      slippage: 100, // bps
+      swapDirection: "exact-amount-in",
+      amount: 10000000n, // denominated in srcToken decimals
+      recipient: "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    };
+
+    const tx = await getAction({ actionRequest });
+
+    export async function sendBatchedTx() {
+      const { id } = await walletClient.sendCalls([
+        calls: [
+          {
+            to: actionRequest.srcToken,
+            abi: parseAbiItem('function approve(address, uint256) returns (bool)'),
+            functionName: 'approve',
+            args: [
+              tx.to,
+              amount
+            ]
+          },
+          {
+            to: tx.to,
+            value: tx.value,
+            data: tx.data
+          },
+        ]
+      ]);
+
+      return id;
+    }
+
+````
+```typescript getAction.ts
+  import { sendTransaction } from "@wagmi/core";
+  import { useAccount } from "wagmi";
+
+  async function getAction({ actionRequest }): Promise<ActionResponse> {
+  const url = new URL("https://api-v2.swaps.xyz/api/getAction");
+
+  Object.entries(actionRequest).forEach(([key, value]) => {
+  url.searchParams.set(key, String(value));
+  });
+
+  const requestOptions = {
+  method: "GET",
+  headers: { "x-api-key": SWAPS_API_KEY },
+  };
+
+  const response = await fetch(url.toString(), requestOptions);
+
+  const { tx } = await response.json();
+  return tx;
+
+}
+
+````
+
+</CodeGroup>
+
+Alternatively, you like to use [EIP-7702](https://viem.sh/docs/eip7702), which enables EOAs to designate a smart contract as its implementation. This EIP equips EOAs with features previously reserved for smart contract accounts like transaction batching, sponsorship, and delegated signing. We find EIP 5792 to be a lighter-weight implementation for batching transactions specifically.
+
+For a basic example of the sequenced, legacy approval method, please visit [this NFT mint button example](https://github.com/decentxyz/launch-nfts/blob/c2a5d7300dfe9265a42c7f3e5863606805d65039/components/MintButton.tsx#L32).
+
+```
+
+```

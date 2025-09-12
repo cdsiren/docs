@@ -22,7 +22,8 @@
             "pages": [
               "/guides/swap",
               "/guides/calldata-call",
-              "/guides/track-transactions"
+              "/guides/track-transactions",
+              "/guides/token-approvals"
             ]
           },
           {
