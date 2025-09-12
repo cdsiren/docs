@@ -41,13 +41,19 @@ async function getStatus(
 }
 ```
 
+<Callout type="info">
+  **Swaps.xyz does support webhooks.** Please contact Swaps to register a
+  webhook url and receive a secret. The webhook payload matches the `/getStatus`
+  response.
+</Callout>
+
 ## Register transaction
 
 **API Reference:** [Register Transaction](/api-reference/register-transaction)
 
 Registering a transaction triggers indexing after it is broadcasted on the source chain.
 
-This is only required for transactions with an "alt-vm" `bridgeId` or `vmId`. The [Get Action](/api-reference/get-action) request used to generate the transaction will return a `vmId` in the response. If the `vmId` is `alt-vm`, you know you will need to register your transaction. This is covered in the [alt VM broadcast guide](/guides/swap#broadcast-on-altvm). Swaps will automatically register any transaction submitted to a named VM.
+This is only required for transactions with an "alt-vm" `bridgeId` or `vmId`. The [Get Action](/api-reference/get-action) request used to generate the transaction will return a `vmId` in the response. If the `vmId` is `alt-vm`, you know you will need to register your transaction. This is covered in the [alt VM broadcast guide](/guides/swap#broadcast-on-altvm). Swaps will automatically register any transaction submitted to a named VM. If you believe we have missed a transaction, calling the register transaction endpoint will trigger indexing.
 
 This endpoint does support registering multiple transactions in a single call.
 

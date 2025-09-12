@@ -18,12 +18,6 @@ The [`/getPaths` endpoint](/api-reference/get-paths) returns all available desti
 
 For named VMs, it is safe to assume any token in any size is available.
 
-## Check for approvals
-
-If you select an ERC20 token as the source token to complete a transaction, you will need to make sure the user has granted approval on the source chain to spend the required amount for the transaction.
-
-[EIP-7702](https://viem.sh/docs/eip7702) enables you to combine the approval and broadcast transactions into a single call. For a basic example of the legacy approval method, please visit [this NFT mint button example](https://github.com/decentxyz/launch-nfts/blob/c2a5d7300dfe9265a42c7f3e5863606805d65039/components/MintButton.tsx#L32).
-
 ## Manage permissioned functions
 
 Some smart contracts include permissioned functions that resolve based on the wallet address sending the transaction. Often, you will see a check based on the `msg.sender`.
@@ -39,76 +33,76 @@ To enable cross-chain execution while still authenticating wallets, Songcamp inc
 [View full contract](https://explorer.zora.energy/address/0x38898cadb5241121620a81e7bca47eab8a87402a?tab=contract)
 
 ```solidity
-  function multiWriteToDiscSignature( // [!code focus]
-      uint256[] memory tokenIds, // [!code focus]
-      uint256[] memory songSelections, // [!code focus]
-      bytes memory signature  // [!code focus]
-  ) public {
-      require(
-          tokenIds.length == songSelections.length,
-          "tokenIds and songSelections arrays must have the same length"
-      );
+function multiWriteToDiscSignature( // [!code focus]
+    uint256[] memory tokenIds, // [!code focus]
+    uint256[] memory songSelections, // [!code focus]
+    bytes memory signature  // [!code focus]
+) public {
+    require(
+        tokenIds.length == songSelections.length,
+        "tokenIds and songSelections arrays must have the same length"
+    );
 
-      //Constructing the signed hash for signer address recovery  // [!code focus]
-      bytes32 messageHash = keccak256(abi.encodePacked(tokenIds, songSelections));  // [!code focus]
+    //Constructing the signed hash for signer address recovery  // [!code focus]
+    bytes32 messageHash = keccak256(abi.encodePacked(tokenIds, songSelections));  // [!code focus]
 
-      bytes32 ethSignedHash = keccak256(  // [!code focus]
-          abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)  // [!code focus]
-      );  // [!code focus]
+    bytes32 ethSignedHash = keccak256(  // [!code focus]
+        abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)  // [!code focus]
+    );  // [!code focus]
 
-      address signer = recoverSigner(ethSignedHash, signature);  // [!code focus]
+    address signer = recoverSigner(ethSignedHash, signature);  // [!code focus]
 
-      for (uint256 i = 0; i < tokenIds.length; i++) {
-          uint256 tokenId = tokenIds[i];
-          uint256 songChoiceId = songSelections[i];
+    for (uint256 i = 0; i < tokenIds.length; i++) {
+        uint256 tokenId = tokenIds[i];
+        uint256 songChoiceId = songSelections[i];
 
-          // Check if CdMemory is not written before allowing an update
-          CdMemory storage cd = readCdMemory[tokenId];
-          require(
-              ownerOf(tokenId) == signer,
-              "Only the owner can set CdMemory"
-          );
-          require(
-              songChoiceId >= 1 && songChoiceId <= 5,
-              "Invalid song choice ID"
-          );
-          require(!cd.written, "One or more tokens are already written.");
+        // Check if CdMemory is not written before allowing an update
+        CdMemory storage cd = readCdMemory[tokenId];
+        require(
+            ownerOf(tokenId) == signer,
+            "Only the owner can set CdMemory"
+        );
+        require(
+            songChoiceId >= 1 && songChoiceId <= 5,
+            "Invalid song choice ID"
+        );
+        require(!cd.written, "One or more tokens are already written.");
 
-          // Update CdMemory and mark it as written
-          cd.writerAddress = signer;
-          cd.songChoiceId = songChoiceId;
-          cd.written = true;
+        // Update CdMemory and mark it as written
+        cd.writerAddress = signer;
+        cd.songChoiceId = songChoiceId;
+        cd.written = true;
 
-          writeCount += 1;
+        writeCount += 1;
 
-          emit CdMemorySet(tokenId, signer, songChoiceId);
-      }
-  }
+        emit CdMemorySet(tokenId, signer, songChoiceId);
+    }
+}
 
-  //Helper function to determine signer address based on the signed hash and the signature
+//Helper function to determine signer address based on the signed hash and the signature
 
-  function recoverSigner( // [!code focus]
-      bytes32 ethSignedHash, // [!code focus]
-      bytes memory signature // [!code focus]
-  ) public pure returns (address) { // [!code focus]
-      // Extract the r, s, and v values from the signature // [!code focus]
-      (bytes32 r, bytes32 s, uint8 v) = splitSignature(signature); // [!code focus]
+function recoverSigner( // [!code focus]
+    bytes32 ethSignedHash, // [!code focus]
+    bytes memory signature // [!code focus]
+) public pure returns (address) { // [!code focus]
+    // Extract the r, s, and v values from the signature // [!code focus]
+    (bytes32 r, bytes32 s, uint8 v) = splitSignature(signature); // [!code focus]
 
-      // Recover and return the signer address // [!code focus]
-      return ecrecover(ethSignedHash, v, r, s); // [!code focus]
-  }
+    // Recover and return the signer address // [!code focus]
+    return ecrecover(ethSignedHash, v, r, s); // [!code focus]
+}
 
-  //Helper Function to split signature into RSV values // [!code focus]
-  function splitSignature( // [!code focus]
-      bytes memory signature // [!code focus]
-  ) public pure returns (bytes32 r, bytes32 s, uint8 v) { // [!code focus]
-      require(signature.length == 65, "Invalid signature length"); // [!code focus]
+//Helper Function to split signature into RSV values // [!code focus]
+function splitSignature( // [!code focus]
+    bytes memory signature // [!code focus]
+) public pure returns (bytes32 r, bytes32 s, uint8 v) { // [!code focus]
+    require(signature.length == 65, "Invalid signature length"); // [!code focus]
 
-      assembly { // [!code focus]
-          // Slice the r, s, and v components from the signature // [!code focus]
-          r := mload(add(signature, 32)) // [!code focus]
-          s := mload(add(signature, 64)) // [!code focus]
-          v := byte(0, mload(add(signature, 96))) // [!code focus]
-      } // [!code focus]
-  } // [!code focus]
+    assembly { // [!code focus]
+        // Slice the r, s, and v components from the signature // [!code focus]
+        r := mload(add(signature, 32)) // [!code focus]
+        s := mload(add(signature, 64)) // [!code focus]
+        v := byte(0, mload(add(signature, 96))) // [!code focus]
+    } // [!code focus]
+} // [!code focus]
 ```
