@@ -1327,9 +1327,17 @@
                   "pattern": "^0x[a-fA-F0-9]{40}$",
                   "description": "Fee token address"
                 },
+                "decimals": {
+                  "type": "number",
+                  "description": "Decimals of the fee token"
+                },
                 "amount": {
                   "type": "string",
                   "description": "Fee amount"
+                },
+                "usdValue": {
+                  "type": "number",
+                  "description": "Fee amount in USD"
                 }
               },
               "required": ["recipient", "token", "amount"]
