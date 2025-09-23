@@ -579,6 +579,10 @@
               {
                 "title": "Alt VM Transaction",
                 "$ref": "#/components/schemas/AltVmTransaction"
+              },
+              {
+                "title": "HyperCore Transaction",
+                "$ref": "#/components/schemas/HyperCoreTransaction"
               }
             ],
             "description": "Transaction data for execution"
@@ -589,7 +593,7 @@
           },
           "vmId": {
             "type": "string",
-            "enum": ["evm", "solana", "alt-vm"],
+            "enum": ["evm", "solana", "alt-vm", "hypercore"],
             "description": "Virtual machine identifier."
           },
           "amountIn": {
@@ -688,6 +692,10 @@
               {
                 "title": "Alt VM Transaction",
                 "$ref": "#/components/schemas/AltVmTransaction"
+              },
+              {
+                "title": "HyperCore Transaction",
+                "$ref": "#/components/schemas/HyperCoreTransaction"
               }
             ],
             "description": "Transaction data for execution"
@@ -698,7 +706,7 @@
           },
           "vmId": {
             "type": "string",
-            "enum": ["evm", "solana", "alt-vm"],
+            "enum": ["evm", "solana", "alt-vm", "hypercore"],
             "description": "Virtual machine identifier."
           },
           "amountIn": {
@@ -762,7 +770,7 @@
       },
       "VmId": {
         "type": "string",
-        "enum": ["evm", "solana", "alt-vm"],
+        "enum": ["evm", "solana", "alt-vm", "hypercore"],
         "description": "Virtual machine identifier."
       },
       "BridgeId": {
@@ -848,6 +856,32 @@
           "chainKey": {
             "type": "string",
             "description": "Chain key identifier"
+          }
+        }
+      },
+      "HyperCoreAction": {
+        "type": "string",
+        "enum": ["usdSend"],
+        "description": "HyperCore action type"
+      },
+      "HyperCoreTransaction": {
+        "type": "object",
+        "required": ["type", "destination", "amount", "chainId"],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/HyperCoreAction"
+          },
+          "destination": {
+            "type": "string",
+            "description": "Destination address"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Amount to transfer"
+          },
+          "chainId": {
+            "$ref": "#/components/schemas/ChainId",
+            "description": "Chain ID. 1337 for HyperCore"
           }
         }
       },
@@ -1069,7 +1103,7 @@
           },
           "vmId": {
             "type": "string",
-            "enum": ["evm", "solana", "alt-vm"],
+            "enum": ["evm", "solana", "alt-vm", "hypercore"],
             "description": "Virtual machine identifier."
           },
           "txHash": {
