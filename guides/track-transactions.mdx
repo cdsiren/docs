@@ -42,9 +42,8 @@ async function getStatus(
 ```
 
 <Callout type="info">
-  **Swaps.xyz does support webhooks.** Please contact Swaps to register a
-  webhook url and receive a secret. The webhook payload matches the `/getStatus`
-  response.
+  **If you would prefer to use webhooks, please reference the [webhook
+  documentation](/guides/track-transactions#webhooks) below.**
 </Callout>
 
 ## Register transaction
@@ -80,4 +79,61 @@ async function registerTx(
   const response = await fetch(url, options);
   const data = await response.json();
 }
+```
+
+## Webhooks
+
+Swaps can emit webhooks on transaction creation and completion (success or failure) events. To use webhooks, please register a webhook URL in the developer console. Webhook URLs should correspond to a certain API key --each API key represents a unique appId. Each appId can have its own webhook URL.
+
+<Callout type="warning">
+  🚧 The Console does not yet support webhook URL registration. 🚧 Please
+  contact the Swaps team to register a URL.
+</Callout>
+
+Swaps' webhooks are sent with a `x-signature-256` header that hashes the raw request body and delivery timestamp. This signature ensures that neither the request body nor the timestamp were modified and can be trusted as sent from Swaps.
+
+The webhook body mirrors the [`TxDetails` object](/api-reference/get-status#response-status-message) returned from the `/getStatus` endpoint. The schema is:
+
+```typescript
+type WebhookBody = {
+  event: "created" | "updated"; // "updated" is emitted on tx completion
+  txStatus: StatusDetails;
+  timestamp: number;
+};
+```
+
+To verify the webhook signature, hash the payload with your webhook secret using SHA256 and confirm that the timestamp is within an expected buffer. Please see a reference implementation below:
+
+```typescript
+function verifyWebhook(payload, signature, secret) {
+  const expectedSignature = crypto
+    .createHmac("sha256", secret)
+    .update(payload)
+    .digest("hex");
+
+  const receivedSignature = signature.replace("sha256=", "");
+
+  // Use constant-time comparison
+  const sigBuffer = Buffer.from(receivedSignature, "hex");
+  const expectedBuffer = Buffer.from(expectedSignature, "hex");
+
+  if (sigBuffer.length !== expectedBuffer.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(sigBuffer, expectedBuffer);
+}
+
+// Sample usage in Express handler
+app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
+  const signature = req.headers["x-signature-256"];
+  const payload = req.body.toString();
+
+  if (!verifyWebhook(payload, signature, process.env.WEBHOOK_SECRET)) {
+    return res.status(401).send("Invalid signature");
+  }
+
+  // Process webhook...
+  res.status(200).send("OK");
+});
 ```
