@@ -430,4 +430,61 @@ export function prepareBtcTx({
 <Callout type="success"> **Transaction broadcasted!** Use a Bitcoin explorer like [Blockstream](https://blockstream.info) to verify your transaction. </Callout>
 </Step>
 </Steps>
+
+## Broadcast on HyperCore
+
+Let's assume we set HyperCore as the source chain in the `actionRequest` used to generate our transaction. Let's see how we can broadcast it on HyperCore.
+
+View the HyperCore transaction type [here](/api-reference/get-action#hypercore-transaction).
+
+<Steps>
+<Step title="Install recommended package">
+```bash
+pnpm i @nktkas/hyperliquid viem
 ```
+</Step>
+
+<Step title="Import the recommended libraries">
+
+We'll use the HyperLiquid SDK for interacting with the HyperCore network.
+
+```typescript
+import * as HyperLiquid from "@nktkas/hyperliquid";
+import { createWalletClient, custom } from "viem";
+```
+
+</Step>
+
+<Step title="Broadcast the transaction">
+
+<Callout type="warning">
+  Ensure that your wallet has sufficient balance to cover the transaction amount
+  and any associated fees on the HyperCore network.
+</Callout>
+
+```typescript
+import * as HyperLiquid from "@nktkas/hyperliquid";
+import { createWalletClient, custom } from "viem";
+
+export async function broadcastOnHyperCore({ actionRequest }): Promise<string> {
+  const { tx } = await getAction({ actionRequest });
+
+  const [account] = await window.ethereum.request({ method: "eth_requestAccounts" });
+  const wallet = createWalletClient({
+    account,
+    transport: custom(window.ethereum)
+  });
+
+  const transport = new HyperLiquid.HttpTransport();
+  const exchClient = new HyperLiquid.ExchangeClient({ wallet, transport });
+
+  return await exchClient.usdSend({
+    destination: tx.destination,
+    amount: tx.amount,
+  });
+}
+```
+
+<Callout type="success"> **Transaction broadcasted!** Use the [HyperLiquid explorer](https://app.hyperliquid.xyz/explorer) to verify your transaction. </Callout>
+</Step>
+</Steps>
