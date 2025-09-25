@@ -208,7 +208,7 @@ export async function broadcastOnSolana({ actionRequest }): Promise<string> {
 </Step>
 </Steps>
 
-## Broadcast on alt VMs
+## Broadcast on Alt VMs
 
 Let's assume we set Bitcoin as the source chain in the `actionRequest` used to generate our transaction. Let's see how we can broadcast it on Bitcoin.
 
@@ -469,10 +469,12 @@ import { createWalletClient, custom } from "viem";
 export async function broadcastOnHyperCore({ actionRequest }): Promise<string> {
   const { tx } = await getAction({ actionRequest });
 
-  const [account] = await window.ethereum.request({ method: "eth_requestAccounts" });
+  const [account] = await window.ethereum.request({
+    method: "eth_requestAccounts",
+  });
   const wallet = createWalletClient({
     account,
-    transport: custom(window.ethereum)
+    transport: custom(window.ethereum),
   });
 
   const transport = new HyperLiquid.HttpTransport();
