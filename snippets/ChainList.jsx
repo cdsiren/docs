@@ -14,7 +14,11 @@ export const ChainList = () => {
     const overrides = {
       btc: 'Bitcoin',
       xrp: 'XRP Ledger',
-      ltc: 'Litecoin'
+      ltc: 'Litecoin',
+      egld: 'Multiversx',
+      xtz: 'Tezos',
+      strk: 'Starknet',
+      atom: 'Cosmos',
     };
   
     if (!name || typeof name !== 'string') return name;
