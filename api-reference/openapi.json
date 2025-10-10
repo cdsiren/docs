@@ -218,7 +218,7 @@
             "description": "Indexer API server"
           }
         ],
-        "description": "Register transactions for indexing. Mandatory for transactions with an 'alt-vm' `bridgeId` or `vmId`.",
+        "description": "Register transactions for indexing. Mandatory for non EVM transactions.",
         "operationId": "registerTxs",
         "requestBody": {
           "required": true,
@@ -1141,7 +1141,13 @@
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["success", "pending", "refunded", "failed"],
+            "enum": [
+              "success",
+              "pending",
+              "requires refund",
+              "refunded",
+              "failed"
+            ],
             "description": "Status of the transaction",
             "example": "success"
           },

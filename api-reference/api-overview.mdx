@@ -7,14 +7,14 @@ import { Callout } from "/snippets/Callout.jsx";
 
 ## Endpoint reference
 
-| API                                                          | Description                                                                                                                      |
-| :----------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------- |
-| [Get Action](/api-reference/get-action)                      | Generate a bridge, swap, or cross-chain call transaction.                                                                        |
-| [Register Transaction](/api-reference/register-transactions) | Trigger indexing for one or multiple broadcasted transactions. Mantadory for transactions with an "alt-vm" `vmId` or `bridgeId`. |
-| [Get Status](/api-reference/get-status)                      | Track the status of a transaction based on its hash or ID.                                                                       |
-| [Get Transactions](/api-reference/get-transactions)          | Return transaction history based on desired filters.                                                                             |
-| [Get Paths](/api-reference/get-paths)                        | Retrieve available swap routes for given source token based on desired filters.                                                  |
-| [Get Chain List](/api-reference/get-chain-list)              | Return list of all supported chains and their `VmId`s.                                                                           |
+| API                                                          | Description                                                                                        |
+| :----------------------------------------------------------- | :------------------------------------------------------------------------------------------------- |
+| [Get Action](/api-reference/get-action)                      | Generate a bridge, swap, or cross-chain call transaction.                                          |
+| [Register Transaction](/api-reference/register-transactions) | Trigger indexing for one or multiple broadcasted transactions. Mantadory for non EVM transactions. |
+| [Get Status](/api-reference/get-status)                      | Track the status of a transaction based on its hash or ID.                                         |
+| [Get Transactions](/api-reference/get-transactions)          | Return transaction history based on desired filters.                                               |
+| [Get Paths](/api-reference/get-paths)                        | Retrieve available swap routes for given source token based on desired filters.                    |
+| [Get Chain List](/api-reference/get-chain-list)              | Return list of all supported chains and their `VmId`s.                                             |
 
 ## Authentication
 
