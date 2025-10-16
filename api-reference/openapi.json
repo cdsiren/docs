@@ -1186,6 +1186,14 @@
             "type": "string",
             "description": "Unique transaction identifier",
             "example": "0x49b1d3d38176e45864fd55500c6c1879ab318609e1ed0c8eb9abd818e6c811fd"
+          },
+          "actionRequest": {
+            "$ref": "#/components/schemas/ActionRequest",
+            "description": "Original action request parameters"
+          },
+          "actionResponse": {
+            "$ref": "#/components/schemas/ActionResponse",
+            "description": "Original action response data"
           }
         }
       },
@@ -1420,6 +1428,97 @@
         "items": {
           "$ref": "#/components/schemas/ValidatedTxId"
         }
+      },
+      "ActionRequest": {
+        "type": "object",
+        "properties": {
+          "actionType": {
+            "$ref": "#/components/schemas/ActionType",
+            "description": "Type of action to perform"
+          },
+          "sender": {
+            "$ref": "#/components/schemas/Address",
+            "description": "The address of the sender/user"
+          },
+          "srcChainId": {
+            "$ref": "#/components/schemas/ChainId",
+            "description": "Source chain ID"
+          },
+          "srcToken": {
+            "$ref": "#/components/schemas/Address",
+            "description": "Source token address"
+          },
+          "dstChainId": {
+            "$ref": "#/components/schemas/ChainId",
+            "description": "Destination chain ID"
+          },
+          "dstToken": {
+            "$ref": "#/components/schemas/Address",
+            "description": "Destination token address"
+          },
+          "slippage": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "Slippage tolerance in bps"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^[0-9]$",
+            "description": "The exact in or exact out amount of the swap"
+          },
+          "swapDirection": {
+            "$ref": "#/components/schemas/SwapDirection",
+            "description": "Swap direction for the action"
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/Address",
+            "description": "Address to receive the swapped tokens"
+          },
+          "to": {
+            "$ref": "#/components/schemas/Address",
+            "description": "The EVM address of the target contract (20 bytes hex)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Hex",
+            "description": "Calldata for the transaction"
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^[0-9]$",
+            "description": "Value to send with transaction"
+          },
+          "erc20Amount": {
+            "type": "string",
+            "pattern": "^[0-9]$",
+            "description": "The amount of Erc20 being transferred"
+          },
+          "erc20Spender": {
+            "$ref": "#/components/schemas/Address",
+            "description": "The Erc20 spender requiring approval for the transaction call"
+          },
+          "bridgeIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BridgeId"
+            },
+            "description": "Specific bridge protocols to use"
+          },
+          "refundTo": {
+            "$ref": "#/components/schemas/Address",
+            "description": "Alternate address to receive refunds"
+          }
+        },
+        "required": [
+          "actionType",
+          "sender",
+          "srcChainId",
+          "srcToken",
+          "dstChainId",
+          "dstToken",
+          "slippage"
+        ]
       }
     },
     "securitySchemes": {
@@ -1427,7 +1526,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "description": "Limited demo key for API Playground: `5c951bc81da566bbd030ba8e20724063`."
+        "description": "Limited demo key for API Reference: `5c951bc81da566bbd030ba8e20724063`."
       }
     }
   },
