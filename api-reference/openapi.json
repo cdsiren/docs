@@ -1030,11 +1030,11 @@
             "properties": {
               "minAmount": {
                 "type": "string",
-                "description": "Minimum amount of source token (Alt VM only). \n `null` if no min."
+                "description": "Minimum amount of source token (Alt VM only) for exact-out swaps. \n `null` if no min."
               },
               "maxAmount": {
                 "type": "string",
-                "description": "Maximum amount of source token (Alt VM only). \n `null` if no max."
+                "description": "Maximum amount of source token (Alt VM only) for exact-out swaps. \n `null` if no max."
               }
             }
           }
@@ -1045,11 +1045,11 @@
         "properties": {
           "minAmount": {
             "type": "string",
-            "description": "Minimum amount of source token required for swap to destination token. \n `null` if no min."
+            "description": "Minimum amount of source token required for exact-in swaps. \n `null` if no min."
           },
           "maxAmount": {
             "type": "string",
-            "description": "Maximum amount of source token that can be swapped to destination token. \n `null` if no max."
+            "description": "Maximum amount of source token for exact-in swaps. \n `null` if no max."
           }
         }
       },
@@ -1359,37 +1359,6 @@
             "type": "string",
             "description": "Affiliate ID",
             "example": "affiliate_123"
-          },
-          "appFees": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "recipient": {
-                  "type": "string",
-                  "pattern": "^0x[a-fA-F0-9]{40}$",
-                  "description": "Fee recipient address"
-                },
-                "token": {
-                  "type": "string",
-                  "pattern": "^0x[a-fA-F0-9]{40}$",
-                  "description": "Fee token address"
-                },
-                "decimals": {
-                  "type": "number",
-                  "description": "Decimals of the fee token"
-                },
-                "amount": {
-                  "type": "string",
-                  "description": "Fee amount"
-                },
-                "usdValue": {
-                  "type": "number",
-                  "description": "Fee amount in USD"
-                }
-              },
-              "required": ["recipient", "token", "amount"]
-            }
           }
         },
         "required": ["appId", "affiliateId", "appFees"]
