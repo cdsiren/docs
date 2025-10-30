@@ -19,6 +19,8 @@ export const ChainList = () => {
       xtz: 'Tezos',
       strk: 'Starknet',
       atom: 'Cosmos',
+      zec: 'Zcash',
+      xmr: 'Monero',
     };
   
     if (!name || typeof name !== 'string') return name;
