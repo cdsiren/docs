@@ -52,28 +52,35 @@ async function getStatus(
 
 Registering a transaction triggers indexing after it is broadcasted on the source chain.
 
-This is required for non EVM transactions. The [Get Action](/api-reference/get-action) request used to generate the transaction will return a `vmId` in the response. If the `vmId` is `alt-vm` or `solana`, you know you will need to register your transaction. This is covered in the [alt VM broadcast guide](/guides/swap#broadcast-on-altvm). Swaps will automatically register any transaction submitted to a named VM. If you believe we have missed a transaction, calling the register transaction endpoint will trigger indexing.
+This is required for any transactions that return an `alt-vm-*` bridge ID in the [Action Response](/api-reference/get-action). The [ request used to generate the transaction will return a `vmId` in the response. If the `vmId` is `alt-vm` or `solana`, you know you will need to register your transaction. This is covered in the [alt VM broadcast guide](/guides/swap#broadcast-on-altvm). Swaps will automatically register any transaction submitted to a named VM. If you believe we have missed a transaction, calling the register transaction endpoint will trigger indexing.
 
 This endpoint does support registering multiple transactions in a single call.
 
-| Parameter | Description                        |
-| :-------- | :--------------------------------- |
-| `chainId` | Source chain ID of the transaction |
-| `txHash`  | Source chain transaction hash      |
+| Parameter | Description                                                                                                                                                                        |
+| :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `txId`    | The **transaction ID** from the action response.                                                                                                                                   |
+| `chainId` | The **source chain ID** where the transaction originated.                                                                                                                          |
+| `txHash`  | The **transaction hash** from the source chain.                                                                                                                                    |
+| `vmId`    | The **virtual machine ID** associated with the bridge.<br /><br />For `alt-vm-\*` bridge IDs, use `alt-vm`. For all other bridges, use the `vmId` returned in the action response. |
 
 ```typescript
 async function registerTx(
   srcChainId: ChainId,
   srcTxHash: string
 ): Promise<{ success: true; error: string | null }> {
-  const url = "https://ghost.swaps.xyz/api/v2/webhooks/registerTxs";
+  const url = "https://api-v2.swaps.xyz/api/registerTxs";
   const options = {
     method: "POST",
     headers: {
       "x-api-key": SWAPS_API_KEY,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ txHash: srcTxHash, chainId: srcChainId }),
+    body: JSON.stringify({
+      txHash: srcTxHash,
+      chainId: srcChainId,
+      vmId,
+      txId,
+    }),
   };
 
   const response = await fetch(url, options);

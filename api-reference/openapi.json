@@ -442,7 +442,7 @@
     "/getPaths": {
       "get": {
         "summary": "Get Paths",
-        "description": "Retrieve available token paths across chains with filtering options. Includes token info, supported swap directions, and optional amount limits for alt VM chains.",
+        "description": "Retrieves all available token paths across supported chains with configurable filtering options. It’s recommended to call this endpoint after selecting the source and destination tokens to validate route eligibility.",
         "operationId": "getPaths",
         "parameters": [
           {
@@ -463,14 +463,14 @@
             "name": "dstChainId",
             "in": "query",
             "required": false,
-            "description": "Optional destination chain ID",
+            "description": "Recommended: destination chain ID",
             "schema": { "$ref": "#/components/schemas/ChainId" }
           },
           {
             "name": "dstToken",
             "in": "query",
             "required": false,
-            "description": "Optional destination token address",
+            "description": "Recommended: destination token address",
             "schema": { "type": "string" }
           },
           {
