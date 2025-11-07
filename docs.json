@@ -28,7 +28,11 @@
           },
           {
             "group": "Resources",
-            "pages": ["/resources/best-practices", "/resources/chain-list"]
+            "pages": [
+              "/resources/best-practices",
+              "/resources/chain-list",
+              "/resources/terms-of-service"
+            ]
           }
         ]
       },
