@@ -205,6 +205,356 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad request due to missing or invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetActionErrorResponse"
+                },
+                "examples": {
+                  "AMOUNT_TOO_HIGH": {
+                    "summary": "Amount Too High",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "AmountTooHighError",
+                      "message": "The specified amount is too high.",
+                      "title": "Amount too high",
+                      "code": "AMOUNT_TOO_HIGH",
+                      "details": {
+                        "srcToken": "0x0000000000000000000000000000000000000000",
+                        "dstToken": "0x0000000000000000000000000000000000000000",
+                        "srcChainId": 1,
+                        "dstChainId": 42161,
+                        "maxAmount": 100000000000000000000
+                      }
+                    }
+                  },
+                  "AMOUNT_TOO_LOW": {
+                    "summary": "Amount Too Low",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "AmountTooLowError",
+                      "message": "The specified amount is too low.",
+                      "title": "Amount too low",
+                      "code": "AMOUNT_TOO_LOW",
+                      "details": {
+                        "srcToken": "0x0000000000000000000000000000000000000000",
+                        "dstToken": "0x0000000000000000000000000000000000000000",
+                        "srcChainId": 1,
+                        "dstChainId": 42161,
+                        "minAmount": 0.000123
+                      }
+                    }
+                  },
+                  "CROSS_VM_RECEIVER_REQUIRED": {
+                    "summary": "Cross VM Receiver Required",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "CrossVmReceiverRequiredError",
+                      "message": "Receiver address is required for swaps across different VMs.",
+                      "title": "Receiver address required",
+                      "code": "CROSS_VM_RECEIVER_REQUIRED",
+                      "details": {
+                        "srcChainId": 1,
+                        "dstChainId": 1399811149
+                      }
+                    }
+                  },
+                  "EXCESSIVE_FEE": {
+                    "summary": "Excessive Fee",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "ExcessiveFeeError",
+                      "message": "The inputted flat fee is too large (over 50% of tx input).",
+                      "title": "Excessive fee",
+                      "code": "EXCESSIVE_FEE"
+                    }
+                  },
+                  "INSUFFICIENT_LIQUIDITY": {
+                    "summary": "Insufficient Liquidity",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "InsufficientLiquidityError",
+                      "message": "There is insufficient liquidity to complete this transaction.",
+                      "title": "Insufficient liquidity",
+                      "code": "INSUFFICIENT_LIQUIDITY"
+                    }
+                  },
+                  "INVALID_ADDRESS_FORMAT": {
+                    "summary": "Invalid Address Format",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "InvalidAddressError",
+                      "message": "The format of the specified address is invalid.",
+                      "title": "Invalid address format",
+                      "code": "INVALID_ADDRESS_FORMAT",
+                      "details": {
+                        "field": "sender",
+                        "address": "0xinvalid",
+                        "reason": "Address must be 40 characters long"
+                      }
+                    }
+                  },
+                  "INVALID_AMOUNT_ZERO": {
+                    "summary": "Invalid Amount Zero",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "InvalidAmountZeroError",
+                      "message": "Amount must be greater than zero.",
+                      "title": "Zero amount not allowed",
+                      "code": "INVALID_AMOUNT_ZERO"
+                    }
+                  },
+                  "INVALID_DESTINATION_TOKEN": {
+                    "summary": "Invalid Destination Token",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "InvalidDstTokenError",
+                      "message": "Destination token is required.",
+                      "title": "Invalid destination token",
+                      "code": "INVALID_DESTINATION_TOKEN"
+                    }
+                  },
+                  "INVALID_PARAMETER": {
+                    "summary": "Invalid Parameter",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "InvalidParameterError",
+                      "message": "The request contains an invalid parameter.",
+                      "title": "Invalid parameter",
+                      "code": "INVALID_PARAMETER",
+                      "details": {
+                        "parameter": "slippage",
+                        "value": "15000",
+                        "reason": "Slippage must be between 0 and 10000 bps"
+                      }
+                    }
+                  },
+                  "INVALID_SOURCE_TOKEN": {
+                    "summary": "Invalid Source Token",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "InvalidSrcTokenError",
+                      "message": "Source token is required.",
+                      "title": "Invalid source token",
+                      "code": "INVALID_SOURCE_TOKEN"
+                    }
+                  },
+                  "MISSING_REQUIRED_FIELD": {
+                    "summary": "Missing Required Field",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "MissingRequiredFieldError",
+                      "message": "The request is missing a required field.",
+                      "title": "Missing required field",
+                      "code": "MISSING_REQUIRED_FIELD",
+                      "details": {
+                        "field": "srcToken",
+                        "context": "Source token address is required for swap actions"
+                      }
+                    }
+                  },
+                  "NO_AVAILABLE_ROUTE": {
+                    "summary": "No Available Route",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "NoAvailableRouteError",
+                      "message": "No route is available for the specified parameters.",
+                      "title": "No available route",
+                      "code": "NO_AVAILABLE_ROUTE",
+                      "details": {
+                        "srcChainId": 1,
+                        "dstChainId": 42161,
+                        "srcToken": "0x0000000000000000000000000000000000000000",
+                        "dstToken": "0x1234567890123456789012345678901234567890"
+                      }
+                    }
+                  },
+                  "UNSUPPORTED_NETWORK": {
+                    "summary": "Unsupported Network",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "UnsupportedNetworkError",
+                      "message": "The network with the specified chainId is not supported.",
+                      "title": "Unsupported network",
+                      "code": "UNSUPPORTED_NETWORK",
+                      "details": {
+                        "chainId": 999999
+                      }
+                    }
+                  },
+                  "UNSUPPORTED_NETWORK_PAIR": {
+                    "summary": "Unsupported Network Pair",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "UnsupportedNetworkPairError",
+                      "message": "Routing between the specified networks is not supported.",
+                      "title": "Unsupported network pair",
+                      "code": "UNSUPPORTED_NETWORK_PAIR",
+                      "details": {
+                        "srcChainId": 1,
+                        "dstChainId": 999999
+                      }
+                    }
+                  },
+                  "UNSUPPORTED_NETWORK_TOKEN_PAIR": {
+                    "summary": "Unsupported Network Token Pair",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "UnsupportedNetworkAndTokenPairError",
+                      "message": "Routing between the specified tokens and networks is not supported.",
+                      "title": "Unsupported network and token pair",
+                      "code": "UNSUPPORTED_NETWORK_TOKEN_PAIR",
+                      "details": {
+                        "srcChainId": 1,
+                        "srcToken": "0x0000000000000000000000000000000000000000",
+                        "dstChainId": 42161,
+                        "dstToken": "0x1234567890123456789012345678901234567890"
+                      }
+                    }
+                  },
+                  "UNSUPPORTED_SWAP_DIRECTION": {
+                    "summary": "Unsupported Swap Direction",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "UnsupportedSwapDirectionError",
+                      "message": "The specified swap direction is not supported.",
+                      "title": "Unsupported swap direction",
+                      "code": "UNSUPPORTED_SWAP_DIRECTION",
+                      "details": {
+                        "swapDirection": "exact-amount-out"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetActionErrorResponse"
+                },
+                "examples": {
+                  "INVALID_API_KEY": {
+                    "summary": "Invalid API Key",
+                    "value": {
+                      "statusCode": 401,
+                      "name": "InvalidApiKeyError",
+                      "message": "The provided API key is invalid.",
+                      "title": "Invalid API key",
+                      "code": "INVALID_API_KEY"
+                    }
+                  },
+                  "MISSING_API_KEY": {
+                    "summary": "Missing API Key",
+                    "value": {
+                      "statusCode": 401,
+                      "name": "MissingApiKeyError",
+                      "message": "API key is required.",
+                      "title": "Missing API key",
+                      "code": "MISSING_API_KEY"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Access denied due to restrictions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetActionErrorResponse"
+                },
+                "examples": {
+                  "GEO_BLOCKED": {
+                    "summary": "Geographic Restriction",
+                    "value": {
+                      "statusCode": 403,
+                      "name": "GeoBlockingError",
+                      "message": "Access denied due to geo-blocking restrictions.",
+                      "title": "Geo-blocking restriction",
+                      "code": "GEO_BLOCKED",
+                      "details": {
+                        "countryCode": "US",
+                        "countryName": "United States",
+                        "reason": "Country is on the blocked list",
+                        "blockedAt": "2024-01-15T10:30:00.000Z"
+                      }
+                    }
+                  },
+                  "WALLET_SCREENED": {
+                    "summary": "Wallet Screening",
+                    "value": {
+                      "statusCode": 403,
+                      "name": "WalletScreeningError",
+                      "message": "Access denied due to wallet screening restrictions.",
+                      "title": "Wallet screening restriction",
+                      "code": "WALLET_SCREENED",
+                      "details": {
+                        "walletAddress": "0x1234567890123456789012345678901234567890",
+                        "chainId": 1,
+                        "riskLevel": "HIGH",
+                        "reason": "Wallet flagged by screening service",
+                        "screenedAt": "2024-01-15T10:30:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetActionErrorResponse"
+                },
+                "examples": {
+                  "METHOD_NOT_ALLOWED": {
+                    "summary": "Method Not Allowed",
+                    "value": {
+                      "statusCode": 405,
+                      "name": "MethodNotAllowedError",
+                      "message": "The HTTP request method specified is not allowed.",
+                      "title": "Method not allowed",
+                      "code": "METHOD_NOT_ALLOWED",
+                      "details": {
+                        "method": "POST"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetActionErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_SERVER_ERROR": {
+                    "summary": "Internal Server Error",
+                    "value": {
+                      "statusCode": 500,
+                      "name": "InternalServerError",
+                      "message": "An internal server error occurred while processing the request.",
+                      "title": "Internal server error",
+                      "code": "INTERNAL_SERVER_ERROR"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1003,6 +1353,69 @@
           "details": {
             "type": "object",
             "description": "Additional error details"
+          }
+        }
+      },
+      "GetActionErrorResponse": {
+        "type": "object",
+        "required": ["statusCode", "name", "message", "title", "code"],
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "description": "HTTP status code",
+            "example": 400
+          },
+          "name": {
+            "type": "string",
+            "description": "Error class name",
+            "example": "InvalidAddressError"
+          },
+          "message": {
+            "type": "string",
+            "description": "Detailed error message",
+            "example": "The format of the specified address is invalid."
+          },
+          "title": {
+            "type": "string",
+            "description": "Short, user-friendly error title",
+            "example": "Invalid address format"
+          },
+          "code": {
+            "type": "string",
+            "description": "Error type code for programmatic handling",
+            "enum": [
+              "AMOUNT_TOO_HIGH",
+              "AMOUNT_TOO_LOW",
+              "CROSS_VM_RECEIVER_REQUIRED",
+              "EXCESSIVE_FEE",
+              "GEO_BLOCKED",
+              "INSUFFICIENT_LIQUIDITY",
+              "INVALID_ADDRESS_FORMAT",
+              "INVALID_AMOUNT_ZERO",
+              "INVALID_API_KEY",
+              "INVALID_DESTINATION_TOKEN",
+              "INVALID_PARAMETER",
+              "INVALID_SOURCE_TOKEN",
+              "METHOD_NOT_ALLOWED",
+              "MISSING_API_KEY",
+              "MISSING_REQUIRED_FIELD",
+              "NO_AVAILABLE_ROUTE",
+              "UNSUPPORTED_NETWORK",
+              "UNSUPPORTED_NETWORK_PAIR",
+              "UNSUPPORTED_NETWORK_TOKEN_PAIR",
+              "UNSUPPORTED_SWAP_DIRECTION",
+              "WALLET_SCREENED"
+            ]
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional context about the error, including invalid values and suggestions",
+            "additionalProperties": true,
+            "example": {
+              "field": "srcToken",
+              "address": "0xinvalid",
+              "reason": "Address must be 40 characters long"
+            }
           }
         }
       },
