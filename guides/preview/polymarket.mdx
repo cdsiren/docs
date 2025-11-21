@@ -1,0 +1,846 @@
+# API Specification: Polymarket Endpoints
+
+## Overview
+
+This document provides comprehensive API specifications for all Polymarket-related endpoints, including the main `/api/getAction` endpoint for executing orders and all supporting workflow endpoints.
+
+## Table of Contents
+
+1. [Authentication](#authentication)
+2. [Base URL](#base-url)
+3. [Main Endpoint: `/api/getAction`](#main-endpoint-apigetaction)
+4. [Workflow Endpoints](#workflow-endpoints)
+   - [Create or Fetch Polymarket User](#1-create-or-fetch-polymarket-user)
+   - [Search Markets](#2-search-markets)
+   - [Get Markets](#3-get-markets)
+   - [Get Price](#4-get-price)
+   - [Get Trades](#5-get-trades)
+   - [Get Activity](#6-get-activity)
+   - [Get Current Positions](#7-get-current-positions)
+   - [Get Closed Positions](#8-get-closed-positions)
+   - [Get PnL](#9-get-pnl)
+   - [Cancel Order](#10-cancel-order)
+   - Simulate Order: coming soon
+   - Split Positions: coming soon
+   - Merge Positions: coming soon
+   - Sell: coming soon
+   - Redeem: coming soon
+
+---
+
+## Authentication
+
+All requests require an API key in the request header:
+
+```
+x-api-key: YOUR_API_KEY
+```
+
+## Base URL
+
+```
+https://box-api-git-tw-staging-decent-webapp.vercel.app
+```
+
+---
+
+## Main Endpoint: `/api/getAction`
+
+### Overview
+
+The `/api/getAction` endpoint generates a transaction for executing Polymarket orders. This endpoint accepts query parameters and returns an `ActionResponse` containing the transaction details.
+
+### Endpoint
+
+```
+GET /api/getAction
+```
+
+### Request Parameters
+
+### Base Action Request Parameters (Required)
+
+| Parameter    | Type             | Description                                   | Example                                      |
+| ------------ | ---------------- | --------------------------------------------- | -------------------------------------------- |
+| `sender`     | Address          | The wallet address initiating the transaction | `0x1234...5678`                              |
+| `srcChainId` | ChainId (number) | Source chain ID                               | `8453`                                       |
+| `srcToken`   | Address          | Source token address                          | `0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174` |
+| `dstChainId` | ChainId (number) | Destination chain ID = Polygon: 137           | `137`                                        |
+| `dstToken`   | Address          | Destination token address = USDC.e on Polygon | `0x2791bca1f2de4661ed88a30c99a7a9449aa84174` |
+| `slippage`   | number           | Slippage tolerance in basis points (0-10000)  | `100`                                        |
+| `actionType` | string           | Must be `"polymarket"`                        | `polymarket`                                 |
+
+### Polymarket-Specific Parameters (Required)
+
+| Parameter       | Type    | Description                                                                               | Example                                                                           |
+| --------------- | ------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `userId`        | string  | Polymarket user ID - returned from `createOrFetchPolymarketUser`                          | `"0x123...789"`                                                                   |
+| `side`          | string  | Order side: `"BUY"` or `"SELL"`                                                           | `BUY`                                                                             |
+| `tokenID`       | string  | Polymarket clob token ID                                                                  | `"80746058984644290629624903019922696017323803605256698757445938534814122585786"` |
+| `orderType`     | string  | Order type: `"FOK"`, `"FAK"`, `"GTC"`, or `"GTD"`                                         | `FOK`                                                                             |
+| `feeRateBps`    | number  | Fee rate in basis points (non-negative)                                                   | `0`                                                                               |
+| `tickSize`      | string  | Price tick size: `"0.01"`, `"0.001"`, or `"0.0001"`                                       | `0.01`                                                                            |
+| `negRisk`       | string  | Negative risk flag: `"true"` or `"false"`                                                 | `false`                                                                           |
+| `recipient`     | Address | Recipient address should be the `proxyWallet` returned from `createOrFetchPolymarketUser` | `0xabcd...efgh`                                                                   |
+| `swapDirection` | string  | Swap direction: Use `"exact-amount-out"`                                                  |
+| `amount`        | string  | Amount as bigint string (required for market orders: `"FOK"` or `"FAK"`)                  | `"5000000"` (5 USDC with 6 decimals)                                              |
+
+### Order Type-Specific Parameters
+
+#### Limit Orders (GTC/GTD) - Required Fields
+
+| Parameter    | Type   | Description                           | Example      |
+| ------------ | ------ | ------------------------------------- | ------------ |
+| `price`      | number | Price per share (0-1)                 | `0.5`        |
+| `size`       | number | Number of shares (positive)           | `10`         |
+| `expiration` | number | (Optional) Expiration time in seconds | `1735689600` |
+
+**Note:** For limit orders, you must use `price` + `size`.
+
+#### Market Orders (FOK/FAK) - Optional Fields
+
+| Parameter | Type   | Description                            | Example |
+| --------- | ------ | -------------------------------------- | ------- |
+| `price`   | number | (Optional) Price per share (0-1)       | `0.5`   |
+| `size`    | number | (Optional) Number of shares (positive) | `10`    |
+
+**Note:** For market orders, you must use `amount`. This amount should be in terms of USD.
+
+### Response
+
+The API returns an `ActionResponse` object containing:
+
+- `tx`: Transaction object (EvmTransaction for Polygon)
+- `txId`: Transaction ID
+- `amountIn`: Input payment details
+- `amountInMax`: Maximum input payment
+- `amountOutMin`: Minimum output payment
+- `amountOut`: Output payment details
+- `protocolFee`: Protocol fee
+- `applicationFee`: Application fee
+- `exchangeRate`: Exchange rate
+- `estimatedTxTime`: Estimated transaction time
+- `estimatedPriceImpact`: Estimated price impact
+- `vmId`: Virtual machine ID
+- `requiresTokenApproval`: Whether token approval is needed
+- `requiresRegisterTransaction`: Whether transaction registration is needed
+
+### Example cURL Requests
+
+### Example 1: Market Order (FOK) - Buy
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/getAction?\
+sender=0x1234567890123456789012345678901234567890&\
+srcChainId=137&\
+srcToken=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&\
+dstChainId=137&\
+dstToken=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&\
+slippage=100&\
+actionType=polymarket&\
+userId=user_123&\
+side=BUY&\
+tokenID=80746058984644290629624903019922696017323803605256698757445938534814122585786&\
+orderType=FOK&\
+feeRateBps=0&\
+tickSize=0.01&\
+negRisk=false&\
+recipient=0xabcdefabcdefabcdefabcdefabcdefabcdefabcd&\
+swapDirection=exact-amount-in&\
+amount=5000000" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+### Example 2: Limit Order (GTC) - Sell with Price and Size
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/getAction?\
+sender=0x1234567890123456789012345678901234567890&\
+srcChainId=137&\
+srcToken=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&\
+dstChainId=137&\
+dstToken=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&\
+slippage=100&\
+actionType=polymarket&\
+userId=user_123&\
+side=SELL&\
+tokenID=80746058984644290629624903019922696017323803605256698757445938534814122585786&\
+orderType=GTC&\
+price=0.55&\
+size=10&\
+feeRateBps=0&\
+tickSize=0.01&\
+negRisk=false&\
+recipient=0xabcdefabcdefabcdefabcdefabcdefabcdefabcd&\
+swapDirection=exact-amount-out" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+### Example 3: Limit Order (GTD) - Buy with Expiration
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/getAction?\
+sender=0x1234567890123456789012345678901234567890&\
+srcChainId=137&\
+srcToken=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&\
+dstChainId=137&\
+dstToken=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&\
+slippage=100&\
+actionType=polymarket&\
+userId=user_123&\
+side=BUY&\
+tokenID=80746058984644290629624903019922696017323803605256698757445938534814122585786&\
+orderType=GTD&\
+price=0.48&\
+size=5&\
+expiration=1735689600&\
+feeRateBps=0&\
+tickSize=0.001&\
+negRisk=true&\
+recipient=0xabcdefabcdefabcdefabcdefabcdefabcdefabcd&\
+swapDirection=exact-amount-in" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+### Example 4: Market Order (FAK) - Buy with Price and Size (amount calculated)
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/getAction?\
+sender=0x1234567890123456789012345678901234567890&\
+srcChainId=137&\
+srcToken=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&\
+dstChainId=137&\
+dstToken=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&\
+slippage=100&\
+actionType=polymarket&\
+userId=user_123&\
+side=BUY&\
+tokenID=80746058984644290629624903019922696017323803605256698757445938534814122585786&\
+orderType=FAK&\
+price=0.52&\
+size=10&\
+feeRateBps=0&\
+tickSize=0.01&\
+negRisk=false&\
+recipient=0xabcdefabcdefabcdefabcdefabcdefabcdefabcd&\
+swapDirection=exact-amount-in" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+### URL Encoding Notes
+
+When constructing the URL manually, ensure proper URL encoding:
+
+- Spaces should be encoded as `%20` or `+`
+- Special characters should be URL-encoded
+- The `appFees` parameter (if used) should be JSON-encoded: `appFees=[{"bps":10,"flatFee":"0","receiverAddress":"0x..."}]`
+
+### Parameter Validation
+
+### Side
+
+- Must be exactly `"BUY"` or `"SELL"` (case-sensitive)
+
+### OrderType
+
+- Must be exactly `"FOK"`, `"FAK"`, `"GTC"`, or `"GTD"` (case-sensitive)
+
+### Price
+
+- Must be a number between 0 and 1 (exclusive of 0, inclusive of 1)
+- Required for limit orders (GTC/GTD)
+- Optional for market orders (FOK/FAK)
+
+### Size
+
+- Must be a positive number
+- Required for limit orders (GTC/GTD)
+- Optional for market orders (FOK/FAK)
+- The market details will contain a minimum size. Generally, the minimum size is 5.
+
+### Amount
+
+- Must be provided as a string representation of a bigint
+- For USDC on Polygon (6 decimals), 1 USDC = `"1000000"`
+- Required for market orders unless both price and size are provided
+
+### Slippage
+
+- Must be between 0 and 100 (for Polymarket orders)
+- Represented in basis points (100 = 1%)
+
+### FeeRateBps
+
+- The fee rate is currently 0 for Polymarket.
+- Must be a non-negative number
+- Represented in basis points
+
+### TickSize
+
+- Common values: `"0.01"`, `"0.001"`, `"0.0001"`
+- Can be any string value
+
+### NegRisk
+
+- Must be the string `"true"` or `"false"` (not boolean)
+
+### SwapDirection
+
+- Must be `"exact-amount-in"` or `"exact-amount-out"`
+- Defaults to `"exact-amount-in"` if not provided
+
+### Error Responses
+
+The API may return the following error responses:
+
+- `400 Bad Request`: Missing required field or invalid parameter
+- `401 Unauthorized`: Invalid or missing API key
+- `500 Internal Server Error`: Server error
+
+Error response format:
+
+```json
+{
+  "error": "Error message describing what went wrong"
+}
+```
+
+---
+
+## Workflow Endpoints
+
+All workflow endpoints are located under `/api/workflows/polymarket/` and provide supporting functionality for Polymarket operations.
+
+### 1. Create or Fetch Polymarket User
+
+Creates a new Polymarket user or fetches an existing one based on the provided EVM address.
+
+**Endpoint:** `POST /api/workflows/polymarket/createOrFetchPolymarketUser`
+
+**Request Body:**
+
+```json
+{
+  "evmEoa": "0x1234567890123456789012345678901234567890"
+}
+```
+
+**Parameters:**
+
+| Parameter | Type    | Required | Description                  | Example         |
+| --------- | ------- | -------- | ---------------------------- | --------------- |
+| `evmEoa`  | Address | Yes      | EVM address (wallet address) | `0x1234...5678` |
+
+**Response:**
+
+```json
+{
+  "userId": "user_123",
+  "proxyWallet": "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X POST "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/createOrFetchPolymarketUser" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -d '{
+    "evmEoa": "0x1234567890123456789012345678901234567890"
+  }'
+```
+
+**Notes:**
+
+- Use the returned `userId` in `/api/getAction` requests
+- Use the returned `proxyWallet` as the `recipient` address in `/api/getAction` requests
+- This endpoint should be called before placing orders
+
+---
+
+### 2. Search Markets
+
+Searches for Polymarket markets by query string.
+
+**Endpoint:** `GET /api/workflows/polymarket/search`
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description                | Example               |
+| --------- | ------ | -------- | -------------------------- | --------------------- |
+| `q`       | string | Yes      | Search query string        | `"american election"` |
+| `page`    | string | No       | Page number for pagination | `"1"`                 |
+
+**Response:**
+
+```json
+{
+  "events": [
+    {
+      "title": "Event Title",
+      "markets": [
+        {
+          "id": "market_id_123",
+          "question": "Market question?",
+          "clobTokenIds": "[tokenId1, tokenId2]",
+          "acceptingOrders": true,
+          "bestAsk": 0.52,
+          "bestBid": 0.48,
+          "lastTradePrice": 0.5,
+          "negRisk": false
+        }
+      ]
+    }
+  ]
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/search?q=american%20election&page=1" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+**Notes:**
+
+- The `q` parameter should be URL-encoded
+- Only markets with `acceptingOrders: true` can be used for orders
+- The `clobTokenIds` field contains a JSON array of token IDs (use index 0 for "Yes", index 1 for "No")
+
+---
+
+### 3. Get Markets
+
+Retrieves market information by CLOB token IDs or slugs.
+
+**Endpoint:** `GET /api/workflows/polymarket/getMarkets`
+
+**Query Parameters:**
+
+| Parameter      | Type     | Required | Description                                                    | Example                                            |
+| -------------- | -------- | -------- | -------------------------------------------------------------- | -------------------------------------------------- |
+| `clobTokenIds` | string[] | No\*     | Array of CLOB token IDs (can be comma-separated or JSON array) | `"tokenId1,tokenId2"` or `["tokenId1","tokenId2"]` |
+| `slugs`        | string[] | No\*     | Array of market slugs (can be comma-separated or JSON array)   | `"slug1,slug2"` or `["slug1","slug2"]`             |
+
+\*At least one of `clobTokenIds` or `slugs` must be provided.
+
+**Response:**
+
+```json
+{
+  "markets": [
+    {
+      "id": "market_id_123",
+      "question": "Market question?",
+      "clobTokenIds": "[tokenId1, tokenId2]",
+      "acceptingOrders": true,
+      "bestAsk": 0.52,
+      "bestBid": 0.48,
+      "lastTradePrice": 0.5
+    }
+  ]
+}
+```
+
+**cURL Examples:**
+
+With comma-separated token IDs:
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?clobTokenIds=tokenId1,tokenId2" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+With multiple token IDs as separate parameters:
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?clobTokenIds=tokenId1&clobTokenIds=tokenId2" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+With slugs:
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?slugs=slug1,slug2" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+**Notes:**
+
+- Token IDs can be provided as comma-separated strings or as a JSON array
+- Multiple parameters can be passed by repeating the query parameter or using comma separation
+
+---
+
+### 4. Get Price
+
+Retrieves the current market price for a specific token and side.
+
+**Endpoint:** `GET /api/workflows/polymarket/getPrice`
+
+**Query Parameters:**
+
+| Parameter     | Type   | Required | Description                                        | Example                                                                           |
+| ------------- | ------ | -------- | -------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `clobTokenId` | string | Yes      | CLOB token ID                                      | `"80746058984644290629624903019922696017323803605256698757445938534814122585786"` |
+| `side`        | string | Yes      | Order side: `"BUY"` or `"SELL"` (case-insensitive) | `"BUY"`                                                                           |
+
+**Response:**
+
+```json
+{
+  "price": 0.52,
+  "clobTokenId": "80746058984644290629624903019922696017323803605256698757445938534814122585786",
+  "side": "BUY"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getPrice?clobTokenId=80746058984644290629624903019922696017323803605256698757445938534814122585786&side=BUY" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+**Notes:**
+
+- The `side` parameter is case-insensitive (will be converted to uppercase)
+- Returns the best available price for the specified side
+
+---
+
+### 5. Get Trades
+
+Retrieves trade history for a specific user.
+
+**Endpoint:** `GET /api/workflows/polymarket/getTrades`
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description                                | Example      |
+| --------- | ------ | -------- | ------------------------------------------ | ------------ |
+| `userId`  | string | Yes      | Polymarket user ID                         | `"user_123"` |
+| `limit`   | number | No       | Maximum number of results to return        | `50`         |
+| `offset`  | number | No       | Number of results to skip (for pagination) | `0`          |
+
+**Response:**
+
+```json
+{
+  "trades": [
+    {
+      "id": "trade_id_123",
+      "marketId": "market_id_123",
+      "side": "BUY",
+      "price": 0.52,
+      "size": 10,
+      "timestamp": 1735689600
+    }
+  ],
+  "total": 100
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getTrades?userId=user_123&limit=50&offset=0" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+**Notes:**
+
+- Results are paginated using `limit` and `offset`
+- Use `offset` to fetch subsequent pages
+
+---
+
+### 6. Get Activity
+
+Retrieves activity history for a specific user.
+
+**Endpoint:** `GET /api/workflows/polymarket/getActivity`
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description                                | Example      |
+| --------- | ------ | -------- | ------------------------------------------ | ------------ |
+| `userId`  | string | Yes      | Polymarket user ID                         | `"user_123"` |
+| `limit`   | number | No       | Maximum number of results to return        | `50`         |
+| `offset`  | number | No       | Number of results to skip (for pagination) | `0`          |
+
+**Response:**
+
+```json
+{
+  "activities": [
+    {
+      "id": "activity_id_123",
+      "type": "order_placed",
+      "marketId": "market_id_123",
+      "timestamp": 1735689600,
+      "details": {}
+    }
+  ],
+  "total": 100
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getActivity?userId=user_123&limit=50&offset=0" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+**Notes:**
+
+- Returns a comprehensive activity feed including orders, trades, and other actions
+- Results are paginated using `limit` and `offset`
+
+---
+
+### 7. Get Current Positions
+
+Retrieves current open positions for a specific user.
+
+**Endpoint:** `GET /api/workflows/polymarket/getCurrentPositions`
+
+**Query Parameters:**
+
+| Parameter    | Type    | Required | Description                                | Example      |
+| ------------ | ------- | -------- | ------------------------------------------ | ------------ |
+| `userId`     | string  | Yes      | Polymarket user ID                         | `"user_123"` |
+| `redeemable` | boolean | No       | Filter for redeemable positions only       | `true`       |
+| `mergable`   | boolean | No       | Filter for mergable positions only         | `true`       |
+| `limit`      | number  | No       | Maximum number of results to return        | `50`         |
+| `offset`     | number  | No       | Number of results to skip (for pagination) | `0`          |
+
+**Response:**
+
+```json
+{
+  "positions": [
+    {
+      "id": "position_id_123",
+      "marketId": "market_id_123",
+      "outcome": "Yes",
+      "shares": 10,
+      "averagePrice": 0.52,
+      "currentPrice": 0.55,
+      "redeemable": false,
+      "mergable": false
+    }
+  ],
+  "total": 25
+}
+```
+
+**cURL Examples:**
+
+Get all current positions:
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getCurrentPositions?userId=user_123&limit=50&offset=0" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+Get only redeemable positions:
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getCurrentPositions?userId=user_123&redeemable=true" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+Get only mergable positions:
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getCurrentPositions?userId=user_123&mergable=true" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+**Notes:**
+
+- `redeemable` and `mergable` are boolean query parameters (use `true` or `false` as strings)
+- Results are paginated using `limit` and `offset`
+
+---
+
+### 8. Get Closed Positions
+
+Retrieves closed positions (resolved markets) for a specific user.
+
+**Endpoint:** `GET /api/workflows/polymarket/getClosedPositions`
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description                                | Example      |
+| --------- | ------ | -------- | ------------------------------------------ | ------------ |
+| `userId`  | string | Yes      | Polymarket user ID                         | `"user_123"` |
+| `limit`   | number | No       | Maximum number of results to return        | `50`         |
+| `offset`  | number | No       | Number of results to skip (for pagination) | `0`          |
+
+**Response:**
+
+```json
+{
+  "positions": [
+    {
+      "id": "position_id_123",
+      "marketId": "market_id_123",
+      "outcome": "Yes",
+      "shares": 10,
+      "averagePrice": 0.52,
+      "finalPrice": 1.0,
+      "resolvedAt": 1735689600
+    }
+  ],
+  "total": 15
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getClosedPositions?userId=user_123&limit=50&offset=0" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+**Notes:**
+
+- Returns positions from markets that have been resolved
+- Results are paginated using `limit` and `offset`
+
+---
+
+### 9. Get PnL
+
+Retrieves profit and loss information for a specific user.
+
+**Endpoint:** `GET /api/workflows/polymarket/getPnL`
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description        | Example      |
+| --------- | ------ | -------- | ------------------ | ------------ |
+| `userId`  | string | Yes      | Polymarket user ID | `"user_123"` |
+
+**Response:**
+
+```json
+{
+  "totalPnL": 1250.5,
+  "realizedPnL": 500.25,
+  "unrealizedPnL": 750.25,
+  "currency": "USDC"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getPnL?userId=user_123" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+**Notes:**
+
+- Returns aggregate PnL across all positions
+- `realizedPnL` includes profits/losses from closed positions
+- `unrealizedPnL` includes profits/losses from open positions based on current prices
+
+---
+
+### 10. Cancel Order
+
+Cancels one or more open orders.
+
+**Endpoint:** `POST /api/workflows/polymarket/cancelOrder`
+
+**Request Body:**
+
+```json
+{
+  "evmEoa": "0x1234567890123456789012345678901234567890",
+  "proxyWallet": "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+  "orderIDs": ["order_id_1", "order_id_2"]
+}
+```
+
+**Parameters:**
+
+| Parameter     | Type     | Required | Description                                     | Example                        |
+| ------------- | -------- | -------- | ----------------------------------------------- | ------------------------------ |
+| `evmEoa`      | Address  | Yes      | EVM address (wallet address)                    | `0x1234...5678`                |
+| `proxyWallet` | Address  | No       | Proxy wallet address (if different from evmEoa) | `0xabcd...efgh`                |
+| `orderIDs`    | string[] | Yes      | Array of order IDs to cancel                    | `["order_id_1", "order_id_2"]` |
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "cancelledOrders": ["order_id_1", "order_id_2"],
+  "message": "Orders cancelled successfully"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X POST "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/cancelOrder" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -d '{
+    "evmEoa": "0x1234567890123456789012345678901234567890",
+    "proxyWallet": "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+    "orderIDs": ["order_id_1", "order_id_2"]
+  }'
+```
+
+**Notes:**
+
+- `orderIDs` must be a non-empty array
+- `proxyWallet` is optional but recommended if you have a proxy wallet associated with the user
+- Only open orders can be cancelled
+
+---
+
+## General Notes
+
+1. **Chain Support**: Polymarket currently operates on Polygon (ChainId: 137)
+2. **Token**: Typically uses USDC on Polygon: `0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174`
+3. **Amount Format**: Amounts are provided as string representations of bigint values. For USDC (6 decimals), multiply the USD amount by 1,000,000
+4. **Order Types**:
+   - **FOK (Fill or Kill)**: Order must fill completely or be cancelled
+   - **FAK (Fill and Kill)**: Order fills as much as possible, then cancels remainder
+   - **GTC (Good til Cancelled)**: Limit order that remains active until filled or cancelled
+   - **GTD (Good til Date)**: Limit order that expires at a specific time
+5. **Response Parsing**: The response contains bigint values that need to be deserialized. Use a bigint deserializer when parsing JSON responses.
+6. **Error Handling**: All endpoints may return standard HTTP error codes (400, 401, 500) with error messages in JSON format
+7. **Pagination**: Endpoints that support pagination use `limit` and `offset` query parameters
+8. **URL Encoding**: When constructing URLs manually, ensure proper URL encoding for query parameters
+
+9. **Chain Support**: Polymarket currently operates on Polygon (ChainId: 137)
+10. **Token**: Typically uses USDC on Polygon: `0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174`
+11. **Amount Format**: Amounts are provided as string representations of bigint values. For USDC (6 decimals), multiply the USD amount by 1,000,000
+12. **Order Types**:
+    - **FOK (Fill or Kill)**: Order must fill completely or be cancelled
+    - **FAK (Fill and Kill)**: Order fills as much as possible, then cancels remainder
+    - **GTC (Good til Cancelled)**: Limit order that remains active until filled or cancelled
+    - **GTD (Good til Date)**: Limit order that expires at a specific time
+13. **Response Parsing**: The response contains bigint values that need to be deserialized. Use a bigint deserializer when parsing JSON responses.
