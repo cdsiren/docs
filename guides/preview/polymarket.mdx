@@ -11,18 +11,17 @@ This document provides comprehensive API specifications for all Polymarket-relat
 3. [Main Endpoint: `/api/getAction`](#main-endpoint-apigetaction)
 4. [Workflow Endpoints](#workflow-endpoints)
    - [Create or Fetch Polymarket User](#1-create-or-fetch-polymarket-user)
+   - [Get Workflow Status](#12-get-workflow-status)
+   - [Cancel Order](#11-cancel-order)
    - [Search Markets](#2-search-markets)
    - [Get Markets](#3-get-markets)
    - [Get Price](#4-get-price)
-   - [Get Trades](#5-get-trades)
-   - [Get Activity](#6-get-activity)
-   - [Get Current Positions](#7-get-current-positions)
-   - [Get Closed Positions](#8-get-closed-positions)
-   - [Get PnL](#9-get-pnl)
-   - [Cancel Order](#10-cancel-order)
-   - Simulate Order: coming soon
-   - Split Positions: coming soon
-   - Merge Positions: coming soon
+   - [Get Trending Markets](#5-get-trending-markets)
+   - [Get Trades](#6-get-trades)
+   - [Get Activity](#7-get-activity)
+   - [Get Current Positions](#8-get-current-positions)
+   - [Get Closed Positions](#9-get-closed-positions)
+   - [Get PnL](#10-get-pnl)
    - Sell: coming soon
    - Redeem: coming soon
 
@@ -335,10 +334,37 @@ Creates a new Polymarket user or fetches an existing one based on the provided E
 
 ```json
 {
-  "userId": "user_123",
-  "proxyWallet": "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd"
+  "userCredentials": {
+    "evmEoa": "0x1234567890123456789012345678901234567890",
+    "proxyWallet": "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+    "proxyWalletStatus": "ready"
+  },
+  "newUser": true,
+  "userId": "user_123"
 }
 ```
+
+**Response Object Types:**
+
+| Field                               | Type    | Required | Description                                                              | Example                                                                                                |
+| ----------------------------------- | ------- | -------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `userCredentials`                   | object  | Yes      | User credentials object containing wallet information                    | See `UserCredentials` object below                                                                     |
+| `userCredentials.evmEoa`            | Address | Yes      | The "home" EOA address (wallet address)                                  | `"0x1234567890123456789012345678901234567890"`                                                         |
+| `userCredentials.proxyWallet`       | Address | No       | Proxy wallet address (if available)                                      | `"0xabcdefabcdefabcdefabcdefabcdefabcdefabcd"`                                                         |
+| `userCredentials.proxyWalletStatus` | string  | No       | Status of the proxy wallet (maps to `ProxyWalletStatus` enum)            | `"ready"`, `"deploying"`, `"permissioning"`, `"failed-deploy"`, `"failed-permission"`, `"not-created"` |
+| `newUser`                           | boolean | Yes      | Whether this is a newly created user (`true`) or existing user (`false`) | `true`                                                                                                 |
+| `userId`                            | string  | Yes      | Polymarket user ID                                                       | `"user_123"`                                                                                           |
+
+**Proxy Wallet Status Values:**
+
+The `proxyWalletStatus` field uses `ProxyWalletStatus` enum values:
+
+- `"ready"`: Proxy wallet is ready to use
+- `"deploying"`: Proxy wallet is being deployed
+- `"permissioning"`: Proxy wallet permissions are being set up
+- `"failed-deploy"`: Proxy wallet deployment failed
+- `"failed-permission"`: Proxy wallet permission setup failed
+- `"not-created"`: Proxy wallet has not been created
 
 **cURL Example:**
 
@@ -354,7 +380,9 @@ curl -X POST "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workfl
 **Notes:**
 
 - Use the returned `userId` in `/api/getAction` requests
-- Use the returned `proxyWallet` as the `recipient` address in `/api/getAction` requests
+- Use the returned `userCredentials.proxyWallet` as the `recipient` address in `/api/getAction` requests (if available)
+- The `newUser` field indicates whether a new user was created or an existing user was fetched
+- Check `proxyWalletStatus` to determine if the proxy wallet is ready for use
 - This endpoint should be called before placing orders
 
 ---
@@ -367,36 +395,199 @@ Searches for Polymarket markets by query string.
 
 **Query Parameters:**
 
-| Parameter | Type   | Required | Description                | Example               |
-| --------- | ------ | -------- | -------------------------- | --------------------- |
-| `q`       | string | Yes      | Search query string        | `"american election"` |
-| `page`    | string | No       | Page number for pagination | `"1"`                 |
+| Parameter | Type     | Required | Description                                                                                                | Example                   |
+| --------- | -------- | -------- | ---------------------------------------------------------------------------------------------------------- | ------------------------- |
+| `q`       | string   | Yes      | Search query string                                                                                        | `"american election"`     |
+| `tags`    | string[] | No       | Array of event tags (categories) to filter by. Can be provided multiple times or as comma-separated values | `"nfl"` or `"nfl,sports"` |
+| `page`    | string   | No       | Page number for pagination                                                                                 | `"1"`                     |
 
 **Response:**
+
+The response is an array of events with their associated markets, along with pagination information.
+
+<Accordion title="View full response structure">
 
 ```json
 {
   "events": [
     {
-      "title": "Event Title",
+      "id": "903524",
+      "ticker": "justin-fields-next-team",
+      "slug": "justin-fields-next-team",
+      "title": "Justin Fields Next Team",
+      "description": "Event description...",
+      "resolutionSource": "",
+      "startDate": "2024-02-26T21:47:00Z",
+      "creationDate": "2024-02-26T21:50:03.794Z",
+      "endDate": "2024-04-25T00:00:00Z",
+      "image": "https://...",
+      "icon": "https://...",
+      "active": true,
+      "closed": true,
+      "archived": false,
+      "new": false,
+      "featured": false,
+      "restricted": true,
+      "volume": 31264.48637,
+      "openInterest": 0,
+      "sortBy": "ascending",
+      "published_at": "2024-02-22 17:23:50.05+00",
+      "createdAt": "2024-02-22T17:23:50.074Z",
+      "updatedAt": "2024-05-07T23:10:20.120507Z",
+      "commentsEnabled": false,
+      "competitive": 1,
+      "volume1wk": 0,
+      "volume1mo": 0,
+      "volume1yr": 0,
+      "featuredImage": "",
+      "enableOrderBook": true,
+      "negRisk": true,
+      "negRiskMarketID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
+      "negRiskFeeBips": 0,
+      "commentCount": 0,
       "markets": [
         {
-          "id": "market_id_123",
-          "question": "Market question?",
-          "clobTokenIds": "[tokenId1, tokenId2]",
+          "id": "254632",
+          "question": "Will Justin Fields be traded to the Atlanta Falcons?",
+          "conditionId": "0x34b24f445ed6321fe7c91c163b512239dcf122d39881b82850e3a0ca09ac665a",
+          "slug": "will-justin-fields-be-traded-to-the-atlanta-falcons",
+          "resolutionSource": "",
+          "endDate": "2024-04-25T00:00:00Z",
+          "liquidity": "231.2",
+          "startDate": "2024-02-26T21:47:00Z",
+          "fee": "20000000000000000",
+          "image": "https://...",
+          "icon": "https://...",
+          "description": "Market description...",
+          "outcomes": "[\"Yes\", \"No\"]",
+          "outcomePrices": "[\"0\", \"1\"]",
+          "volume": "4101.429276",
+          "active": true,
+          "marketType": "normal",
+          "closed": true,
+          "marketMakerAddress": "",
+          "createdAt": "2024-02-22T17:23:49.934Z",
+          "updatedAt": "2024-04-26T02:52:34.331768Z",
+          "closedTime": "2024-03-21 01:19:19+00",
+          "wideFormat": false,
+          "new": false,
+          "featured": false,
+          "submitted_by": "0x91430CaD2d3975766499717fA0D66A78D814E5c5",
+          "archived": false,
+          "resolvedBy": "0x2F5e3684cb1F318ec51b00Edba38d79Ac2c0aA9d",
+          "restricted": true,
+          "groupItemTitle": "Falcons",
+          "groupItemThreshold": "1",
+          "questionID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
+          "umaEndDate": "2024-03-21 01:19:19+00",
+          "enableOrderBook": true,
+          "orderPriceMinTickSize": 0.001,
+          "orderMinSize": 5,
+          "umaResolutionStatus": "resolved",
+          "volumeNum": 4101.43,
+          "liquidityNum": 231.2,
+          "endDateIso": "2024-04-25",
+          "hasReviewedDates": true,
+          "commentsEnabled": false,
+          "volume24hr": 0,
+          "volume1wk": 0,
+          "volume1mo": 0,
+          "volume1yr": 0,
+          "secondsDelay": 0,
+          "clobTokenIds": "[\"60514145194897823219826772428422448353518550507265497262875791233246155902231\", \"79441287910732946721658295867280356011681250132429753298939411798136774417659\"]",
+          "umaBond": "500.0",
+          "umaReward": "5.0",
+          "fpmmLive": true,
+          "volume24hrAmm": 0,
+          "volume1wkAmm": 0,
+          "volume1moAmm": 0,
+          "volume1yrAmm": 0,
+          "volume24hrClob": 0,
+          "volume1wkClob": 0,
+          "volume1moClob": 0,
+          "volume1yrClob": 0,
+          "volumeAmm": 0,
+          "volumeClob": 4101.429276,
+          "liquidityAmm": 0,
+          "liquidityClob": 0,
+          "makerBaseFee": 0,
+          "takerBaseFee": 0,
+          "customLiveness": 0,
           "acceptingOrders": true,
-          "bestAsk": 0.52,
-          "bestBid": 0.48,
-          "lastTradePrice": 0.5,
-          "negRisk": false
+          "negRisk": true,
+          "negRiskMarketID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
+          "negRiskRequestID": "0x93cd45e01d1085855eda9d2a3709683c3a3a479fdbc6e49a056df132228c6ce1",
+          "notificationsEnabled": true,
+          "creator": "",
+          "ready": false,
+          "funded": false,
+          "cyom": false,
+          "competitive": 0,
+          "pagerDutyNotificationEnabled": false,
+          "approved": true,
+          "rewardsMinSize": 0,
+          "rewardsMaxSpread": 0,
+          "spread": 1,
+          "oneDayPriceChange": 0,
+          "oneHourPriceChange": 0,
+          "oneWeekPriceChange": 0,
+          "oneMonthPriceChange": 0,
+          "oneYearPriceChange": 0,
+          "lastTradePrice": 0,
+          "bestBid": 0,
+          "bestAsk": 1,
+          "clearBookOnStart": true,
+          "manualActivation": false,
+          "negRiskOther": false,
+          "umaResolutionStatuses": "[]",
+          "pendingDeployment": false,
+          "deploying": false,
+          "rfqEnabled": false,
+          "holdingRewardsEnabled": false,
+          "feesEnabled": false
         }
-      ]
+      ],
+      "tags": [
+        {
+          "id": "1449",
+          "label": "las vegas raiders",
+          "slug": "las-vegas-raiders",
+          "publishedAt": "2024-02-26 21:43:16.042+00",
+          "createdAt": "2024-02-26T21:43:16.586Z",
+          "updatedAt": "2024-02-26T21:43:16.586Z"
+        }
+      ],
+      "cyom": false,
+      "closedTime": "2024-03-21T01:24:40.970783Z",
+      "showAllOutcomes": false,
+      "showMarketImages": true,
+      "enableNegRisk": true,
+      "negRiskAugmented": false,
+      "pendingDeployment": false,
+      "deploying": false
     }
-  ]
+  ],
+  "pagination": {
+    "hasMore": false,
+    "totalResults": 2
+  }
 }
 ```
 
-**cURL Example:**
+</Accordion>
+
+**Response Fields:**
+
+| Field                     | Type    | Description                                              |
+| ------------------------- | ------- | -------------------------------------------------------- |
+| `events`                  | array   | Array of event objects, each containing markets and tags |
+| `pagination`              | object  | Pagination information                                   |
+| `pagination.hasMore`      | boolean | Whether there are more results available                 |
+| `pagination.totalResults` | number  | Total number of results                                  |
+
+**cURL Examples:**
+
+Search with query only:
 
 ```bash
 curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/search?q=american%20election&page=1" \
@@ -404,11 +595,22 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
   -H "x-api-key: YOUR_API_KEY"
 ```
 
+Search with query and tags:
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/search?q=justin%20fields&tag=nfl&tag=sports&page=1" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
 **Notes:**
 
 - The `q` parameter should be URL-encoded
+- The `tags` parameter can be provided multiple times (e.g., `&tag=nfl&tag=sports`) or as comma-separated values (e.g., `&tags=nfl,sports`)
+- Event tags are categories used to filter Polymarket markets (e.g., "nfl", "sports", "politics")
 - Only markets with `acceptingOrders: true` can be used for orders
 - The `clobTokenIds` field contains a JSON array of token IDs (use index 0 for "Yes", index 1 for "No")
+- The response includes pagination information in the `pagination` object
 
 ---
 
@@ -429,20 +631,170 @@ Retrieves market information by CLOB token IDs or slugs.
 
 **Response:**
 
+<Accordion title="View full response structure">
+
 ```json
-{
-  "markets": [
-    {
-      "id": "market_id_123",
-      "question": "Market question?",
-      "clobTokenIds": "[tokenId1, tokenId2]",
-      "acceptingOrders": true,
-      "bestAsk": 0.52,
-      "bestBid": 0.48,
-      "lastTradePrice": 0.5
-    }
-  ]
-}
+[
+  {
+    "id": "903524",
+    "ticker": "justin-fields-next-team",
+    "slug": "justin-fields-next-team",
+    "title": "Justin Fields Next Team",
+    "description": "Event description...",
+    "resolutionSource": "",
+    "startDate": "2024-02-26T21:47:00Z",
+    "creationDate": "2024-02-26T21:50:03.794Z",
+    "endDate": "2024-04-25T00:00:00Z",
+    "image": "https://...",
+    "icon": "https://...",
+    "active": true,
+    "closed": true,
+    "archived": false,
+    "new": false,
+    "featured": false,
+    "restricted": true,
+    "volume": 31264.48637,
+    "openInterest": 0,
+    "sortBy": "ascending",
+    "published_at": "2024-02-22 17:23:50.05+00",
+    "createdAt": "2024-02-22T17:23:50.074Z",
+    "updatedAt": "2024-05-07T23:10:20.120507Z",
+    "commentsEnabled": false,
+    "competitive": 1,
+    "volume1wk": 0,
+    "volume1mo": 0,
+    "volume1yr": 0,
+    "featuredImage": "",
+    "enableOrderBook": true,
+    "negRisk": true,
+    "negRiskMarketID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
+    "negRiskFeeBips": 0,
+    "commentCount": 0,
+    "markets": [
+      {
+        "id": "254632",
+        "question": "Will Justin Fields be traded to the Atlanta Falcons?",
+        "conditionId": "0x34b24f445ed6321fe7c91c163b512239dcf122d39881b82850e3a0ca09ac665a",
+        "slug": "will-justin-fields-be-traded-to-the-atlanta-falcons",
+        "resolutionSource": "",
+        "endDate": "2024-04-25T00:00:00Z",
+        "liquidity": "231.2",
+        "startDate": "2024-02-26T21:47:00Z",
+        "fee": "20000000000000000",
+        "image": "https://...",
+        "icon": "https://...",
+        "description": "Market description...",
+        "outcomes": "[\"Yes\", \"No\"]",
+        "outcomePrices": "[\"0\", \"1\"]",
+        "volume": "4101.429276",
+        "active": true,
+        "marketType": "normal",
+        "closed": true,
+        "marketMakerAddress": "",
+        "createdAt": "2024-02-22T17:23:49.934Z",
+        "updatedAt": "2024-04-26T02:52:34.331768Z",
+        "closedTime": "2024-03-21 01:19:19+00",
+        "wideFormat": false,
+        "new": false,
+        "featured": false,
+        "submitted_by": "0x91430CaD2d3975766499717fA0D66A78D814E5c5",
+        "archived": false,
+        "resolvedBy": "0x2F5e3684cb1F318ec51b00Edba38d79Ac2c0aA9d",
+        "restricted": true,
+        "groupItemTitle": "Falcons",
+        "groupItemThreshold": "1",
+        "questionID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
+        "umaEndDate": "2024-03-21 01:19:19+00",
+        "enableOrderBook": true,
+        "orderPriceMinTickSize": 0.001,
+        "orderMinSize": 5,
+        "umaResolutionStatus": "resolved",
+        "volumeNum": 4101.43,
+        "liquidityNum": 231.2,
+        "endDateIso": "2024-04-25",
+        "hasReviewedDates": true,
+        "commentsEnabled": false,
+        "volume24hr": 0,
+        "volume1wk": 0,
+        "volume1mo": 0,
+        "volume1yr": 0,
+        "secondsDelay": 0,
+        "clobTokenIds": "[\"60514145194897823219826772428422448353518550507265497262875791233246155902231\", \"79441287910732946721658295867280356011681250132429753298939411798136774417659\"]",
+        "umaBond": "500.0",
+        "umaReward": "5.0",
+        "fpmmLive": true,
+        "volume24hrAmm": 0,
+        "volume1wkAmm": 0,
+        "volume1moAmm": 0,
+        "volume1yrAmm": 0,
+        "volume24hrClob": 0,
+        "volume1wkClob": 0,
+        "volume1moClob": 0,
+        "volume1yrClob": 0,
+        "volumeAmm": 0,
+        "volumeClob": 4101.429276,
+        "liquidityAmm": 0,
+        "liquidityClob": 0,
+        "makerBaseFee": 0,
+        "takerBaseFee": 0,
+        "customLiveness": 0,
+        "acceptingOrders": true,
+        "negRisk": true,
+        "negRiskMarketID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
+        "negRiskRequestID": "0x93cd45e01d1085855eda9d2a3709683c3a3a479fdbc6e49a056df132228c6ce1",
+        "notificationsEnabled": true,
+        "creator": "",
+        "ready": false,
+        "funded": false,
+        "cyom": false,
+        "competitive": 0,
+        "pagerDutyNotificationEnabled": false,
+        "approved": true,
+        "rewardsMinSize": 0,
+        "rewardsMaxSpread": 0,
+        "spread": 1,
+        "oneDayPriceChange": 0,
+        "oneHourPriceChange": 0,
+        "oneWeekPriceChange": 0,
+        "oneMonthPriceChange": 0,
+        "oneYearPriceChange": 0,
+        "lastTradePrice": 0,
+        "bestBid": 0,
+        "bestAsk": 1,
+        "clearBookOnStart": true,
+        "manualActivation": false,
+        "negRiskOther": false,
+        "umaResolutionStatuses": "[]",
+        "pendingDeployment": false,
+        "deploying": false,
+        "rfqEnabled": false,
+        "holdingRewardsEnabled": false,
+        "feesEnabled": false
+      }
+    ],
+    "tags": [
+      {
+        "id": "1449",
+        "label": "las vegas raiders",
+        "slug": "las-vegas-raiders",
+        "publishedAt": "2024-02-26 21:43:16.042+00",
+        "createdAt": "2024-02-26T21:43:16.586Z",
+        "updatedAt": "2024-02-26T21:43:16.586Z"
+      }
+    ],
+    "cyom": false,
+    "closedTime": "2024-03-21T01:24:40.970783Z",
+    "showAllOutcomes": false,
+    "showMarketImages": true,
+    "enableNegRisk": true,
+    "negRiskAugmented": false,
+    "pendingDeployment": false,
+    "deploying": false
+  }
+]
+```
+
+</Accordion>
 ```
 
 **cURL Examples:**
@@ -495,9 +847,7 @@ Retrieves the current market price for a specific token and side.
 
 ```json
 {
-  "price": 0.52,
-  "clobTokenId": "80746058984644290629624903019922696017323803605256698757445938534814122585786",
-  "side": "BUY"
+  "price": 0.52
 }
 ```
 
@@ -516,7 +866,207 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 
 ---
 
-### 5. Get Trades
+### 5. Get Trending Markets
+
+Retrieves trending markets on Polymarket.
+
+**Endpoint:** `GET /api/workflows/polymarket/getTrendingMarkets`
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description                         | Example |
+| --------- | ------ | -------- | ----------------------------------- | ------- |
+| `limit`   | number | No       | Maximum number of results to return | `20`    |
+
+**Response:**
+
+<Accordion title="View full response structure">
+
+```json
+{
+  "events": [
+    {
+      "id": "903524",
+      "ticker": "justin-fields-next-team",
+      "slug": "justin-fields-next-team",
+      "title": "Justin Fields Next Team",
+      "description": "Event description...",
+      "resolutionSource": "",
+      "startDate": "2024-02-26T21:47:00Z",
+      "creationDate": "2024-02-26T21:50:03.794Z",
+      "endDate": "2024-04-25T00:00:00Z",
+      "image": "https://...",
+      "icon": "https://...",
+      "active": true,
+      "closed": true,
+      "archived": false,
+      "new": false,
+      "featured": false,
+      "restricted": true,
+      "volume": 31264.48637,
+      "openInterest": 0,
+      "sortBy": "ascending",
+      "published_at": "2024-02-22 17:23:50.05+00",
+      "createdAt": "2024-02-22T17:23:50.074Z",
+      "updatedAt": "2024-05-07T23:10:20.120507Z",
+      "commentsEnabled": false,
+      "competitive": 1,
+      "volume1wk": 0,
+      "volume1mo": 0,
+      "volume1yr": 0,
+      "featuredImage": "",
+      "enableOrderBook": true,
+      "negRisk": true,
+      "negRiskMarketID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
+      "negRiskFeeBips": 0,
+      "commentCount": 0,
+      "markets": [
+        {
+          "id": "254632",
+          "question": "Will Justin Fields be traded to the Atlanta Falcons?",
+          "conditionId": "0x34b24f445ed6321fe7c91c163b512239dcf122d39881b82850e3a0ca09ac665a",
+          "slug": "will-justin-fields-be-traded-to-the-atlanta-falcons",
+          "resolutionSource": "",
+          "endDate": "2024-04-25T00:00:00Z",
+          "liquidity": "231.2",
+          "startDate": "2024-02-26T21:47:00Z",
+          "fee": "20000000000000000",
+          "image": "https://...",
+          "icon": "https://...",
+          "description": "Market description...",
+          "outcomes": "[\"Yes\", \"No\"]",
+          "outcomePrices": "[\"0\", \"1\"]",
+          "volume": "4101.429276",
+          "active": true,
+          "marketType": "normal",
+          "closed": true,
+          "marketMakerAddress": "",
+          "createdAt": "2024-02-22T17:23:49.934Z",
+          "updatedAt": "2024-04-26T02:52:34.331768Z",
+          "closedTime": "2024-03-21 01:19:19+00",
+          "wideFormat": false,
+          "new": false,
+          "featured": false,
+          "submitted_by": "0x91430CaD2d3975766499717fA0D66A78D814E5c5",
+          "archived": false,
+          "resolvedBy": "0x2F5e3684cb1F318ec51b00Edba38d79Ac2c0aA9d",
+          "restricted": true,
+          "groupItemTitle": "Falcons",
+          "groupItemThreshold": "1",
+          "questionID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
+          "umaEndDate": "2024-03-21 01:19:19+00",
+          "enableOrderBook": true,
+          "orderPriceMinTickSize": 0.001,
+          "orderMinSize": 5,
+          "umaResolutionStatus": "resolved",
+          "volumeNum": 4101.43,
+          "liquidityNum": 231.2,
+          "endDateIso": "2024-04-25",
+          "hasReviewedDates": true,
+          "commentsEnabled": false,
+          "volume24hr": 0,
+          "volume1wk": 0,
+          "volume1mo": 0,
+          "volume1yr": 0,
+          "secondsDelay": 0,
+          "clobTokenIds": "[\"60514145194897823219826772428422448353518550507265497262875791233246155902231\", \"79441287910732946721658295867280356011681250132429753298939411798136774417659\"]",
+          "umaBond": "500.0",
+          "umaReward": "5.0",
+          "fpmmLive": true,
+          "volume24hrAmm": 0,
+          "volume1wkAmm": 0,
+          "volume1moAmm": 0,
+          "volume1yrAmm": 0,
+          "volume24hrClob": 0,
+          "volume1wkClob": 0,
+          "volume1moClob": 0,
+          "volume1yrClob": 0,
+          "volumeAmm": 0,
+          "volumeClob": 4101.429276,
+          "liquidityAmm": 0,
+          "liquidityClob": 0,
+          "makerBaseFee": 0,
+          "takerBaseFee": 0,
+          "customLiveness": 0,
+          "acceptingOrders": true,
+          "negRisk": true,
+          "negRiskMarketID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
+          "negRiskRequestID": "0x93cd45e01d1085855eda9d2a3709683c3a3a479fdbc6e49a056df132228c6ce1",
+          "notificationsEnabled": true,
+          "creator": "",
+          "ready": false,
+          "funded": false,
+          "cyom": false,
+          "competitive": 0,
+          "pagerDutyNotificationEnabled": false,
+          "approved": true,
+          "rewardsMinSize": 0,
+          "rewardsMaxSpread": 0,
+          "spread": 1,
+          "oneDayPriceChange": 0,
+          "oneHourPriceChange": 0,
+          "oneWeekPriceChange": 0,
+          "oneMonthPriceChange": 0,
+          "oneYearPriceChange": 0,
+          "lastTradePrice": 0,
+          "bestBid": 0,
+          "bestAsk": 1,
+          "clearBookOnStart": true,
+          "manualActivation": false,
+          "negRiskOther": false,
+          "umaResolutionStatuses": "[]",
+          "pendingDeployment": false,
+          "deploying": false,
+          "rfqEnabled": false,
+          "holdingRewardsEnabled": false,
+          "feesEnabled": false
+        }
+      ],
+      "tags": [
+        {
+          "id": "1449",
+          "label": "las vegas raiders",
+          "slug": "las-vegas-raiders",
+          "publishedAt": "2024-02-26 21:43:16.042+00",
+          "createdAt": "2024-02-26T21:43:16.586Z",
+          "updatedAt": "2024-02-26T21:43:16.586Z"
+        }
+      ],
+      "cyom": false,
+      "closedTime": "2024-03-21T01:24:40.970783Z",
+      "showAllOutcomes": false,
+      "showMarketImages": true,
+      "enableNegRisk": true,
+      "negRiskAugmented": false,
+      "pendingDeployment": false,
+      "deploying": false
+    }
+  ],
+  "pagination": {
+    "hasMore": false,
+    "totalResults": 2
+  }
+}
+```
+
+</Accordion>
+
+**cURL Example:**
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getTrendingMarkets?limit=20" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+**Notes:**
+
+- Returns active markets sorted by 24hr volume. Markets must have minimum $150K of volume
+- The `limit` parameter controls how many trending markets are returned
+
+---
+
+### 6. Get Trades
 
 Retrieves trade history for a specific user.
 
@@ -563,7 +1113,7 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 
 ---
 
-### 6. Get Activity
+### 7. Get Activity
 
 Retrieves activity history for a specific user.
 
@@ -609,7 +1159,7 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 
 ---
 
-### 7. Get Current Positions
+### 8. Get Current Positions
 
 Retrieves current open positions for a specific user.
 
@@ -678,7 +1228,7 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 
 ---
 
-### 8. Get Closed Positions
+### 9. Get Closed Positions
 
 Retrieves closed positions (resolved markets) for a specific user.
 
@@ -726,7 +1276,7 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 
 ---
 
-### 9. Get PnL
+### 10. Get PnL
 
 Retrieves profit and loss information for a specific user.
 
@@ -765,7 +1315,7 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 
 ---
 
-### 10. Cancel Order
+### 11. Cancel Order
 
 Cancels one or more open orders.
 
@@ -820,10 +1370,103 @@ curl -X POST "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workfl
 
 ---
 
+### 12. Get Workflow Status
+
+Retrieves the status of a workflow transaction.
+
+**Endpoint:** `GET /api/workflows/getStatus`
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description                            | Example                                                                |
+| --------- | ------ | -------- | -------------------------------------- | ---------------------------------------------------------------------- |
+| `txId`    | string | Yes      | Transaction ID from /getAction request | `"0x30e7dc0566713417a7bc136ad3bb4f8525e005e2e024ef696b7b88f497e394e8"` |
+
+**Response:**
+
+<Accordion title="View full response structure">
+
+```json
+{
+  "txId": "0x30e7dc0566713417a7bc136ad3bb4f8525e005e2e024ef696b7b88f497e394e8",
+  "workflow": {
+    "data": {
+      "userId": "0x0797bfec6d2d4f733d461bbee8125805e9e9c892",
+      "orderRequest": {
+        "side": "BUY",
+        "tokenID": "110902308091723190012269532299497167125504426554890434343419495764557291673806",
+        "orderType": "GTD",
+        "feeRateBps": 0,
+        "slippage": 100,
+        "tickSize": "0.01",
+        "negRisk": false,
+        "price": 0.021,
+        "size": 5,
+        "expiration": 10
+      },
+      "orderResponse": {
+        "id": "0xbd2f3c625c1f6f918a74e8645c3afee9e8f2c5adf91f178efa5e1b65f74fb489",
+        "status": "MATCHED",
+        "owner": "258f7485-b93f-52e5-2327-a53c49a299c1",
+        "maker_address": "0xBEDcAD563ddf52391573a016Bc5EC7A334Eec756",
+        "market": "0xb050c89e1e5738c79e117d28da1f057ac2f193511aab87a01b517b466c7265dc",
+        "asset_id": "110902308091723190012269532299497167125504426554890434343419495764557291673806",
+        "side": "BUY",
+        "original_size": "5",
+        "size_matched": "0",
+        "price": "0.02",
+        "outcome": "No",
+        "expiration": "1763996360",
+        "order_type": "GTD",
+        "associate_trades": [],
+        "created_at": 1763996291
+      }
+    },
+    "name": "polymarket",
+    "operation": "placeOrder",
+    "status": "success",
+    "timestamp": 1763996274
+  }
+}
+```
+
+</Accordion>
+
+**Response Fields:**
+
+| Field                         | Type   | Description                                              |
+| ----------------------------- | ------ | -------------------------------------------------------- |
+| `txId`                        | string | Transaction ID from workflow                             |
+| `workflow`                    | object | Workflow information object                              |
+| `workflow.data`               | object | Workflow data containing order request and response      |
+| `workflow.data.userId`        | string | User ID from create or fetch user response               |
+| `workflow.data.orderRequest`  | object | Original order request parameters                        |
+| `workflow.data.orderResponse` | object | Order response from Polymarket (if order was placed)     |
+| `workflow.name`               | string | Workflow name (e.g., `"polymarket"`)                     |
+| `workflow.operation`          | string | Operation type (e.g., `"placeOrder"`)                    |
+| `workflow.status`             | string | Workflow status: `"pending"`, `"success"`, or `"failed"` |
+| `workflow.timestamp`          | number | Timestamp of the workflow operation                      |
+
+**cURL Example:**
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/getStatus?txId=0x30e7dc0566713417a7bc136ad3bb4f8525e005e2e024ef696b7b88f497e394e8" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+**Notes:**
+
+- Use this endpoint to check the status of a workflow transaction after submission
+- The `txId` is typically returned from the `/api/getAction` endpoint
+- Status values: `pending`, `success`, `failed`
+
+---
+
 ## General Notes
 
-1. **Chain Support**: Polymarket currently operates on Polygon (ChainId: 137)
-2. **Token**: Typically uses USDC on Polygon: `0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174`
+1. **Chain Support**: Polymarket operates on Polygon. The destination chain should always be Polygon (137).
+2. **Token**: Polymarket settles trades in USDC.e on Polygon. The destination token should always be the USDC.e address: `0x2791bca1f2de4661ed88a30c99a7a9449aa84174`
 3. **Amount Format**: Amounts are provided as string representations of bigint values. For USDC (6 decimals), multiply the USD amount by 1,000,000
 4. **Order Types**:
    - **FOK (Fill or Kill)**: Order must fill completely or be cancelled
@@ -834,13 +1477,3 @@ curl -X POST "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workfl
 6. **Error Handling**: All endpoints may return standard HTTP error codes (400, 401, 500) with error messages in JSON format
 7. **Pagination**: Endpoints that support pagination use `limit` and `offset` query parameters
 8. **URL Encoding**: When constructing URLs manually, ensure proper URL encoding for query parameters
-
-9. **Chain Support**: Polymarket currently operates on Polygon (ChainId: 137)
-10. **Token**: Typically uses USDC on Polygon: `0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174`
-11. **Amount Format**: Amounts are provided as string representations of bigint values. For USDC (6 decimals), multiply the USD amount by 1,000,000
-12. **Order Types**:
-    - **FOK (Fill or Kill)**: Order must fill completely or be cancelled
-    - **FAK (Fill and Kill)**: Order fills as much as possible, then cancels remainder
-    - **GTC (Good til Cancelled)**: Limit order that remains active until filled or cancelled
-    - **GTD (Good til Date)**: Limit order that expires at a specific time
-13. **Response Parsing**: The response contains bigint values that need to be deserialized. Use a bigint deserializer when parsing JSON responses.
