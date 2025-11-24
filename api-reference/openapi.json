@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Swaps API",
+    "title": "Swaps XYZ API",
     "description": "The Swaps API provides instant cross-chain swap and bridge functionality for decentralized applications.\nIt supports multiple virtual machines (EVM, Solana, Bitcoin) and various DEX protocols and bridge solutions.",
     "version": "3.0.0",
     "contact": {
@@ -1115,7 +1115,7 @@
         }
       },
       "ChainId": {
-        "type": "number",
+        "type": "integer",
         "description": "Chain ID. Find in the list of supported networks"
       },
       "VmId": {
@@ -1427,7 +1427,7 @@
             "type": "string",
             "description": "Human-readable chain name"
           },
-          "vmId": { "$ref": "#/components/schemas/" }
+          "vmId": { "$ref": "#/components/schemas/VmId" }
         },
         "required": ["chainId", "name", "vmId"]
       },
