@@ -1115,7 +1115,7 @@
         }
       },
       "ChainId": {
-        "type": "number",
+        "type": "integer",
         "description": "Chain ID. Find in the list of supported networks"
       },
       "VmId": {
@@ -1427,7 +1427,7 @@
             "type": "string",
             "description": "Human-readable chain name"
           },
-          "vmId": { "$ref": "#/components/schemas/" }
+          "vmId": { "$ref": "#/components/schemas/VmId" }
         },
         "required": ["chainId", "name", "vmId"]
       },
