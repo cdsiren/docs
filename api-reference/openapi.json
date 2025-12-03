@@ -899,7 +899,7 @@
 				"summary": "Post Quote",
 				"servers": [
 					{
-						"url": "https://api-v2.swaps.xyz/api/postQuote",
+						"url": "https://api-v2.swaps.xyz/api",
 						"description": "Indexer API server"
 					}
 				],
@@ -983,7 +983,7 @@
 				"summary": "Post Swap",
 				"servers": [
 					{
-						"url": "https://api-v2.swaps.xyz/api/postSwap",
+						"url": "https://api-v2.swaps.xyz/api",
 						"description": "Indexer API server"
 					}
 				],
