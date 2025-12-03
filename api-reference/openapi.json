@@ -193,6 +193,16 @@
 						"schema": {
 							"$ref": "#/components/schemas/Address"
 						}
+					},
+					{
+						"name": "returnDepositAddress",
+						"in": "query",
+						"required": false,
+						"description": "Return a deposit address for deposit-based flows\n\n**Optional:** Set to `true` to receive a deposit address in the response",
+						"schema": {
+							"type": "boolean",
+							"default": false
+						}
 					}
 				],
 				"responses": {
