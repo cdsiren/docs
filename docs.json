@@ -1,74 +1,76 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Swaps API Documentation",
-  "colors": {
-    "primary": "#6366F1",
-    "light": "#8B5CF6",
-    "dark": "#4F46E5"
-  },
-  "favicon": "/favicon.svg",
-  "navigation": {
-    "tabs": [
-      {
-        "tab": "Documentation",
-        "groups": [
-          {
-            "group": "Getting started",
-            "pages": ["index"]
-          },
-          {
-            "group": "Guides",
-            "pages": [
-              "/guides/swap",
-              "/guides/calldata-call",
-              "/guides/track-transactions",
-              "/guides/token-approvals"
-            ]
-          },
-          {
-            "group": "Resources",
-            "pages": [
-              "/resources/best-practices",
-              "/resources/chain-list",
-              "/resources/terms-of-service"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API Reference",
-        "groups": [
-          {
-            "group": "Getting Started",
-            "pages": ["api-reference/api-overview"]
-          },
-          {
-            "group": "Endpoints",
-            "openapi": "api-reference/openapi.json"
-          }
-        ]
-      }
-    ],
-    "global": {
-      "anchors": []
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "primary": {
-      "type": "button",
-      "label": "Try the APIs",
-      "href": "https://docs.swaps.xyz/api-reference/api-overview"
-    }
-  },
-  "footer": {
-    "socials": {
-      "x": "https://www.linkedin.com/company/moonpay",
-      "linkedin": "https://www.linkedin.com/company/moonpay"
-    }
-  }
+	"$schema": "https://mintlify.com/docs.json",
+	"theme": "mint",
+	"name": "Swaps API Documentation",
+	"colors": {
+		"primary": "#6366F1",
+		"light": "#8B5CF6",
+		"dark": "#4F46E5"
+	},
+	"favicon": "/favicon.svg",
+	"navigation": {
+		"tabs": [
+			{
+				"tab": "Documentation",
+				"groups": [
+					{
+						"group": "Getting started",
+						"pages": ["index"]
+					},
+					{
+						"group": "Guides",
+						"pages": [
+							"/guides/swap",
+							"/guides/calldata-call",
+							"/guides/track-transactions",
+							"/guides/token-approvals",
+							"/guides/preview/gasless",
+							"/guides/preview/polymarket"
+						]
+					},
+					{
+						"group": "Resources",
+						"pages": [
+							"/resources/best-practices",
+							"/resources/chain-list",
+							"/resources/terms-of-service"
+						]
+					}
+				]
+			},
+			{
+				"tab": "API Reference",
+				"groups": [
+					{
+						"group": "Getting Started",
+						"pages": ["api-reference/api-overview"]
+					},
+					{
+						"group": "Endpoints",
+						"openapi": "api-reference/openapi.json"
+					}
+				]
+			}
+		],
+		"global": {
+			"anchors": []
+		}
+	},
+	"logo": {
+		"light": "/logo/light.svg",
+		"dark": "/logo/dark.svg"
+	},
+	"navbar": {
+		"primary": {
+			"type": "button",
+			"label": "Try the APIs",
+			"href": "https://docs.swaps.xyz/api-reference/api-overview"
+		}
+	},
+	"footer": {
+		"socials": {
+			"x": "https://www.linkedin.com/company/moonpay",
+			"linkedin": "https://www.linkedin.com/company/moonpay"
+		}
+	}
 }
