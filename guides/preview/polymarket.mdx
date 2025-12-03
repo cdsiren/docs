@@ -395,11 +395,14 @@ Searches for Polymarket markets by query string.
 
 **Query Parameters:**
 
-| Parameter | Type     | Required | Description                                                                                                | Example                   |
-| --------- | -------- | -------- | ---------------------------------------------------------------------------------------------------------- | ------------------------- |
-| `q`       | string   | Yes      | Search query string                                                                                        | `"american election"`     |
-| `tags`    | string[] | No       | Array of event tags (categories) to filter by. Can be provided multiple times or as comma-separated values | `"nfl"` or `"nfl,sports"` |
-| `page`    | string   | No       | Page number for pagination                                                                                 | `"1"`                     |
+| Parameter    | Type     | Required | Description                                                                                                | Example                   |
+| ------------ | -------- | -------- | ---------------------------------------------------------------------------------------------------------- | ------------------------- |
+| `q`          | string   | No       | Search query string                                                                                        | `"american election"`     |
+| `tags`       | string[] | No       | Array of event tags (categories) to filter by. Can be provided multiple times or as comma-separated values | `"nfl"` or `"nfl,sports"` |
+| `page`       | number   | No       | Page number for pagination                                                                                 | `1`                       |
+| `limit`      | number   | No       | Limit results per type (tags, events, profiles)                                                            | `1`                       |
+| `activeOnly` | boolean  | No       | Only return markets currently accepting orders                                                             | `true`                    |
+| `searchTags` | boolean  | No       | Search markets based on tags                                                                               | `true`                    |
 
 **Response:**
 
@@ -587,18 +590,18 @@ The response is an array of events with their associated markets, along with pag
 
 **cURL Examples:**
 
-Search with query only:
+Search with query:
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/search?q=american%20election&page=1" \
+curl -G "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/search?q=patriots&activeOnly=true" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
 
-Search with query and tags:
+Search with tags:
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/search?q=justin%20fields&tag=nfl&tag=sports&page=1" \
+curl -G "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/search?tags=Politics&tags=Sports&searchTags=true" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -625,260 +628,13 @@ Retrieves market information by CLOB token IDs or slugs.
 | Parameter      | Type     | Required | Description                                                    | Example                                            |
 | -------------- | -------- | -------- | -------------------------------------------------------------- | -------------------------------------------------- |
 | `clobTokenIds` | string[] | No\*     | Array of CLOB token IDs (can be comma-separated or JSON array) | `"tokenId1,tokenId2"` or `["tokenId1","tokenId2"]` |
-| `slugs`        | string[] | No\*     | Array of market slugs (can be comma-separated or JSON array)   | `"slug1,slug2"` or `["slug1","slug2"]`             |
+| `slug`         | string   | No\*     | Array of market slugs (can be comma-separated or JSON array)   | `"slug1,slug2"` or `["slug1","slug2"]`             |
 
 \*At least one of `clobTokenIds` or `slugs` must be provided.
 
 **Response:**
 
-<Accordion title="View full response structure">
-
-```json
-[
-  {
-    "id": "903524",
-    "ticker": "justin-fields-next-team",
-    "slug": "justin-fields-next-team",
-    "title": "Justin Fields Next Team",
-    "description": "Event description...",
-    "resolutionSource": "",
-    "startDate": "2024-02-26T21:47:00Z",
-    "creationDate": "2024-02-26T21:50:03.794Z",
-    "endDate": "2024-04-25T00:00:00Z",
-    "image": "https://...",
-    "icon": "https://...",
-    "active": true,
-    "closed": true,
-    "archived": false,
-    "new": false,
-    "featured": false,
-    "restricted": true,
-    "volume": 31264.48637,
-    "openInterest": 0,
-    "sortBy": "ascending",
-    "published_at": "2024-02-22 17:23:50.05+00",
-    "createdAt": "2024-02-22T17:23:50.074Z",
-    "updatedAt": "2024-05-07T23:10:20.120507Z",
-    "commentsEnabled": false,
-    "competitive": 1,
-    "volume1wk": 0,
-    "volume1mo": 0,
-    "volume1yr": 0,
-    "featuredImage": "",
-    "enableOrderBook": true,
-    "negRisk": true,
-    "negRiskMarketID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
-    "negRiskFeeBips": 0,
-    "commentCount": 0,
-    "markets": [
-      {
-        "id": "254632",
-        "question": "Will Justin Fields be traded to the Atlanta Falcons?",
-        "conditionId": "0x34b24f445ed6321fe7c91c163b512239dcf122d39881b82850e3a0ca09ac665a",
-        "slug": "will-justin-fields-be-traded-to-the-atlanta-falcons",
-        "resolutionSource": "",
-        "endDate": "2024-04-25T00:00:00Z",
-        "liquidity": "231.2",
-        "startDate": "2024-02-26T21:47:00Z",
-        "fee": "20000000000000000",
-        "image": "https://...",
-        "icon": "https://...",
-        "description": "Market description...",
-        "outcomes": "[\"Yes\", \"No\"]",
-        "outcomePrices": "[\"0\", \"1\"]",
-        "volume": "4101.429276",
-        "active": true,
-        "marketType": "normal",
-        "closed": true,
-        "marketMakerAddress": "",
-        "createdAt": "2024-02-22T17:23:49.934Z",
-        "updatedAt": "2024-04-26T02:52:34.331768Z",
-        "closedTime": "2024-03-21 01:19:19+00",
-        "wideFormat": false,
-        "new": false,
-        "featured": false,
-        "submitted_by": "0x91430CaD2d3975766499717fA0D66A78D814E5c5",
-        "archived": false,
-        "resolvedBy": "0x2F5e3684cb1F318ec51b00Edba38d79Ac2c0aA9d",
-        "restricted": true,
-        "groupItemTitle": "Falcons",
-        "groupItemThreshold": "1",
-        "questionID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
-        "umaEndDate": "2024-03-21 01:19:19+00",
-        "enableOrderBook": true,
-        "orderPriceMinTickSize": 0.001,
-        "orderMinSize": 5,
-        "umaResolutionStatus": "resolved",
-        "volumeNum": 4101.43,
-        "liquidityNum": 231.2,
-        "endDateIso": "2024-04-25",
-        "hasReviewedDates": true,
-        "commentsEnabled": false,
-        "volume24hr": 0,
-        "volume1wk": 0,
-        "volume1mo": 0,
-        "volume1yr": 0,
-        "secondsDelay": 0,
-        "clobTokenIds": "[\"60514145194897823219826772428422448353518550507265497262875791233246155902231\", \"79441287910732946721658295867280356011681250132429753298939411798136774417659\"]",
-        "umaBond": "500.0",
-        "umaReward": "5.0",
-        "fpmmLive": true,
-        "volume24hrAmm": 0,
-        "volume1wkAmm": 0,
-        "volume1moAmm": 0,
-        "volume1yrAmm": 0,
-        "volume24hrClob": 0,
-        "volume1wkClob": 0,
-        "volume1moClob": 0,
-        "volume1yrClob": 0,
-        "volumeAmm": 0,
-        "volumeClob": 4101.429276,
-        "liquidityAmm": 0,
-        "liquidityClob": 0,
-        "makerBaseFee": 0,
-        "takerBaseFee": 0,
-        "customLiveness": 0,
-        "acceptingOrders": true,
-        "negRisk": true,
-        "negRiskMarketID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
-        "negRiskRequestID": "0x93cd45e01d1085855eda9d2a3709683c3a3a479fdbc6e49a056df132228c6ce1",
-        "notificationsEnabled": true,
-        "creator": "",
-        "ready": false,
-        "funded": false,
-        "cyom": false,
-        "competitive": 0,
-        "pagerDutyNotificationEnabled": false,
-        "approved": true,
-        "rewardsMinSize": 0,
-        "rewardsMaxSpread": 0,
-        "spread": 1,
-        "oneDayPriceChange": 0,
-        "oneHourPriceChange": 0,
-        "oneWeekPriceChange": 0,
-        "oneMonthPriceChange": 0,
-        "oneYearPriceChange": 0,
-        "lastTradePrice": 0,
-        "bestBid": 0,
-        "bestAsk": 1,
-        "clearBookOnStart": true,
-        "manualActivation": false,
-        "negRiskOther": false,
-        "umaResolutionStatuses": "[]",
-        "pendingDeployment": false,
-        "deploying": false,
-        "rfqEnabled": false,
-        "holdingRewardsEnabled": false,
-        "feesEnabled": false
-      }
-    ],
-    "tags": [
-      {
-        "id": "1449",
-        "label": "las vegas raiders",
-        "slug": "las-vegas-raiders",
-        "publishedAt": "2024-02-26 21:43:16.042+00",
-        "createdAt": "2024-02-26T21:43:16.586Z",
-        "updatedAt": "2024-02-26T21:43:16.586Z"
-      }
-    ],
-    "cyom": false,
-    "closedTime": "2024-03-21T01:24:40.970783Z",
-    "showAllOutcomes": false,
-    "showMarketImages": true,
-    "enableNegRisk": true,
-    "negRiskAugmented": false,
-    "pendingDeployment": false,
-    "deploying": false
-  }
-]
-```
-
-</Accordion>
-```
-
-**cURL Examples:**
-
-With comma-separated token IDs:
-
-```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?clobTokenIds=tokenId1,tokenId2" \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: YOUR_API_KEY"
-```
-
-With multiple token IDs as separate parameters:
-
-```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?clobTokenIds=tokenId1&clobTokenIds=tokenId2" \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: YOUR_API_KEY"
-```
-
-With slugs:
-
-```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?slugs=slug1,slug2" \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: YOUR_API_KEY"
-```
-
-**Notes:**
-
-- Token IDs can be provided as comma-separated strings or as a JSON array
-- Multiple parameters can be passed by repeating the query parameter or using comma separation
-
----
-
-### 4. Get Price
-
-Retrieves the current market price for a specific token and side.
-
-**Endpoint:** `GET /api/workflows/polymarket/getPrice`
-
-**Query Parameters:**
-
-| Parameter     | Type   | Required | Description                                        | Example                                                                           |
-| ------------- | ------ | -------- | -------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `clobTokenId` | string | Yes      | CLOB token ID                                      | `"80746058984644290629624903019922696017323803605256698757445938534814122585786"` |
-| `side`        | string | Yes      | Order side: `"BUY"` or `"SELL"` (case-insensitive) | `"BUY"`                                                                           |
-
-**Response:**
-
-```json
-{
-  "price": 0.52
-}
-```
-
-**cURL Example:**
-
-```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getPrice?clobTokenId=80746058984644290629624903019922696017323803605256698757445938534814122585786&side=BUY" \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: YOUR_API_KEY"
-```
-
-**Notes:**
-
-- The `side` parameter is case-insensitive (will be converted to uppercase)
-- Returns the best available price for the specified side
-
----
-
-### 5. Get Trending Markets
-
-Retrieves trending markets on Polymarket.
-
-**Endpoint:** `GET /api/workflows/polymarket/getTrendingMarkets`
-
-**Query Parameters:**
-
-| Parameter | Type   | Required | Description                         | Example |
-| --------- | ------ | -------- | ----------------------------------- | ------- |
-| `limit`   | number | No       | Maximum number of results to return | `20`    |
-
-**Response:**
+The response follows the standardized response format with events, tags, and pagination information.
 
 <Accordion title="View full response structure">
 
@@ -1042,6 +798,293 @@ Retrieves trending markets on Polymarket.
       "deploying": false
     }
   ],
+  "tags": [
+    {
+      "id": "1449",
+      "label": "las vegas raiders",
+      "slug": "las-vegas-raiders",
+      "event_count": 5
+    }
+  ],
+  "pagination": {
+    "hasMore": false,
+    "totalResults": 1
+  }
+}
+```
+
+</Accordion>
+
+**Response Fields:**
+
+| Field                     | Type    | Description                                              |
+| ------------------------- | ------- | -------------------------------------------------------- |
+| `events`                  | array   | Array of event objects, each containing markets and tags |
+| `tags`                    | array   | Array of tag objects                                     |
+| `pagination`              | object  | Pagination information                                   |
+| `pagination.hasMore`      | boolean | Whether there are more results available                 |
+| `pagination.totalResults` | number  | Total number of results                                  |
+
+````
+
+**cURL Examples:**
+
+With comma-separated token IDs:
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?clobTokenIds=tokenId1,tokenId2" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+````
+
+With multiple token IDs as separate parameters:
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?clobTokenIds=tokenId1&clobTokenIds=tokenId2" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+With slugs:
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?slugs=slug1,slug2" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+**Notes:**
+
+- Token IDs can be provided as comma-separated strings or as a JSON array
+- Multiple parameters can be passed by repeating the query parameter or using comma separation
+- The response follows the standardized response format with `events`, `tags`, and `pagination` fields
+- Only markets with `acceptingOrders: true` can be used for orders
+- The `clobTokenIds` field contains a JSON array of token IDs (use index 0 for "Yes", index 1 for "No")
+
+---
+
+### 4. Get Price
+
+Retrieves the current market price for a specific token and side.
+
+**Endpoint:** `GET /api/workflows/polymarket/getPrice`
+
+**Query Parameters:**
+
+| Parameter     | Type   | Required | Description                                        | Example                                                                           |
+| ------------- | ------ | -------- | -------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `clobTokenId` | string | Yes      | CLOB token ID                                      | `"80746058984644290629624903019922696017323803605256698757445938534814122585786"` |
+| `side`        | string | Yes      | Order side: `"BUY"` or `"SELL"` (case-insensitive) | `"BUY"`                                                                           |
+
+**Response:**
+
+```json
+{
+  "price": 0.52
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getPrice?clobTokenId=80746058984644290629624903019922696017323803605256698757445938534814122585786&side=BUY" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+**Notes:**
+
+- The `side` parameter is case-insensitive (will be converted to uppercase)
+- Returns the best available price for the specified side
+
+---
+
+### 5. Get Trending Markets
+
+Retrieves trending markets on Polymarket.
+
+**Endpoint:** `GET /api/workflows/polymarket/getTrendingMarkets`
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description                         | Example |
+| --------- | ------ | -------- | ----------------------------------- | ------- |
+| `limit`   | number | No       | Maximum number of results to return | `20`    |
+
+**Response:**
+
+The response follows the standardized response format with events, tags, and pagination information.
+
+<Accordion title="View full response structure">
+
+```json
+{
+  "events": [
+    {
+      "id": "903524",
+      "ticker": "justin-fields-next-team",
+      "slug": "justin-fields-next-team",
+      "title": "Justin Fields Next Team",
+      "description": "Event description...",
+      "resolutionSource": "",
+      "startDate": "2024-02-26T21:47:00Z",
+      "creationDate": "2024-02-26T21:50:03.794Z",
+      "endDate": "2024-04-25T00:00:00Z",
+      "image": "https://...",
+      "icon": "https://...",
+      "active": true,
+      "closed": true,
+      "archived": false,
+      "new": false,
+      "featured": false,
+      "restricted": true,
+      "volume": 31264.48637,
+      "openInterest": 0,
+      "sortBy": "ascending",
+      "published_at": "2024-02-22 17:23:50.05+00",
+      "createdAt": "2024-02-22T17:23:50.074Z",
+      "updatedAt": "2024-05-07T23:10:20.120507Z",
+      "commentsEnabled": false,
+      "competitive": 1,
+      "volume1wk": 0,
+      "volume1mo": 0,
+      "volume1yr": 0,
+      "featuredImage": "",
+      "enableOrderBook": true,
+      "negRisk": true,
+      "negRiskMarketID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
+      "negRiskFeeBips": 0,
+      "commentCount": 0,
+      "markets": [
+        {
+          "id": "254632",
+          "question": "Will Justin Fields be traded to the Atlanta Falcons?",
+          "conditionId": "0x34b24f445ed6321fe7c91c163b512239dcf122d39881b82850e3a0ca09ac665a",
+          "slug": "will-justin-fields-be-traded-to-the-atlanta-falcons",
+          "resolutionSource": "",
+          "endDate": "2024-04-25T00:00:00Z",
+          "liquidity": "231.2",
+          "startDate": "2024-02-26T21:47:00Z",
+          "fee": "20000000000000000",
+          "image": "https://...",
+          "icon": "https://...",
+          "description": "Market description...",
+          "outcomes": "[\"Yes\", \"No\"]",
+          "outcomePrices": "[\"0\", \"1\"]",
+          "volume": "4101.429276",
+          "active": true,
+          "marketType": "normal",
+          "closed": true,
+          "marketMakerAddress": "",
+          "createdAt": "2024-02-22T17:23:49.934Z",
+          "updatedAt": "2024-04-26T02:52:34.331768Z",
+          "closedTime": "2024-03-21 01:19:19+00",
+          "wideFormat": false,
+          "new": false,
+          "featured": false,
+          "submitted_by": "0x91430CaD2d3975766499717fA0D66A78D814E5c5",
+          "archived": false,
+          "resolvedBy": "0x2F5e3684cb1F318ec51b00Edba38d79Ac2c0aA9d",
+          "restricted": true,
+          "groupItemTitle": "Falcons",
+          "groupItemThreshold": "1",
+          "questionID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
+          "umaEndDate": "2024-03-21 01:19:19+00",
+          "enableOrderBook": true,
+          "orderPriceMinTickSize": 0.001,
+          "orderMinSize": 5,
+          "umaResolutionStatus": "resolved",
+          "volumeNum": 4101.43,
+          "liquidityNum": 231.2,
+          "endDateIso": "2024-04-25",
+          "hasReviewedDates": true,
+          "commentsEnabled": false,
+          "volume24hr": 0,
+          "volume1wk": 0,
+          "volume1mo": 0,
+          "volume1yr": 0,
+          "secondsDelay": 0,
+          "clobTokenIds": "[\"60514145194897823219826772428422448353518550507265497262875791233246155902231\", \"79441287910732946721658295867280356011681250132429753298939411798136774417659\"]",
+          "umaBond": "500.0",
+          "umaReward": "5.0",
+          "fpmmLive": true,
+          "volume24hrAmm": 0,
+          "volume1wkAmm": 0,
+          "volume1moAmm": 0,
+          "volume1yrAmm": 0,
+          "volume24hrClob": 0,
+          "volume1wkClob": 0,
+          "volume1moClob": 0,
+          "volume1yrClob": 0,
+          "volumeAmm": 0,
+          "volumeClob": 4101.429276,
+          "liquidityAmm": 0,
+          "liquidityClob": 0,
+          "makerBaseFee": 0,
+          "takerBaseFee": 0,
+          "customLiveness": 0,
+          "acceptingOrders": true,
+          "negRisk": true,
+          "negRiskMarketID": "0xcd0126143cb6daf16e3d8410ee82c0b963e250c8a4922850e1135e7926fd1000",
+          "negRiskRequestID": "0x93cd45e01d1085855eda9d2a3709683c3a3a479fdbc6e49a056df132228c6ce1",
+          "notificationsEnabled": true,
+          "creator": "",
+          "ready": false,
+          "funded": false,
+          "cyom": false,
+          "competitive": 0,
+          "pagerDutyNotificationEnabled": false,
+          "approved": true,
+          "rewardsMinSize": 0,
+          "rewardsMaxSpread": 0,
+          "spread": 1,
+          "oneDayPriceChange": 0,
+          "oneHourPriceChange": 0,
+          "oneWeekPriceChange": 0,
+          "oneMonthPriceChange": 0,
+          "oneYearPriceChange": 0,
+          "lastTradePrice": 0,
+          "bestBid": 0,
+          "bestAsk": 1,
+          "clearBookOnStart": true,
+          "manualActivation": false,
+          "negRiskOther": false,
+          "umaResolutionStatuses": "[]",
+          "pendingDeployment": false,
+          "deploying": false,
+          "rfqEnabled": false,
+          "holdingRewardsEnabled": false,
+          "feesEnabled": false
+        }
+      ],
+      "tags": [
+        {
+          "id": "1449",
+          "label": "las vegas raiders",
+          "slug": "las-vegas-raiders",
+          "publishedAt": "2024-02-26 21:43:16.042+00",
+          "createdAt": "2024-02-26T21:43:16.586Z",
+          "updatedAt": "2024-02-26T21:43:16.586Z"
+        }
+      ],
+      "cyom": false,
+      "closedTime": "2024-03-21T01:24:40.970783Z",
+      "showAllOutcomes": false,
+      "showMarketImages": true,
+      "enableNegRisk": true,
+      "negRiskAugmented": false,
+      "pendingDeployment": false,
+      "deploying": false
+    }
+  ],
+  "tags": [
+    {
+      "id": "1449",
+      "label": "las vegas raiders",
+      "slug": "las-vegas-raiders",
+      "event_count": 5
+    }
+  ],
   "pagination": {
     "hasMore": false,
     "totalResults": 2
@@ -1050,6 +1093,16 @@ Retrieves trending markets on Polymarket.
 ```
 
 </Accordion>
+
+**Response Fields:**
+
+| Field                     | Type    | Description                                              |
+| ------------------------- | ------- | -------------------------------------------------------- |
+| `events`                  | array   | Array of event objects, each containing markets and tags |
+| `tags`                    | array   | Array of tag objects                                     |
+| `pagination`              | object  | Pagination information                                   |
+| `pagination.hasMore`      | boolean | Whether there are more results available                 |
+| `pagination.totalResults` | number  | Total number of results                                  |
 
 **cURL Example:**
 
@@ -1063,6 +1116,9 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 
 - Returns active markets sorted by 24hr volume. Markets must have minimum $150K of volume
 - The `limit` parameter controls how many trending markets are returned
+- The response follows the standardized response format with `events`, `tags`, and `pagination` fields
+- Only markets with `acceptingOrders: true` can be used for orders
+- The `clobTokenIds` field contains a JSON array of token IDs (use index 0 for "Yes", index 1 for "No")
 
 ---
 
@@ -1074,11 +1130,12 @@ Retrieves trade history for a specific user.
 
 **Query Parameters:**
 
-| Parameter | Type   | Required | Description                                | Example      |
-| --------- | ------ | -------- | ------------------------------------------ | ------------ |
-| `userId`  | string | Yes      | Polymarket user ID                         | `"user_123"` |
-| `limit`   | number | No       | Maximum number of results to return        | `50`         |
-| `offset`  | number | No       | Number of results to skip (for pagination) | `0`          |
+| Parameter     | Type   | Required | Description                                | Example      |
+| ------------- | ------ | -------- | ------------------------------------------ | ------------ |
+| `userId`      | string | Yes      | User EVM EOA Address                       | `0x123..789` |
+| `proxyWallet` | string | No       | Polymarket proxy wallet address            | `0x456..789` |
+| `limit`       | number | No       | Maximum number of results to return        | `50`         |
+| `offset`      | number | No       | Number of results to skip (for pagination) | `0`          |
 
 **Response:**
 
@@ -1121,11 +1178,12 @@ Retrieves activity history for a specific user.
 
 **Query Parameters:**
 
-| Parameter | Type   | Required | Description                                | Example      |
-| --------- | ------ | -------- | ------------------------------------------ | ------------ |
-| `userId`  | string | Yes      | Polymarket user ID                         | `"user_123"` |
-| `limit`   | number | No       | Maximum number of results to return        | `50`         |
-| `offset`  | number | No       | Number of results to skip (for pagination) | `0`          |
+| Parameter     | Type   | Required | Description                                | Example      |
+| ------------- | ------ | -------- | ------------------------------------------ | ------------ |
+| `userId`      | string | Yes      | User EVM EOA Address                       | `0x123..789` |
+| `proxyWallet` | string | No       | Polymarket proxy wallet address            | `0x456..789` |
+| `limit`       | number | No       | Maximum number of results to return        | `50`         |
+| `offset`      | number | No       | Number of results to skip (for pagination) | `0`          |
 
 **Response:**
 
@@ -1167,13 +1225,14 @@ Retrieves current open positions for a specific user.
 
 **Query Parameters:**
 
-| Parameter    | Type    | Required | Description                                | Example      |
-| ------------ | ------- | -------- | ------------------------------------------ | ------------ |
-| `userId`     | string  | Yes      | Polymarket user ID                         | `"user_123"` |
-| `redeemable` | boolean | No       | Filter for redeemable positions only       | `true`       |
-| `mergable`   | boolean | No       | Filter for mergable positions only         | `true`       |
-| `limit`      | number  | No       | Maximum number of results to return        | `50`         |
-| `offset`     | number  | No       | Number of results to skip (for pagination) | `0`          |
+| Parameter     | Type    | Required | Description                                | Example      |
+| ------------- | ------- | -------- | ------------------------------------------ | ------------ |
+| `userId`      | string  | Yes      | User EVM EOA Address                       | `0x123..789` |
+| `proxyWallet` | string  | No       | Polymarket proxy wallet address            | `0x456..789` |
+| `redeemable`  | boolean | No       | Filter for redeemable positions only       | `true`       |
+| `mergable`    | boolean | No       | Filter for mergable positions only         | `true`       |
+| `limit`       | number  | No       | Maximum number of results to return        | `50`         |
+| `offset`      | number  | No       | Number of results to skip (for pagination) | `0`          |
 
 **Response:**
 
@@ -1236,11 +1295,12 @@ Retrieves closed positions (resolved markets) for a specific user.
 
 **Query Parameters:**
 
-| Parameter | Type   | Required | Description                                | Example      |
-| --------- | ------ | -------- | ------------------------------------------ | ------------ |
-| `userId`  | string | Yes      | Polymarket user ID                         | `"user_123"` |
-| `limit`   | number | No       | Maximum number of results to return        | `50`         |
-| `offset`  | number | No       | Number of results to skip (for pagination) | `0`          |
+| Parameter     | Type   | Required | Description                                | Example      |
+| ------------- | ------ | -------- | ------------------------------------------ | ------------ |
+| `userId`      | string | Yes      | User EVM EOA Address                       | `0x123..789` |
+| `proxyWallet` | string | No       | Polymarket proxy wallet address            | `0x456..789` |
+| `limit`       | number | No       | Maximum number of results to return        | `50`         |
+| `offset`      | number | No       | Number of results to skip (for pagination) | `0`          |
 
 **Response:**
 
@@ -1284,9 +1344,10 @@ Retrieves profit and loss information for a specific user.
 
 **Query Parameters:**
 
-| Parameter | Type   | Required | Description        | Example      |
-| --------- | ------ | -------- | ------------------ | ------------ |
-| `userId`  | string | Yes      | Polymarket user ID | `"user_123"` |
+| Parameter     | Type   | Required | Description                     | Example      |
+| ------------- | ------ | -------- | ------------------------------- | ------------ |
+| `userId`      | string | Yes      | User EVM EOA Address            | `0x123..789` |
+| `proxyWallet` | string | No       | Polymarket proxy wallet address | `0x456..789` |
 
 **Response:**
 
