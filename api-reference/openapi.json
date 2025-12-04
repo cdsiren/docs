@@ -1268,26 +1268,27 @@
       },
       "TokenInfo": {
         "type": "object",
+        "required": ["chainId", "address", "name", "symbol", "decimals", "isNative"],
         "properties": {
+          "chainId": {
+            "$ref": "#/components/schemas/ChainId",
+            "description": "Chain ID for the token"
+          },
           "address": {
             "$ref": "#/components/schemas/Address",
             "description": "Token address"
-          },
-          "decimals": {
-            "type": "integer",
-            "description": "Token decimals"
-          },
-          "symbol": {
-            "type": "string",
-            "description": "Token symbol"
           },
           "name": {
             "type": "string",
             "description": "Token name"
           },
-          "chainId": {
-            "$ref": "#/components/schemas/ChainId",
-            "description": "Chain ID for the token"
+          "symbol": {
+            "type": "string",
+            "description": "Token symbol"
+          },
+          "decimals": {
+            "type": "integer",
+            "description": "Token decimals"
           },
           "isNative": {
             "type": "boolean",
@@ -1450,14 +1451,17 @@
           { "$ref": "#/components/schemas/TokenInfo" },
           {
             "type": "object",
+            "required": ["minAmount", "maxAmount"],
             "properties": {
               "minAmount": {
                 "type": "string",
-                "description": "Minimum amount of source token (Alt VM only) for exact-out swaps. \n `null` if no min."
+                "nullable": true,
+                "description": "Minimum amount of source token for exact-out swaps. \n `null` if no min."
               },
               "maxAmount": {
                 "type": "string",
-                "description": "Maximum amount of source token (Alt VM only) for exact-out swaps. \n `null` if no max."
+                "nullable": true,
+                "description": "Maximum amount of source token for exact-out swaps. \n `null` if no max."
               }
             }
           }
@@ -1465,13 +1469,16 @@
       },
       "AmountLimits": {
         "type": "object",
+        "required": ["minAmount", "maxAmount"],
         "properties": {
           "minAmount": {
             "type": "string",
+            "nullable": true,
             "description": "Minimum amount of source token required for exact-in swaps. \n `null` if no min."
           },
           "maxAmount": {
             "type": "string",
+            "nullable": true,
             "description": "Maximum amount of source token for exact-in swaps. \n `null` if no max."
           }
         }
@@ -1485,15 +1492,14 @@
             "oneOf": [
               { "title": "Named VM", "type": "string", "enum": ["all"] },
               {
-                "title": "Alt VM",
+                "title": "Token List",
                 "type": "array",
                 "items": { "$ref": "#/components/schemas/TokenInfoWithAmounts" }
               }
             ]
           },
           "supportsExactAmountIn": { "type": "boolean" },
-          "supportsExactAmountOut": { "type": "boolean" },
-          "amountLimits": { "$ref": "#/components/schemas/AmountLimits" }
+          "supportsExactAmountOut": { "type": "boolean" }
         },
         "required": [
           "chainId",
@@ -1505,6 +1511,14 @@
       "GetPathsOutput": {
         "type": "object",
         "properties": {
+          "srcChainId": {
+            "$ref": "#/components/schemas/ChainId",
+            "description": "The source chain ID"
+          },
+          "srcToken": {
+            "$ref": "#/components/schemas/TokenInfoWithAmounts",
+            "description": "Source token information including amount limits"
+          },
           "paths": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/ChainPath" }
@@ -1514,7 +1528,7 @@
             "description": "Response timestamp (ISO string) for cache validation"
           }
         },
-        "required": ["paths", "timestamp"]
+        "required": ["srcChainId", "srcToken", "paths", "timestamp"]
       },
       "TxRegistrationEvent": {
         "type": "object",
