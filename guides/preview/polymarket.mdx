@@ -22,6 +22,7 @@ This document provides comprehensive API specifications for all Polymarket-relat
    - [Get Current Positions](#8-get-current-positions)
    - [Get Closed Positions](#9-get-closed-positions)
    - [Get PnL](#10-get-pnl)
+   - [Get Tags](#13-get-tags)
    - Sell: coming soon
    - Redeem: coming soon
 
@@ -395,14 +396,13 @@ Searches for Polymarket markets by query string.
 
 **Query Parameters:**
 
-| Parameter    | Type     | Required | Description                                                                                                | Example                   |
-| ------------ | -------- | -------- | ---------------------------------------------------------------------------------------------------------- | ------------------------- |
-| `q`          | string   | No       | Search query string                                                                                        | `"american election"`     |
-| `tags`       | string[] | No       | Array of event tags (categories) to filter by. Can be provided multiple times or as comma-separated values | `"nfl"` or `"nfl,sports"` |
-| `page`       | number   | No       | Page number for pagination                                                                                 | `1`                       |
-| `limit`      | number   | No       | Limit results per type (tags, events, profiles)                                                            | `1`                       |
-| `activeOnly` | boolean  | No       | Only return markets currently accepting orders                                                             | `true`                    |
-| `searchTags` | boolean  | No       | Search markets based on tags                                                                               | `true`                    |
+| Parameter    | Type    | Required | Description                                                                                 | Example               |
+| ------------ | ------- | -------- | ------------------------------------------------------------------------------------------- | --------------------- |
+| `q`          | string  | No       | Search query string                                                                         | `"american election"` |
+| `tagIds`     | number  | No       | Array of event tags ids (categories) to filter by. Retrieve ids from the `getTags` endpoint |
+| `page`       | number  | No       | Page number for pagination                                                                  | `1`                   |
+| `limit`      | number  | No       | Limit results per type (tags, events, profiles)                                             | `1`                   |
+| `activeOnly` | boolean | No       | Only return markets currently accepting orders                                              | `true`                |
 
 **Response:**
 
@@ -550,16 +550,6 @@ The response is an array of events with their associated markets, along with pag
           "feesEnabled": false
         }
       ],
-      "tags": [
-        {
-          "id": "1449",
-          "label": "las vegas raiders",
-          "slug": "las-vegas-raiders",
-          "publishedAt": "2024-02-26 21:43:16.042+00",
-          "createdAt": "2024-02-26T21:43:16.586Z",
-          "updatedAt": "2024-02-26T21:43:16.586Z"
-        }
-      ],
       "cyom": false,
       "closedTime": "2024-03-21T01:24:40.970783Z",
       "showAllOutcomes": false,
@@ -601,7 +591,7 @@ curl -G "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/p
 Search with tags:
 
 ```bash
-curl -G "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/search?tags=Politics&tags=Sports&searchTags=true" \
+curl -G "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/search?tagId=450&tagId=226" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -609,8 +599,8 @@ curl -G "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/p
 **Notes:**
 
 - The `q` parameter should be URL-encoded
-- The `tags` parameter can be provided multiple times (e.g., `&tag=nfl&tag=sports`) or as comma-separated values (e.g., `&tags=nfl,sports`)
 - Event tags are categories used to filter Polymarket markets (e.g., "nfl", "sports", "politics")
+- Multiple event tags will search on events with all tags vs. returning events that match any tag
 - Only markets with `acceptingOrders: true` can be used for orders
 - The `clobTokenIds` field contains a JSON array of token IDs (use index 0 for "Yes", index 1 for "No")
 - The response includes pagination information in the `pagination` object
@@ -627,8 +617,9 @@ Retrieves market information by CLOB token IDs or slugs.
 
 | Parameter      | Type     | Required | Description                                                    | Example                                            |
 | -------------- | -------- | -------- | -------------------------------------------------------------- | -------------------------------------------------- |
-| `clobTokenIds` | string[] | No\*     | Array of CLOB token IDs (can be comma-separated or JSON array) | `"tokenId1,tokenId2"` or `["tokenId1","tokenId2"]` |
-| `slug`         | string   | No\*     | Array of market slugs (can be comma-separated or JSON array)   | `"slug1,slug2"` or `["slug1","slug2"]`             |
+| `clobTokenIds` | string[] | No       | Array of CLOB token IDs (can be comma-separated or JSON array) | `"tokenId1,tokenId2"` or `["tokenId1","tokenId2"]` |
+| `slug`         | string   | No       | Array of market slugs (can be comma-separated or JSON array)   | `"slug1,slug2"` or `["slug1","slug2"]`             |
+| `tagId`        | number   | No       | Tag Id from the `getTags` endpoint                             | `450`                                              |
 
 \*At least one of `clobTokenIds` or `slugs` must be provided.
 
@@ -778,16 +769,6 @@ The response follows the standardized response format with events, tags, and pag
           "feesEnabled": false
         }
       ],
-      "tags": [
-        {
-          "id": "1449",
-          "label": "las vegas raiders",
-          "slug": "las-vegas-raiders",
-          "publishedAt": "2024-02-26 21:43:16.042+00",
-          "createdAt": "2024-02-26T21:43:16.586Z",
-          "updatedAt": "2024-02-26T21:43:16.586Z"
-        }
-      ],
       "cyom": false,
       "closedTime": "2024-03-21T01:24:40.970783Z",
       "showAllOutcomes": false,
@@ -796,14 +777,6 @@ The response follows the standardized response format with events, tags, and pag
       "negRiskAugmented": false,
       "pendingDeployment": false,
       "deploying": false
-    }
-  ],
-  "tags": [
-    {
-      "id": "1449",
-      "label": "las vegas raiders",
-      "slug": "las-vegas-raiders",
-      "event_count": 5
     }
   ],
   "pagination": {
@@ -820,7 +793,6 @@ The response follows the standardized response format with events, tags, and pag
 | Field                     | Type    | Description                                              |
 | ------------------------- | ------- | -------------------------------------------------------- |
 | `events`                  | array   | Array of event objects, each containing markets and tags |
-| `tags`                    | array   | Array of tag objects                                     |
 | `pagination`              | object  | Pagination information                                   |
 | `pagination.hasMore`      | boolean | Whether there are more results available                 |
 | `pagination.totalResults` | number  | Total number of results                                  |
@@ -857,7 +829,7 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 
 - Token IDs can be provided as comma-separated strings or as a JSON array
 - Multiple parameters can be passed by repeating the query parameter or using comma separation
-- The response follows the standardized response format with `events`, `tags`, and `pagination` fields
+- The response follows the standardized response format with `events` and `pagination` fields
 - Only markets with `acceptingOrders: true` can be used for orders
 - The `clobTokenIds` field contains a JSON array of token IDs (use index 0 for "Yes", index 1 for "No")
 
@@ -1077,14 +1049,6 @@ The response follows the standardized response format with events, tags, and pag
       "deploying": false
     }
   ],
-  "tags": [
-    {
-      "id": "1449",
-      "label": "las vegas raiders",
-      "slug": "las-vegas-raiders",
-      "event_count": 5
-    }
-  ],
   "pagination": {
     "hasMore": false,
     "totalResults": 2
@@ -1099,7 +1063,6 @@ The response follows the standardized response format with events, tags, and pag
 | Field                     | Type    | Description                                              |
 | ------------------------- | ------- | -------------------------------------------------------- |
 | `events`                  | array   | Array of event objects, each containing markets and tags |
-| `tags`                    | array   | Array of tag objects                                     |
 | `pagination`              | object  | Pagination information                                   |
 | `pagination.hasMore`      | boolean | Whether there are more results available                 |
 | `pagination.totalResults` | number  | Total number of results                                  |
@@ -1116,7 +1079,7 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 
 - Returns active markets sorted by 24hr volume. Markets must have minimum $150K of volume
 - The `limit` parameter controls how many trending markets are returned
-- The response follows the standardized response format with `events`, `tags`, and `pagination` fields
+- The response follows the standardized response format with `events` and `pagination` fields
 - Only markets with `acceptingOrders: true` can be used for orders
 - The `clobTokenIds` field contains a JSON array of token IDs (use index 0 for "Yes", index 1 for "No")
 
@@ -1523,6 +1486,58 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 - Status values: `pending`, `success`, `failed`
 
 ---
+
+### 13. Get Tags
+
+Retrieves the status of a workflow transaction.
+
+**Endpoint:** `GET /api/workflows/getTags`
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description                               | Example |
+| --------- | ------ | -------- | ----------------------------------------- | ------- |
+| `limit`   | number | No       | Number of tags to return                  | `5`     |
+| `offset`  | number | No       | Zero-based index of first index to return | `5`     |
+| `slug`    | string | No       | Transaction ID from /getAction request    | `"nfl"` |
+
+**Response:**
+
+<Accordion title="View full response structure">
+
+```json
+[
+  {
+    "id": "207",
+    "label": "dating",
+    "slug": "dating",
+    "publishedAt": "2023-11-02 21:35:57.945+00",
+    "createdAt": "2023-11-02T21:35:57.968Z",
+    "updatedAt": "2023-11-02T21:35:57.968Z"
+  }
+]
+```
+
+</Accordion>
+
+**Response Fields:**
+
+| Field         | Type   | Description                                  |
+| ------------- | ------ | -------------------------------------------- |
+| `id`          | string | Tag ID. Can search markets based on tag ID.  |
+| `label`       | string | Label for tag                                |
+| `slug`        | string | Slug for tag. Can search tags based on slug. |
+| `publishedAt` | string | Tag publish date                             |
+| `createdAt`   | string | Tag creation date                            |
+| `updatedAt`   | string | Tag updated date                             |
+
+**cURL Example:**
+
+```bash
+curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/getTags" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"
+```
 
 ## General Notes
 
