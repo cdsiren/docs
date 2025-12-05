@@ -1145,7 +1145,8 @@
           "mayan",
           "across",
           "relay",
-          "alt-vm"
+          "alt-vm-1",
+          "alt-vm-2"
         ],
         "description": "Bridge protocol identifier."
       },
