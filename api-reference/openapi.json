@@ -1145,7 +1145,8 @@
           "mayan",
           "across",
           "relay",
-          "alt-vm"
+          "alt-vm-1",
+          "alt-vm-2"
         ],
         "description": "Bridge protocol identifier."
       },
@@ -1171,8 +1172,8 @@
           },
           "value": {
             "type": "string",
-            "pattern": "^[0-9]+n$",
-            "description": "Value in wei as string with 'n' suffix (bigint serialized)"
+            "pattern": "^[0-9]+$",
+            "description": "Value in wei as string"
           },
           "chainId": {
             "$ref": "#/components/schemas/ChainId"
@@ -1207,8 +1208,8 @@
           },
           "value": {
             "type": "string",
-            "pattern": "^[0-9]+n$",
-            "description": "Value as string with 'n' suffix (bigint serialized)"
+            "pattern": "^[0-9]+$",
+            "description": "Value as string"
           },
           "chainId": {
             "$ref": "#/components/schemas/ChainId"
@@ -1256,7 +1257,12 @@
             "properties": {
               "amount": {
                 "type": "string",
-                "pattern": "^[0-9]+n$"
+                "pattern": "^[0-9]+$"
+              },
+              "usdAmount": {
+                "type": "number",
+                "format": "float",
+                "description": "USD value of the payment amount"
               }
             }
           }
@@ -1739,7 +1745,7 @@
           "value": {
             "type": "string",
             "description": "Transaction value as bigint string",
-            "example": "1000000000000000000n"
+            "example": "1000000000000000000"
           },
           "timestamp": {
             "type": "string",
@@ -1772,7 +1778,7 @@
           "amount": {
             "type": "string",
             "description": "Token amount as bigint string",
-            "example": "1000000000000000000n"
+            "example": "1000000000000000000"
           },
           "address": {
             "type": "string",
