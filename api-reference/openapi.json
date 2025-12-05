@@ -1274,7 +1274,14 @@
       },
       "TokenInfo": {
         "type": "object",
-        "required": ["chainId", "address", "name", "symbol", "decimals", "isNative"],
+        "required": [
+          "chainId",
+          "address",
+          "name",
+          "symbol",
+          "decimals",
+          "isNative"
+        ],
         "properties": {
           "chainId": {
             "$ref": "#/components/schemas/ChainId",
@@ -1940,7 +1947,7 @@
           "dstToken",
           "slippage"
         ]
-      },
+      }
     },
     "securitySchemes": {
       "ApiKeyAuth": {
