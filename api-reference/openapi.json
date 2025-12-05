@@ -1258,6 +1258,11 @@
               "amount": {
                 "type": "string",
                 "pattern": "^[0-9]+$"
+              },
+              "usdAmount": {
+                "type": "number",
+                "format": "float",
+                "description": "USD value of the payment amount"
               }
             }
           }
