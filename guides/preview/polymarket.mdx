@@ -778,11 +778,7 @@ The response follows the standardized response format with events, tags, and pag
       "pendingDeployment": false,
       "deploying": false
     }
-  ],
-  "pagination": {
-    "hasMore": false,
-    "totalResults": 1
-  }
+  ]
 }
 ```
 
@@ -790,12 +786,9 @@ The response follows the standardized response format with events, tags, and pag
 
 **Response Fields:**
 
-| Field                     | Type    | Description                                              |
-| ------------------------- | ------- | -------------------------------------------------------- |
-| `events`                  | array   | Array of event objects, each containing markets and tags |
-| `pagination`              | object  | Pagination information                                   |
-| `pagination.hasMore`      | boolean | Whether there are more results available                 |
-| `pagination.totalResults` | number  | Total number of results                                  |
+| Field    | Type  | Description                                              |
+| -------- | ----- | -------------------------------------------------------- |
+| `events` | array | Array of event objects, each containing markets and tags |
 
 ````
 
@@ -1094,29 +1087,37 @@ Retrieves trade history for a specific user.
 
 **Query Parameters:**
 
-| Parameter     | Type   | Required | Description                                | Example      |
-| ------------- | ------ | -------- | ------------------------------------------ | ------------ |
-| `userId`      | string | Yes      | User EVM EOA Address                       | `0x123..789` |
-| `proxyWallet` | string | No       | Polymarket proxy wallet address            | `0x456..789` |
-| `limit`       | number | No       | Maximum number of results to return        | `50`         |
-| `offset`      | number | No       | Number of results to skip (for pagination) | `0`          |
+| Parameter     | Type   | Required | Description                     | Example      |
+| ------------- | ------ | -------- | ------------------------------- | ------------ |
+| `userId`      | string | Yes      | User EVM EOA Address            | `0x123..789` |
+| `proxyWallet` | string | No       | Polymarket proxy wallet address | `0x456..789` |
 
 **Response:**
 
 ```json
-{
-  "trades": [
-    {
-      "id": "trade_id_123",
-      "marketId": "market_id_123",
-      "side": "BUY",
-      "price": 0.52,
-      "size": 10,
-      "timestamp": 1735689600
-    }
-  ],
-  "total": 100
-}
+[
+  {
+    "proxyWallet": "0xbedcad563ddf52391573a016bc5ec7a334eec756",
+    "side": "BUY",
+    "asset": "18508413483771104636176620729953693881676306054057455788312812026480197215143",
+    "conditionId": "0x52f13a5eaf375170189f326e58cc6d217515de1cf9e41bff17be7779ea9a295c",
+    "size": 8.510637,
+    "price": 0.469999954174993,
+    "timestamp": 1764622490,
+    "title": "Spread: Patriots (-7.5)",
+    "slug": "nfl-nyg-ne-2025-12-01-spread-home-7pt5",
+    "icon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
+    "eventSlug": "nfl-nyg-ne-2025-12-01",
+    "outcome": "Patriots",
+    "outcomeIndex": 0,
+    "name": "",
+    "pseudonym": "",
+    "bio": "",
+    "profileImage": "",
+    "profileImageOptimized": "",
+    "transactionHash": "0xf11929aad45190213ff3f40d60b3bc82365166cc10b9c8018431e5aa4c5d7408"
+  }
+]
 ```
 
 **cURL Example:**
@@ -1142,28 +1143,39 @@ Retrieves activity history for a specific user.
 
 **Query Parameters:**
 
-| Parameter     | Type   | Required | Description                                | Example      |
-| ------------- | ------ | -------- | ------------------------------------------ | ------------ |
-| `userId`      | string | Yes      | User EVM EOA Address                       | `0x123..789` |
-| `proxyWallet` | string | No       | Polymarket proxy wallet address            | `0x456..789` |
-| `limit`       | number | No       | Maximum number of results to return        | `50`         |
-| `offset`      | number | No       | Number of results to skip (for pagination) | `0`          |
+| Parameter     | Type   | Required | Description                     | Example      |
+| ------------- | ------ | -------- | ------------------------------- | ------------ |
+| `userId`      | string | Yes      | User EVM EOA Address            | `0x123..789` |
+| `proxyWallet` | string | No       | Polymarket proxy wallet address | `0x456..789` |
 
 **Response:**
 
 ```json
-{
-  "activities": [
-    {
-      "id": "activity_id_123",
-      "type": "order_placed",
-      "marketId": "market_id_123",
-      "timestamp": 1735689600,
-      "details": {}
-    }
-  ],
-  "total": 100
-}
+[
+  {
+    "proxyWallet": "0xbedcad563ddf52391573a016bc5ec7a334eec756",
+    "timestamp": 1764622490,
+    "conditionId": "0x52f13a5eaf375170189f326e58cc6d217515de1cf9e41bff17be7779ea9a295c",
+    "type": "TRADE",
+    "size": 8.510637,
+    "usdcSize": 3.999999,
+    "transactionHash": "0xf11929aad45190213ff3f40d60b3bc82365166cc10b9c8018431e5aa4c5d7408",
+    "price": 0.469999954174993,
+    "asset": "18508413483771104636176620729953693881676306054057455788312812026480197215143",
+    "side": "BUY",
+    "outcomeIndex": 0,
+    "title": "Spread: Patriots (-7.5)",
+    "slug": "nfl-nyg-ne-2025-12-01-spread-home-7pt5",
+    "icon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
+    "eventSlug": "nfl-nyg-ne-2025-12-01",
+    "outcome": "Patriots",
+    "name": "",
+    "pseudonym": "",
+    "bio": "",
+    "profileImage": "",
+    "profileImageOptimized": ""
+  }
+]
 ```
 
 **cURL Example:**
@@ -1189,33 +1201,46 @@ Retrieves current open positions for a specific user.
 
 **Query Parameters:**
 
-| Parameter     | Type    | Required | Description                                | Example      |
-| ------------- | ------- | -------- | ------------------------------------------ | ------------ |
-| `userId`      | string  | Yes      | User EVM EOA Address                       | `0x123..789` |
-| `proxyWallet` | string  | No       | Polymarket proxy wallet address            | `0x456..789` |
-| `redeemable`  | boolean | No       | Filter for redeemable positions only       | `true`       |
-| `mergable`    | boolean | No       | Filter for mergable positions only         | `true`       |
-| `limit`       | number  | No       | Maximum number of results to return        | `50`         |
-| `offset`      | number  | No       | Number of results to skip (for pagination) | `0`          |
+| Parameter     | Type    | Required | Description                          | Example      |
+| ------------- | ------- | -------- | ------------------------------------ | ------------ |
+| `userId`      | string  | Yes      | User EVM EOA Address                 | `0x123..789` |
+| `proxyWallet` | string  | No       | Polymarket proxy wallet address      | `0x456..789` |
+| `redeemable`  | boolean | No       | Filter for redeemable positions only | `true`       |
+| `mergable`    | boolean | No       | Filter for mergable positions only   | `true`       |
 
 **Response:**
 
 ```json
-{
-  "positions": [
-    {
-      "id": "position_id_123",
-      "marketId": "market_id_123",
-      "outcome": "Yes",
-      "shares": 10,
-      "averagePrice": 0.52,
-      "currentPrice": 0.55,
-      "redeemable": false,
-      "mergable": false
-    }
-  ],
-  "total": 25
-}
+[
+  {
+    "proxyWallet": "0xbedcad563ddf52391573a016bc5ec7a334eec756",
+    "asset": "18508413483771104636176620729953693881676306054057455788312812026480197215143",
+    "conditionId": "0x52f13a5eaf375170189f326e58cc6d217515de1cf9e41bff17be7779ea9a295c",
+    "size": 18.510637,
+    "avgPrice": 0.469999,
+    "initialValue": 8.699980879363,
+    "currentValue": 18.510637,
+    "cashPnl": 9.810656120636999,
+    "percentPnl": 112.76641014129815,
+    "totalBought": 18.510637,
+    "realizedPnl": 0,
+    "percentRealizedPnl": 112.76641014129815,
+    "curPrice": 1,
+    "redeemable": true,
+    "mergeable": false,
+    "title": "Spread: Patriots (-7.5)",
+    "slug": "nfl-nyg-ne-2025-12-01-spread-home-7pt5",
+    "icon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/nfl.png",
+    "eventId": "89364",
+    "eventSlug": "nfl-nyg-ne-2025-12-01",
+    "outcome": "Patriots",
+    "outcomeIndex": 0,
+    "oppositeOutcome": "Giants",
+    "oppositeAsset": "103821619123283449656302676569513585770347243680728931670315948714771505071634",
+    "endDate": "2025-12-02",
+    "negativeRisk": false
+  }
+]
 ```
 
 **cURL Examples:**
@@ -1259,30 +1284,44 @@ Retrieves closed positions (resolved markets) for a specific user.
 
 **Query Parameters:**
 
-| Parameter     | Type   | Required | Description                                | Example      |
-| ------------- | ------ | -------- | ------------------------------------------ | ------------ |
-| `userId`      | string | Yes      | User EVM EOA Address                       | `0x123..789` |
-| `proxyWallet` | string | No       | Polymarket proxy wallet address            | `0x456..789` |
-| `limit`       | number | No       | Maximum number of results to return        | `50`         |
-| `offset`      | number | No       | Number of results to skip (for pagination) | `0`          |
+| Parameter     | Type   | Required | Description                     | Example      |
+| ------------- | ------ | -------- | ------------------------------- | ------------ |
+| `userId`      | string | Yes      | User EVM EOA Address            | `0x123..789` |
+| `proxyWallet` | string | No       | Polymarket proxy wallet address | `0x456..789` |
 
 **Response:**
 
 ```json
-{
-  "positions": [
-    {
-      "id": "position_id_123",
-      "marketId": "market_id_123",
-      "outcome": "Yes",
-      "shares": 10,
-      "averagePrice": 0.52,
-      "finalPrice": 1.0,
-      "resolvedAt": 1735689600
-    }
-  ],
-  "total": 15
-}
+[
+  {
+    "proxyWallet": "0xbedcad563ddf52391573a016bc5ec7a334eec756",
+    "asset": "11064405100562260054394340255823522843589213069258780033999551011138768074831",
+    "conditionId": "0x8595fd57b8c332261274d8365ec1901b3b8744d0a1c32688a2d3c0bd203ff1c5",
+    "size": 5,
+    "avgPrice": 0.52,
+    "initialValue": 2.6,
+    "currentValue": 3.275,
+    "cashPnl": 0.675,
+    "percentPnl": 25.961538461538463,
+    "totalBought": 5,
+    "realizedPnl": 0,
+    "percentRealizedPnl": 25.961538461538463,
+    "curPrice": 0.655,
+    "redeemable": false,
+    "mergeable": false,
+    "title": "Will the Chicago Bears make the playoffs?",
+    "slug": "will-the-chicago-bears-make-the-playoffs",
+    "icon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/will-they-make-the-nfl-playoffs-oNphuibDi9il.png",
+    "eventId": "24058",
+    "eventSlug": "which-nfl-teams-will-make-the-playoffs-167",
+    "outcome": "Yes",
+    "outcomeIndex": 0,
+    "oppositeOutcome": "No",
+    "oppositeAsset": "43102609900612064878523985144127283227498093125200167117034359836110418779705",
+    "endDate": "2026-01-13",
+    "negativeRisk": false
+  }
+]
 ```
 
 **cURL Example:**
