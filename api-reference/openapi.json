@@ -923,7 +923,8 @@
           "estimatedTxTime",
           "estimatedPriceImpact",
           "allRoutes",
-          "requiresTokenApproval"
+          "requiresTokenApproval",
+          "requiresRegisterTransaction"
         ],
         "properties": {
           "tx": {
@@ -1001,7 +1002,8 @@
             "description": "Exchange rate for the swap."
           },
           "estimatedTxTime": {
-            "type": "integer",
+            "type": "number",
+            "format": "float",
             "description": "Estimated transaction time in seconds."
           },
           "estimatedPriceImpact": {
@@ -1012,6 +1014,10 @@
           "requiresTokenApproval": {
             "type": "boolean",
             "description": "Flag indicating whether the transaction object requires a source token approval check."
+          },
+          "requiresRegisterTransaction": {
+            "type": "boolean",
+            "description": "Flag indicating whether the transaction requires registration via the registerTxs endpoint. Mandatory for non-EVM transactions."
           },
           "allRoutes": {
             "type": "array",
@@ -1036,7 +1042,8 @@
           "applicationFee",
           "exchangeRate",
           "estimatedTxTime",
-          "estimatedPriceImpact"
+          "estimatedPriceImpact",
+          "requiresRegisterTransaction"
         ],
         "properties": {
           "tx": {
@@ -1114,13 +1121,18 @@
             "description": "Exchange rate for the swap."
           },
           "estimatedTxTime": {
-            "type": "integer",
+            "type": "number",
+            "format": "float",
             "description": "Estimated transaction time in seconds."
           },
           "estimatedPriceImpact": {
             "type": "number",
             "format": "float",
             "description": "Estimated price impact percentage."
+          },
+          "requiresRegisterTransaction": {
+            "type": "boolean",
+            "description": "Flag indicating whether the transaction requires registration via the registerTxs endpoint. Mandatory for non-EVM transactions."
           }
         }
       },
@@ -1200,11 +1212,16 @@
       },
       "AltVmTransaction": {
         "type": "object",
-        "required": ["to", "value", "chainId", "chainKey"],
+        "required": ["to", "toExtra", "value", "chainId", "chainKey"],
         "properties": {
           "to": {
             "$ref": "#/components/schemas/ExchangeAddress",
             "description": "Exchange address"
+          },
+          "toExtra": {
+            "type": "string",
+            "nullable": true,
+            "description": "Additional address information (e.g., memo, tag). Can be null."
           },
           "value": {
             "type": "string",
@@ -1306,6 +1323,15 @@
           "isNative": {
             "type": "boolean",
             "description": "Boolean flag for whether token is the chain's gas token."
+          },
+          "logo": {
+            "type": "string",
+            "nullable": true,
+            "description": "URL to the token's logo image. Can be null if logo is not available."
+          },
+          "swapsXyzCode": {
+            "type": "string",
+            "description": "Internal Swaps.xyz token identifier code."
           }
         }
       },
