@@ -1,1991 +1,1991 @@
 {
-	"openapi": "3.0.3",
-	"info": {
-		"title": "Swaps API",
-		"description": "The Swaps API provides instant cross-chain swap and bridge functionality for decentralized applications.\nIt supports multiple virtual machines (EVM, Solana, Bitcoin) and various DEX protocols and bridge solutions.",
-		"version": "3.0.0",
-		"contact": {
-			"name": "Swaps.xyz",
-			"url": "https://swaps.xyz"
-		}
-	},
-	"servers": [
-		{
-			"url": "https://api-v2.swaps.xyz/api",
-			"description": "Production server"
-		},
-		{
-			"url": "https://ghost.swaps.xyz/api/v2",
-			"description": "Production server"
-		}
-	],
-	"paths": {
-		"/getAction": {
-			"get": {
-				"summary": "Get Action",
-				"servers": [
-					{
-						"url": "https://api-v2.swaps.xyz/api",
-						"description": "Indexer API server"
-					}
-				],
-				"description": "Generates a transaction for cross-chain swaps, bridges, and calls. The action includes transaction data, routing information, and fee calculations for executing the requested operation.",
-				"operationId": "getAction",
-				"parameters": [
-					{
-						"name": "actionType",
-						"in": "query",
-						"required": true,
-						"description": "Type of action to perform",
-						"schema": {
-							"$ref": "#/components/schemas/ActionType"
-						}
-					},
-					{
-						"name": "sender",
-						"in": "query",
-						"required": true,
-						"description": "The address of the sender/user",
-						"schema": {
-							"$ref": "#/components/schemas/Address"
-						}
-					},
-					{
-						"name": "srcChainId",
-						"in": "query",
-						"required": true,
-						"description": "Source chain ID",
-						"schema": {
-							"$ref": "#/components/schemas/ChainId"
-						}
-					},
-					{
-						"name": "srcToken",
-						"in": "query",
-						"required": true,
-						"description": "Source token address",
-						"schema": {
-							"$ref": "#/components/schemas/Address"
-						}
-					},
-					{
-						"name": "dstChainId",
-						"in": "query",
-						"required": true,
-						"description": "Destination chain ID",
-						"schema": {
-							"$ref": "#/components/schemas/ChainId"
-						}
-					},
-					{
-						"name": "dstToken",
-						"in": "query",
-						"required": true,
-						"description": "Destination token address",
-						"schema": {
-							"$ref": "#/components/schemas/Address"
-						}
-					},
-					{
-						"name": "slippage",
-						"in": "query",
-						"required": true,
-						"description": "Slippage tolerance in bps",
-						"schema": {
-							"type": "number",
-							"format": "float",
-							"minimum": 0,
-							"maximum": 10000
-						}
-					},
-					{
-						"name": "amount",
-						"in": "query",
-						"required": false,
-						"description": "The exact in or exact out amount of the swap\n\n\n`swap-action`",
-						"schema": {
-							"type": "string",
-							"pattern": "^[0-9]$"
-						}
-					},
-					{
-						"name": "swapDirection",
-						"in": "query",
-						"required": false,
-						"description": "Swap direction for the action\n\n`swap-action`",
-						"schema": {
-							"$ref": "#/components/schemas/SwapDirection"
-						}
-					},
-					{
-						"name": "recipient",
-						"in": "query",
-						"required": false,
-						"description": "Address to receive the swapped tokens\n\n`swap-action`",
-						"schema": {
-							"$ref": "#/components/schemas/Address"
-						}
-					},
-					{
-						"name": "to",
-						"in": "query",
-						"required": false,
-						"description": "The EVM address of the target contract (20 bytes hex)\n\n`evm-calldata-tx`",
-						"schema": {
-							"$ref": "#/components/schemas/Address"
-						}
-					},
-					{
-						"name": "data",
-						"in": "query",
-						"required": false,
-						"description": "Calldata for the transaction\n\n`evm-calldata-tx`",
-						"schema": {
-							"$ref": "#/components/schemas/Hex"
-						}
-					},
-					{
-						"name": "value",
-						"in": "query",
-						"required": false,
-						"description": "Value to send with transaction\n\n`evm-calldata-tx`",
-						"schema": {
-							"type": "string",
-							"pattern": "^[0-9]$"
-						}
-					},
-					{
-						"name": "erc20Amount",
-						"in": "query",
-						"required": false,
-						"description": "The amount of Erc20 being transferred\n\n**Optional:** Use for calls requiring Erc20 transfers\n\n`evm-calldata-tx`",
-						"schema": {
-							"type": "string",
-							"pattern": "^[0-9]$"
-						}
-					},
-					{
-						"name": "erc20Spender",
-						"in": "query",
-						"required": false,
-						"description": "The Erc20 spender requiring approval for the transaction call\n\n**Optional:** Will default to the `to` address\n\n`evm-calldata-tx`",
-						"schema": {
-							"$ref": "#/components/schemas/Address"
-						}
-					},
-					{
-						"name": "bridgeIds",
-						"in": "query",
-						"required": false,
-						"description": "Specific bridge protocols to use\n\n**Optional:** Will default to all available protocols",
-						"schema": {
-							"type": "array",
-							"items": {
-								"$ref": "#/components/schemas/BridgeId"
-							}
-						}
-					},
-					{
-						"name": "refundTo",
-						"in": "query",
-						"required": false,
-						"description": "Alternate address to receive refunds\n\n**Optional:** Will default to the `sender`",
-						"schema": {
-							"$ref": "#/components/schemas/Address"
-						}
-					},
-					{
-						"name": "returnDepositAddress",
-						"in": "query",
-						"required": false,
-						"description": "Return a deposit address for deposit-based flows\n\n**Optional:** Set to `true` to receive a deposit address in the response",
-						"schema": {
-							"type": "boolean",
-							"default": false
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Successful response with action data",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ActionResponse"
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "Bad request due to missing or invalid parameters",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/GetActionErrorResponse"
-								},
-								"examples": {
-									"AMOUNT_TOO_HIGH": {
-										"summary": "Amount Too High",
-										"value": {
-											"statusCode": 400,
-											"name": "AmountTooHighError",
-											"message": "The specified amount is too high.",
-											"title": "Amount too high",
-											"code": "AMOUNT_TOO_HIGH",
-											"details": {
-												"srcToken": "0x0000000000000000000000000000000000000000",
-												"dstToken": "0x0000000000000000000000000000000000000000",
-												"srcChainId": 1,
-												"dstChainId": 42161,
-												"maxAmount": 100000000000000000000
-											}
-										}
-									},
-									"AMOUNT_TOO_LOW": {
-										"summary": "Amount Too Low",
-										"value": {
-											"statusCode": 400,
-											"name": "AmountTooLowError",
-											"message": "The specified amount is too low.",
-											"title": "Amount too low",
-											"code": "AMOUNT_TOO_LOW",
-											"details": {
-												"srcToken": "0x0000000000000000000000000000000000000000",
-												"dstToken": "0x0000000000000000000000000000000000000000",
-												"srcChainId": 1,
-												"dstChainId": 42161,
-												"minAmount": 0.000123
-											}
-										}
-									},
-									"CROSS_VM_RECEIVER_REQUIRED": {
-										"summary": "Cross VM Receiver Required",
-										"value": {
-											"statusCode": 400,
-											"name": "CrossVmReceiverRequiredError",
-											"message": "Receiver address is required for swaps across different VMs.",
-											"title": "Receiver address required",
-											"code": "CROSS_VM_RECEIVER_REQUIRED",
-											"details": {
-												"srcChainId": 1,
-												"dstChainId": 1399811149
-											}
-										}
-									},
-									"EXCESSIVE_FEE": {
-										"summary": "Excessive Fee",
-										"value": {
-											"statusCode": 400,
-											"name": "ExcessiveFeeError",
-											"message": "The inputted flat fee is too large (over 50% of tx input).",
-											"title": "Excessive fee",
-											"code": "EXCESSIVE_FEE"
-										}
-									},
-									"INSUFFICIENT_LIQUIDITY": {
-										"summary": "Insufficient Liquidity",
-										"value": {
-											"statusCode": 400,
-											"name": "InsufficientLiquidityError",
-											"message": "There is insufficient liquidity to complete this transaction.",
-											"title": "Insufficient liquidity",
-											"code": "INSUFFICIENT_LIQUIDITY"
-										}
-									},
-									"INVALID_ADDRESS_FORMAT": {
-										"summary": "Invalid Address Format",
-										"value": {
-											"statusCode": 400,
-											"name": "InvalidAddressError",
-											"message": "The format of the specified address is invalid.",
-											"title": "Invalid address format",
-											"code": "INVALID_ADDRESS_FORMAT",
-											"details": {
-												"field": "sender",
-												"address": "0xinvalid",
-												"reason": "Address must be 40 characters long"
-											}
-										}
-									},
-									"INVALID_AMOUNT_ZERO": {
-										"summary": "Invalid Amount Zero",
-										"value": {
-											"statusCode": 400,
-											"name": "InvalidAmountZeroError",
-											"message": "Amount must be greater than zero.",
-											"title": "Zero amount not allowed",
-											"code": "INVALID_AMOUNT_ZERO"
-										}
-									},
-									"INVALID_DESTINATION_TOKEN": {
-										"summary": "Invalid Destination Token",
-										"value": {
-											"statusCode": 400,
-											"name": "InvalidDstTokenError",
-											"message": "Destination token is required.",
-											"title": "Invalid destination token",
-											"code": "INVALID_DESTINATION_TOKEN"
-										}
-									},
-									"INVALID_PARAMETER": {
-										"summary": "Invalid Parameter",
-										"value": {
-											"statusCode": 400,
-											"name": "InvalidParameterError",
-											"message": "The request contains an invalid parameter.",
-											"title": "Invalid parameter",
-											"code": "INVALID_PARAMETER",
-											"details": {
-												"parameter": "slippage",
-												"value": "15000",
-												"reason": "Slippage must be between 0 and 10000 bps"
-											}
-										}
-									},
-									"INVALID_SOURCE_TOKEN": {
-										"summary": "Invalid Source Token",
-										"value": {
-											"statusCode": 400,
-											"name": "InvalidSrcTokenError",
-											"message": "Source token is required.",
-											"title": "Invalid source token",
-											"code": "INVALID_SOURCE_TOKEN"
-										}
-									},
-									"MISSING_REQUIRED_FIELD": {
-										"summary": "Missing Required Field",
-										"value": {
-											"statusCode": 400,
-											"name": "MissingRequiredFieldError",
-											"message": "The request is missing a required field.",
-											"title": "Missing required field",
-											"code": "MISSING_REQUIRED_FIELD",
-											"details": {
-												"field": "srcToken",
-												"context": "Source token address is required for swap actions"
-											}
-										}
-									},
-									"NO_AVAILABLE_ROUTE": {
-										"summary": "No Available Route",
-										"value": {
-											"statusCode": 400,
-											"name": "NoAvailableRouteError",
-											"message": "No route is available for the specified parameters.",
-											"title": "No available route",
-											"code": "NO_AVAILABLE_ROUTE",
-											"details": {
-												"srcChainId": 1,
-												"dstChainId": 42161,
-												"srcToken": "0x0000000000000000000000000000000000000000",
-												"dstToken": "0x1234567890123456789012345678901234567890"
-											}
-										}
-									},
-									"UNSUPPORTED_NETWORK": {
-										"summary": "Unsupported Network",
-										"value": {
-											"statusCode": 400,
-											"name": "UnsupportedNetworkError",
-											"message": "The network with the specified chainId is not supported.",
-											"title": "Unsupported network",
-											"code": "UNSUPPORTED_NETWORK",
-											"details": {
-												"chainId": 999999
-											}
-										}
-									},
-									"UNSUPPORTED_NETWORK_PAIR": {
-										"summary": "Unsupported Network Pair",
-										"value": {
-											"statusCode": 400,
-											"name": "UnsupportedNetworkPairError",
-											"message": "Routing between the specified networks is not supported.",
-											"title": "Unsupported network pair",
-											"code": "UNSUPPORTED_NETWORK_PAIR",
-											"details": {
-												"srcChainId": 1,
-												"dstChainId": 999999
-											}
-										}
-									},
-									"UNSUPPORTED_NETWORK_TOKEN_PAIR": {
-										"summary": "Unsupported Network Token Pair",
-										"value": {
-											"statusCode": 400,
-											"name": "UnsupportedNetworkAndTokenPairError",
-											"message": "Routing between the specified tokens and networks is not supported.",
-											"title": "Unsupported network and token pair",
-											"code": "UNSUPPORTED_NETWORK_TOKEN_PAIR",
-											"details": {
-												"srcChainId": 1,
-												"srcToken": "0x0000000000000000000000000000000000000000",
-												"dstChainId": 42161,
-												"dstToken": "0x1234567890123456789012345678901234567890"
-											}
-										}
-									},
-									"UNSUPPORTED_SWAP_DIRECTION": {
-										"summary": "Unsupported Swap Direction",
-										"value": {
-											"statusCode": 400,
-											"name": "UnsupportedSwapDirectionError",
-											"message": "The specified swap direction is not supported.",
-											"title": "Unsupported swap direction",
-											"code": "UNSUPPORTED_SWAP_DIRECTION",
-											"details": {
-												"swapDirection": "exact-amount-out"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "Unauthorized - Invalid or missing API key",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/GetActionErrorResponse"
-								},
-								"examples": {
-									"INVALID_API_KEY": {
-										"summary": "Invalid API Key",
-										"value": {
-											"statusCode": 401,
-											"name": "InvalidApiKeyError",
-											"message": "The provided API key is invalid.",
-											"title": "Invalid API key",
-											"code": "INVALID_API_KEY"
-										}
-									},
-									"MISSING_API_KEY": {
-										"summary": "Missing API Key",
-										"value": {
-											"statusCode": 401,
-											"name": "MissingApiKeyError",
-											"message": "API key is required.",
-											"title": "Missing API key",
-											"code": "MISSING_API_KEY"
-										}
-									}
-								}
-							}
-						}
-					},
-					"403": {
-						"description": "Forbidden - Access denied due to restrictions",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/GetActionErrorResponse"
-								},
-								"examples": {
-									"GEO_BLOCKED": {
-										"summary": "Geographic Restriction",
-										"value": {
-											"statusCode": 403,
-											"name": "GeoBlockingError",
-											"message": "Access denied due to geo-blocking restrictions.",
-											"title": "Geo-blocking restriction",
-											"code": "GEO_BLOCKED",
-											"details": {
-												"countryCode": "US",
-												"countryName": "United States",
-												"reason": "Country is on the blocked list",
-												"blockedAt": "2024-01-15T10:30:00.000Z"
-											}
-										}
-									},
-									"WALLET_SCREENED": {
-										"summary": "Wallet Screening",
-										"value": {
-											"statusCode": 403,
-											"name": "WalletScreeningError",
-											"message": "Access denied due to wallet screening restrictions.",
-											"title": "Wallet screening restriction",
-											"code": "WALLET_SCREENED",
-											"details": {
-												"walletAddress": "0x1234567890123456789012345678901234567890",
-												"chainId": 1,
-												"riskLevel": "HIGH",
-												"reason": "Wallet flagged by screening service",
-												"screenedAt": "2024-01-15T10:30:00.000Z"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"405": {
-						"description": "Method not allowed",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/GetActionErrorResponse"
-								},
-								"examples": {
-									"METHOD_NOT_ALLOWED": {
-										"summary": "Method Not Allowed",
-										"value": {
-											"statusCode": 405,
-											"name": "MethodNotAllowedError",
-											"message": "The HTTP request method specified is not allowed.",
-											"title": "Method not allowed",
-											"code": "METHOD_NOT_ALLOWED",
-											"details": {
-												"method": "POST"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "Internal server error",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/GetActionErrorResponse"
-								},
-								"examples": {
-									"INTERNAL_SERVER_ERROR": {
-										"summary": "Internal Server Error",
-										"value": {
-											"statusCode": 500,
-											"name": "InternalServerError",
-											"message": "An internal server error occurred while processing the request.",
-											"title": "Internal server error",
-											"code": "INTERNAL_SERVER_ERROR"
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		},
-		"/registerTxs": {
-			"post": {
-				"summary": "Register Transaction",
-				"servers": [
-					{
-						"url": "https://api-v2.swaps.xyz/api",
-						"description": "Indexer API server"
-					}
-				],
-				"description": "Register transactions for indexing. Mandatory for non EVM transactions.",
-				"operationId": "registerTxs",
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"oneOf": [
-									{
-										"title": "Single Transaction",
-										"$ref": "#/components/schemas/TxRegistrationEvent"
-									},
-									{
-										"title": "Multiple Transactions",
-										"type": "array",
-										"items": {
-											"$ref": "#/components/schemas/TxRegistrationEvent"
-										}
-									}
-								]
-							}
-						}
-					}
-				},
-				"responses": {
-					"200": {
-						"description": "Transaction registration results",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/post_200__webhooks_registerTxsSchema"
-								}
-							}
-						}
-					}
-				}
-			}
-		},
-		"/getStatus": {
-			"get": {
-				"summary": "Get Status",
-				"servers": [
-					{
-						"url": "https://api-v2.swaps.xyz/api",
-						"description": "Indexer API server"
-					}
-				],
-				"description": "Retrieve the status and details of a transaction by transaction hash or transaction ID",
-				"operationId": "getTransactionStatus",
-				"parameters": [
-					{
-						"name": "txHash",
-						"in": "query",
-						"description": "Transaction hash to query (required if txId not provided)",
-						"required": false,
-						"schema": {
-							"type": "string",
-							"pattern": "^0x[a-fA-F0-9]{64}$",
-							"example": "0xd56968cf4fede6a0773f3e6dfad7d1088aacd3994bada55d44faee9596dadff2"
-						}
-					},
-					{
-						"name": "txId",
-						"in": "query",
-						"description": "Transaction ID to query (required if txHash not provided)",
-						"required": false,
-						"schema": {
-							"type": "string",
-							"example": "0x49b1d3d38176e45864fd55500c6c1879ab318609e1ed0c8eb9abd818e6c811fd"
-						}
-					},
-					{
-						"name": "chainId",
-						"in": "query",
-						"description": "Source chain ID for the transaction (optional but recommended)",
-						"required": false,
-						"schema": {
-							"type": "integer",
-							"example": 1
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Transaction status response",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/TxDetails"
-								}
-							}
-						}
-					}
-				}
-			}
-		},
-		"/getTransactions": {
-			"get": {
-				"summary": "Get Transactions",
-				"servers": [
-					{
-						"url": "https://api-v2.swaps.xyz/api",
-						"description": "Indexer API server"
-					}
-				],
-				"description": "Retrieve paginated transaction history with optional filtering",
-				"operationId": "getTransactions",
-				"parameters": [
-					{
-						"name": "appIds",
-						"in": "query",
-						"description": "Comma-separated list of your app IDs. By default, a request to this endpoint will return transactions across all appIds in your org. Each API key has a unique app ID.  Multiple app IDs can exist within a single org ID.",
-						"schema": {
-							"type": "string",
-							"example": "0x5344e5a7,0x5314e6a7"
-						}
-					},
-					{
-						"name": "walletAddress",
-						"in": "query",
-						"description": "Wallet address to filter transactions by user",
-						"required": false,
-						"schema": {
-							"type": "string",
-							"pattern": "^0x[a-fA-F0-9]{40}$",
-							"example": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
-						}
-					},
-					{
-						"name": "chainIds",
-						"in": "query",
-						"description": "Comma-separated list of chain IDs to filter by",
-						"required": false,
-						"schema": {
-							"type": "string",
-							"example": "1,42161,10"
-						}
-					},
-					{
-						"name": "page",
-						"in": "query",
-						"description": "Page number for pagination",
-						"required": false,
-						"schema": {
-							"type": "integer",
-							"minimum": 1,
-							"default": 1,
-							"example": 1
-						}
-					},
-					{
-						"name": "limit",
-						"in": "query",
-						"description": "Number of results per page (max 500)",
-						"required": false,
-						"schema": {
-							"type": "integer",
-							"minimum": 1,
-							"maximum": 500,
-							"default": 25,
-							"example": 25
-						}
-					},
-					{
-						"name": "period",
-						"in": "query",
-						"description": "Time period filter",
-						"required": false,
-						"schema": {
-							"type": "string",
-							"enum": ["day", "week", "month", "allTime"],
-							"default": "allTime",
-							"example": "week"
-						}
-					},
-					{
-						"name": "startDate",
-						"in": "query",
-						"description": "Start date filter (Unix timestamp)",
-						"required": false,
-						"schema": {
-							"type": "string",
-							"example": "1640995200"
-						}
-					},
-					{
-						"name": "endDate",
-						"in": "query",
-						"description": "End date filter (Unix timestamp)",
-						"required": false,
-						"schema": {
-							"type": "string",
-							"example": "1672531200"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Transaction history response",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"properties": {
-										"txs": {
-											"type": "array",
-											"items": {
-												"$ref": "#/components/schemas/TxDetails"
-											}
-										},
-										"pagination": {
-											"$ref": "#/components/schemas/Pagination"
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		},
-		"/getPaths": {
-			"get": {
-				"summary": "Get Paths",
-				"description": "Retrieves all available token paths across supported chains with configurable filtering options. It’s recommended to call this endpoint after selecting the source and destination tokens to validate route eligibility.",
-				"operationId": "getPaths",
-				"parameters": [
-					{
-						"name": "srcChainId",
-						"in": "query",
-						"required": true,
-						"description": "Source chain ID",
-						"schema": { "$ref": "#/components/schemas/ChainId" }
-					},
-					{
-						"name": "srcToken",
-						"in": "query",
-						"required": true,
-						"description": "Source token address",
-						"schema": { "type": "string" }
-					},
-					{
-						"name": "dstChainId",
-						"in": "query",
-						"required": false,
-						"description": "Recommended: destination chain ID",
-						"schema": { "$ref": "#/components/schemas/ChainId" }
-					},
-					{
-						"name": "dstToken",
-						"in": "query",
-						"required": false,
-						"description": "Recommended: destination token address",
-						"schema": { "type": "string" }
-					},
-					{
-						"name": "excludeBridgeIds",
-						"in": "query",
-						"required": false,
-						"description": "Bridge IDs to exclude from routing",
-						"schema": {
-							"type": "array",
-							"items": { "$ref": "#/components/schemas/BridgeId" }
-						}
-					},
-					{
-						"name": "excludeDexIds",
-						"in": "query",
-						"required": false,
-						"description": "DEX IDs to exclude from routing",
-						"schema": {
-							"type": "array",
-							"items": { "$ref": "#/components/schemas/DexId" }
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Paths response",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/GetPathsOutput" }
-							}
-						}
-					},
-					"400": {
-						"description": "Bad request due to missing or invalid parameters",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/ErrorResponse" }
-							}
-						}
-					},
-					"500": {
-						"description": "Internal server error",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/ErrorResponse" }
-							}
-						}
-					}
-				}
-			}
-		},
-		"/getChainList": {
-			"get": {
-				"summary": "Get Chain List",
-				"description": "Retrieve a list of supported chains, their names, and virtual machine identifiers. Raw data for the [supported chains list](/resources/chain-list)",
-				"operationId": "getChainList",
-				"responses": {
-					"200": {
-						"description": "List of supported chains",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/ChainListResponse"
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	},
-	"components": {
-		"schemas": {
-			"ActionResponse": {
-				"type": "object",
-				"required": [
-					"tx",
-					"txId",
-					"vmId",
-					"amountIn",
-					"amountInMax",
-					"amountOutMin",
-					"amountOut",
-					"protocolFee",
-					"applicationFee",
-					"exchangeRate",
-					"estimatedTxTime",
-					"estimatedPriceImpact",
-					"allRoutes",
-					"requiresTokenApproval",
-					"requiresRegisterTransaction"
-				],
-				"properties": {
-					"tx": {
-						"oneOf": [
-							{
-								"title": "EVM Transaction",
-								"$ref": "#/components/schemas/EvmTransaction"
-							},
-							{
-								"title": "Solana Transaction",
-								"$ref": "#/components/schemas/SerializedSolTransaction"
-							},
-							{
-								"title": "Alt VM Transaction",
-								"$ref": "#/components/schemas/AltVmTransaction"
-							},
-							{
-								"title": "HyperCore Transaction",
-								"$ref": "#/components/schemas/HyperCoreTransaction"
-							}
-						],
-						"description": "Transaction data for execution"
-					},
-					"txId": {
-						"$ref": "#/components/schemas/Hex",
-						"description": "Transaction ID"
-					},
-					"vmId": {
-						"type": "string",
-						"enum": ["evm", "solana", "alt-vm", "hypercore"],
-						"description": "Virtual machine identifier."
-					},
-					"amountIn": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Expected amount to input (exclusive of slippage - recommended value to display in frontend)"
-					},
-					"amountInMax": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Maximum amount to input (inclusive of slippage)"
-					},
-					"amountOut": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Expected amount delivered to users (exclusive of slippage - recommended value to display in frontend)"
-					},
-					"amountOutMin": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Minimum amount delivered to users (inclusive of slippage)"
-					},
-					"protocolFee": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Swaps.xyz fee"
-					},
-					"applicationFee": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Application fee (your fee!)"
-					},
-					"bridgeFee": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Bridge fee (from aggregated providers)"
-					},
-					"bridgeIds": {
-						"type": "array",
-						"items": {
-							"$ref": "#/components/schemas/BridgeId"
-						},
-						"description": "Bridge IDs used in the route."
-					},
-					"bridgeRoute": {
-						"$ref": "#/components/schemas/BridgeRoute",
-						"description": "Bridge route information (src chain + token, dst chain + token, BridgeId)"
-					},
-					"exchangeRate": {
-						"type": "number",
-						"format": "float",
-						"description": "Exchange rate for the swap."
-					},
-					"estimatedTxTime": {
-						"type": "number",
-						"format": "float",
-						"description": "Estimated transaction time in seconds."
-					},
-					"estimatedPriceImpact": {
-						"type": "number",
-						"format": "float",
-						"description": "Estimated price impact percentage."
-					},
-					"requiresTokenApproval": {
-						"type": "boolean",
-						"description": "Flag indicating whether the transaction object requires a source token approval check."
-					},
-					"requiresRegisterTransaction": {
-						"type": "boolean",
-						"description": "Flag indicating whether the transaction requires registration via the registerTxs endpoint. Mandatory for non-EVM transactions."
-					},
-					"allRoutes": {
-						"type": "array",
-						"items": {
-							"$ref": "#/components/schemas/BaseActionResponse"
-						},
-						"description": "All available routes for the action."
-					}
-				}
-			},
-			"BaseActionResponse": {
-				"type": "object",
-				"required": [
-					"tx",
-					"txId",
-					"amountIn",
-					"vmId",
-					"amountInMax",
-					"amountOutMin",
-					"amountOut",
-					"protocolFee",
-					"applicationFee",
-					"exchangeRate",
-					"estimatedTxTime",
-					"estimatedPriceImpact",
-					"requiresRegisterTransaction"
-				],
-				"properties": {
-					"tx": {
-						"oneOf": [
-							{
-								"title": "EVM Transaction",
-								"$ref": "#/components/schemas/EvmTransaction"
-							},
-							{
-								"title": "Solana Transaction",
-								"$ref": "#/components/schemas/SerializedSolTransaction"
-							},
-							{
-								"title": "Alt VM Transaction",
-								"$ref": "#/components/schemas/AltVmTransaction"
-							},
-							{
-								"title": "HyperCore Transaction",
-								"$ref": "#/components/schemas/HyperCoreTransaction"
-							}
-						],
-						"description": "Transaction data for execution"
-					},
-					"txId": {
-						"$ref": "#/components/schemas/Hex",
-						"description": "Transaction ID"
-					},
-					"vmId": {
-						"type": "string",
-						"enum": ["evm", "solana", "alt-vm", "hypercore"],
-						"description": "Virtual machine identifier."
-					},
-					"amountIn": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Expected amount to input (exclusive of slippage - recommended value to display in frontend)"
-					},
-					"amountInMax": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Maximum amount to input (inclusive of slippage)"
-					},
-					"amountOut": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Expected amount delivered to users (exclusive of slippage - recommended value to display in frontend)"
-					},
-					"amountOutMin": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Minimum amount delivered to users (inclusive of slippage)"
-					},
-					"protocolFee": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Swaps.xyz fee"
-					},
-					"applicationFee": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Application fee (your fee!)"
-					},
-					"bridgeFee": {
-						"$ref": "#/components/schemas/Payment",
-						"description": "Bridge fee (from aggregated providers)"
-					},
-					"bridgeIds": {
-						"type": "array",
-						"items": {
-							"$ref": "#/components/schemas/BridgeId"
-						},
-						"description": "Bridge IDs used in the route."
-					},
-					"bridgeRoute": {
-						"$ref": "#/components/schemas/BridgeRoute",
-						"description": "Bridge route information (src chain + token, dst chain + token, BridgeId)"
-					},
-					"exchangeRate": {
-						"type": "number",
-						"format": "float",
-						"description": "Exchange rate for the swap."
-					},
-					"estimatedTxTime": {
-						"type": "number",
-						"format": "float",
-						"description": "Estimated transaction time in seconds."
-					},
-					"estimatedPriceImpact": {
-						"type": "number",
-						"format": "float",
-						"description": "Estimated price impact percentage."
-					},
-					"requiresRegisterTransaction": {
-						"type": "boolean",
-						"description": "Flag indicating whether the transaction requires registration via the registerTxs endpoint. Mandatory for non-EVM transactions."
-					}
-				}
-			},
-			"ChainId": {
-				"type": "integer",
-				"description": "Chain ID. Find in the list of supported networks"
-			},
-			"VmId": {
-				"type": "string",
-				"enum": ["evm", "solana", "alt-vm", "hypercore"],
-				"description": "Virtual machine identifier."
-			},
-			"BridgeId": {
-				"type": "string",
-				"enum": [
-					"optimism",
-					"arbitrum",
-					"oft",
-					"yield-oft",
-					"hyperlane",
-					"ghost",
-					"mayan",
-					"across",
-					"relay",
-					"alt-vm-1",
-					"alt-vm-2"
-				],
-				"description": "Bridge protocol identifier."
-			},
-			"ActionType": {
-				"type": "string",
-				"enum": ["swap-action", "evm-calldata-tx"],
-				"description": "Type of action to perform."
-			},
-			"SwapDirection": {
-				"type": "string",
-				"enum": ["exact-amount-in", "exact-amount-out"],
-				"description": "Swap direction for the action."
-			},
-			"EvmTransaction": {
-				"type": "object",
-				"required": ["to", "data", "value"],
-				"properties": {
-					"to": {
-						"$ref": "#/components/schemas/EvmAddress"
-					},
-					"data": {
-						"$ref": "#/components/schemas/Hex"
-					},
-					"value": {
-						"type": "string",
-						"pattern": "^[0-9]+$",
-						"description": "Value in wei as string"
-					},
-					"chainId": {
-						"$ref": "#/components/schemas/ChainId"
-					}
-				}
-			},
-			"SerializedSolTransaction": {
-				"type": "object",
-				"required": ["base64Tx", "recentBlockhash", "payer"],
-				"properties": {
-					"base64Tx": {
-						"type": "string",
-						"description": "Base64-encoded transaction"
-					},
-					"recentBlockhash": {
-						"type": "string",
-						"description": "Recent blockhash for transaction validity"
-					},
-					"payer": {
-						"$ref": "#/components/schemas/SolanaAddress",
-						"description": "PublicKey who pays fees"
-					}
-				}
-			},
-			"AltVmTransaction": {
-				"type": "object",
-				"required": ["to", "toExtra", "value", "chainId", "chainKey"],
-				"properties": {
-					"to": {
-						"$ref": "#/components/schemas/ExchangeAddress",
-						"description": "Exchange address"
-					},
-					"toExtra": {
-						"type": "string",
-						"nullable": true,
-						"description": "Additional address information (e.g., memo, tag). Can be null."
-					},
-					"value": {
-						"type": "string",
-						"pattern": "^[0-9]+$",
-						"description": "Value as string"
-					},
-					"chainId": {
-						"$ref": "#/components/schemas/ChainId"
-					},
-					"chainKey": {
-						"type": "string",
-						"description": "Chain key identifier"
-					}
-				}
-			},
-			"HyperCoreAction": {
-				"type": "string",
-				"enum": ["usdSend"],
-				"description": "HyperCore action type"
-			},
-			"HyperCoreTransaction": {
-				"type": "object",
-				"required": ["type", "destination", "amount", "chainId"],
-				"properties": {
-					"type": {
-						"$ref": "#/components/schemas/HyperCoreAction"
-					},
-					"destination": {
-						"type": "string",
-						"description": "Destination address"
-					},
-					"amount": {
-						"type": "string",
-						"description": "Amount to transfer"
-					},
-					"chainId": {
-						"$ref": "#/components/schemas/ChainId",
-						"description": "Chain ID. 1337 for HyperCore"
-					}
-				}
-			},
-			"Payment": {
-				"allOf": [
-					{
-						"$ref": "#/components/schemas/TokenInfo"
-					},
-					{
-						"type": "object",
-						"required": ["amount"],
-						"properties": {
-							"amount": {
-								"type": "string",
-								"pattern": "^[0-9]+$"
-							},
-							"usdAmount": {
-								"type": "number",
-								"format": "float",
-								"description": "USD value of the payment amount"
-							}
-						}
-					}
-				]
-			},
-			"ExchangeAddress": {
-				"type": "string",
-				"description": "Exchange address format"
-			},
-			"TokenInfo": {
-				"type": "object",
-				"required": [
-					"chainId",
-					"address",
-					"name",
-					"symbol",
-					"decimals",
-					"isNative"
-				],
-				"properties": {
-					"chainId": {
-						"$ref": "#/components/schemas/ChainId",
-						"description": "Chain ID for the token"
-					},
-					"address": {
-						"$ref": "#/components/schemas/Address",
-						"description": "Token address"
-					},
-					"name": {
-						"type": "string",
-						"description": "Token name"
-					},
-					"symbol": {
-						"type": "string",
-						"description": "Token symbol"
-					},
-					"decimals": {
-						"type": "integer",
-						"description": "Token decimals"
-					},
-					"isNative": {
-						"type": "boolean",
-						"description": "Boolean flag for whether token is the chain's gas token."
-					},
-					"logo": {
-						"type": "string",
-						"nullable": true,
-						"description": "URL to the token's logo image. Can be null if logo is not available."
-					},
-					"swapsXyzCode": {
-						"type": "string",
-						"description": "Internal Swaps.xyz token identifier code."
-					}
-				}
-			},
-			"BridgeStep": {
-				"type": "object",
-				"required": [
-					"srcChainId",
-					"dstChainId",
-					"srcBridgeToken",
-					"dstBridgeToken",
-					"bridgeId"
-				],
-				"properties": {
-					"srcChainId": {
-						"$ref": "#/components/schemas/ChainId"
-					},
-					"dstChainId": {
-						"$ref": "#/components/schemas/ChainId"
-					},
-					"srcBridgeToken": {
-						"$ref": "#/components/schemas/Address"
-					},
-					"dstBridgeToken": {
-						"$ref": "#/components/schemas/Address"
-					},
-					"bridgeId": {
-						"$ref": "#/components/schemas/BridgeId"
-					}
-				}
-			},
-			"BridgeRoute": {
-				"type": "array",
-				"items": {
-					"$ref": "#/components/schemas/BridgeStep"
-				},
-				"description": "Array of bridge steps"
-			},
-			"Address": {
-				"type": "string",
-				"pattern": "^[0-9a-fA-F]{40}$",
-				"description": "EVM address (20 bytes hex)"
-			},
-			"EvmAddress": {
-				"type": "string",
-				"pattern": "^[0-9a-fA-F]{40}$",
-				"description": "EVM address (20 bytes hex)"
-			},
-			"SolanaAddress": {
-				"type": "string",
-				"pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$",
-				"description": "Solana public key (base58 encoded)"
-			},
-			"Hex": {
-				"type": "string",
-				"pattern": "^0x[a-fA-F0-9]*$",
-				"description": "Hex string with 0x prefix"
-			},
-			"ErrorResponse": {
-				"type": "object",
-				"properties": {
-					"error": {
-						"type": "string",
-						"description": "Error message"
-					},
-					"code": {
-						"type": "integer",
-						"description": "Error code"
-					},
-					"details": {
-						"type": "object",
-						"description": "Additional error details"
-					}
-				}
-			},
-			"GetActionErrorResponse": {
-				"type": "object",
-				"required": ["statusCode", "name", "message", "title", "code"],
-				"properties": {
-					"statusCode": {
-						"type": "integer",
-						"description": "HTTP status code",
-						"example": 400
-					},
-					"name": {
-						"type": "string",
-						"description": "Error class name",
-						"example": "InvalidAddressError"
-					},
-					"message": {
-						"type": "string",
-						"description": "Detailed error message",
-						"example": "The format of the specified address is invalid."
-					},
-					"title": {
-						"type": "string",
-						"description": "Short, user-friendly error title",
-						"example": "Invalid address format"
-					},
-					"code": {
-						"type": "string",
-						"description": "Error type code for programmatic handling",
-						"enum": [
-							"AMOUNT_TOO_HIGH",
-							"AMOUNT_TOO_LOW",
-							"CROSS_VM_RECEIVER_REQUIRED",
-							"EXCESSIVE_FEE",
-							"GEO_BLOCKED",
-							"INSUFFICIENT_LIQUIDITY",
-							"INVALID_ADDRESS_FORMAT",
-							"INVALID_AMOUNT_ZERO",
-							"INVALID_API_KEY",
-							"INVALID_DESTINATION_TOKEN",
-							"INVALID_PARAMETER",
-							"INVALID_SOURCE_TOKEN",
-							"METHOD_NOT_ALLOWED",
-							"MISSING_API_KEY",
-							"MISSING_REQUIRED_FIELD",
-							"NO_AVAILABLE_ROUTE",
-							"UNSUPPORTED_NETWORK",
-							"UNSUPPORTED_NETWORK_PAIR",
-							"UNSUPPORTED_NETWORK_TOKEN_PAIR",
-							"UNSUPPORTED_SWAP_DIRECTION",
-							"WALLET_SCREENED"
-						]
-					},
-					"details": {
-						"type": "object",
-						"description": "Additional context about the error, including invalid values and suggestions",
-						"additionalProperties": true,
-						"example": {
-							"field": "srcToken",
-							"address": "0xinvalid",
-							"reason": "Address must be 40 characters long"
-						}
-					}
-				}
-			},
-			"ChainListResponse": {
-				"type": "object",
-				"properties": {
-					"chainId": { "$ref": "#/components/schemas/ChainId" },
-					"name": {
-						"type": "string",
-						"description": "Human-readable chain name"
-					},
-					"vmId": { "$ref": "#/components/schemas/VmId" }
-				},
-				"required": ["chainId", "name", "vmId"]
-			},
-			"DexId": {
-				"type": "string",
-				"description": "DEX identifier (depends on integration)"
-			},
-			"TokenInfoWithAmounts": {
-				"allOf": [
-					{ "$ref": "#/components/schemas/TokenInfo" },
-					{
-						"type": "object",
-						"required": ["minAmount", "maxAmount"],
-						"properties": {
-							"minAmount": {
-								"type": "string",
-								"nullable": true,
-								"description": "Minimum amount of source token for exact-out swaps. \n `null` if no min."
-							},
-							"maxAmount": {
-								"type": "string",
-								"description": "Maximum amount of source token for exact-out swaps."
-							}
-						}
-					}
-				]
-			},
-			"AmountLimits": {
-				"type": "object",
-				"required": ["minAmount", "maxAmount"],
-				"properties": {
-					"minAmount": {
-						"type": "string",
-						"nullable": true,
-						"description": "Minimum amount of source token required for exact-in swaps. \n `null` if no min."
-					},
-					"maxAmount": {
-						"type": "string",
-						"nullable": true,
-						"description": "Maximum amount of source token for exact-in swaps. \n `null` if no max."
-					}
-				}
-			},
-			"ChainPath": {
-				"type": "object",
-				"properties": {
-					"chainId": { "$ref": "#/components/schemas/ChainId" },
-					"tokens": {
-						"description": "Available destination tokens for given source token \n `all` indicates all tokens on destination chain are eligible",
-						"oneOf": [
-							{ "title": "Named VM", "type": "string", "enum": ["all"] },
-							{
-								"title": "Token List",
-								"type": "array",
-								"items": { "$ref": "#/components/schemas/TokenInfoWithAmounts" }
-							}
-						]
-					},
-					"supportsExactAmountIn": { "type": "boolean" },
-					"supportsExactAmountOut": { "type": "boolean" },
-					"amountLimits": {
-						"allOf": [
-							{ "$ref": "#/components/schemas/AmountLimits" },
-							{
-								"deprecated": true,
-								"description": "⚠️ This field is maintained for backwards compatibility. Use `srcToken.minAmount` and `srcToken.maxAmount` at the top level of the response instead."
-							}
-						]
-					}
-				},
-				"required": [
-					"chainId",
-					"tokens",
-					"supportsExactAmountIn",
-					"supportsExactAmountOut"
-				]
-			},
-			"GetPathsOutput": {
-				"type": "object",
-				"properties": {
-					"srcChainId": {
-						"$ref": "#/components/schemas/ChainId",
-						"description": "The source chain ID"
-					},
-					"srcToken": {
-						"$ref": "#/components/schemas/TokenInfoWithAmounts",
-						"description": "Source token information including amount limits"
-					},
-					"paths": {
-						"type": "array",
-						"items": { "$ref": "#/components/schemas/ChainPath" }
-					},
-					"timestamp": {
-						"type": "string",
-						"description": "Response timestamp (ISO string) for cache validation"
-					}
-				},
-				"required": ["srcChainId", "srcToken", "paths", "timestamp"]
-			},
-			"TxRegistrationEvent": {
-				"type": "object",
-				"properties": {
-					"txId": {
-						"type": "string",
-						"description": "Unique transaction identifier",
-						"example": "0x49b1d3d38176e45864fd55500c6c1879ab318609e1ed0c8eb9abd818e6c811fd"
-					},
-					"vmId": {
-						"type": "string",
-						"enum": ["evm", "solana", "alt-vm", "hypercore"],
-						"description": "Virtual machine identifier."
-					},
-					"txHash": {
-						"type": "string",
-						"pattern": "^0x[a-fA-F0-9]{64}$",
-						"description": "Transaction hash",
-						"example": "0x62d0e13123852791446c6f923c2d0b9247bda10f1eb5eb48ff5b4bc42d22ab42"
-					},
-					"chainId": {
-						"type": "integer",
-						"description": "Chain ID where the transaction occurred",
-						"example": 42161
-					}
-				},
-				"required": ["txHash", "chainId", "txId", "vmId"]
-			},
-			"ValidatedTxId": {
-				"type": "object",
-				"properties": {
-					"success": {
-						"type": "boolean",
-						"description": "Whether the transaction registration was successful",
-						"example": true
-					},
-					"error": {
-						"type": "string",
-						"description": "Error message if registration failed",
-						"example": null
-					}
-				},
-				"required": ["success"]
-			},
-			"TxStatus": {
-				"type": "object",
-				"properties": {
-					"status": {
-						"type": "string",
-						"enum": [
-							"success",
-							"pending",
-							"requires refund",
-							"refunded",
-							"failed"
-						],
-						"description": "Status of the transaction",
-						"example": "success"
-					},
-					"sender": {
-						"type": "string",
-						"pattern": "^0x[a-fA-F0-9]{40}$",
-						"description": "Sender wallet address",
-						"example": "0x1234567890123456789012345678901234567890"
-					},
-					"srcChainId": {
-						"type": "integer",
-						"description": "Source chain ID",
-						"example": 1
-					},
-					"dstChainId": {
-						"type": "integer",
-						"description": "Destination chain ID",
-						"example": 42161
-					},
-					"srcTxHash": {
-						"type": "string",
-						"pattern": "^0x[a-fA-F0-9]{64}$",
-						"description": "Source transaction hash",
-						"example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
-					},
-					"dstTxHash": {
-						"type": "string",
-						"pattern": "^0x[a-fA-F0-9]{64}$",
-						"description": "Destination transaction hash",
-						"example": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
-					},
-					"bridgeDetails": {
-						"$ref": "#/components/schemas/BridgeDetails"
-					},
-					"txId": {
-						"type": "string",
-						"description": "Unique transaction identifier",
-						"example": "0x49b1d3d38176e45864fd55500c6c1879ab318609e1ed0c8eb9abd818e6c811fd"
-					},
-					"actionRequest": {
-						"$ref": "#/components/schemas/ActionRequest",
-						"description": "Original action request parameters"
-					},
-					"actionResponse": {
-						"$ref": "#/components/schemas/ActionResponse",
-						"description": "Original action response data"
-					}
-				}
-			},
-			"TxDetails": {
-				"allOf": [
-					{
-						"$ref": "#/components/schemas/TxStatus"
-					},
-					{
-						"type": "object",
-						"properties": {
-							"org": {
-								"nullable": true,
-								"allOf": [
-									{
-										"$ref": "#/components/schemas/Org"
-									}
-								]
-							},
-							"usdValue": {
-								"type": "number",
-								"nullable": true,
-								"description": "USD value of the transaction",
-								"example": 100.5
-							},
-							"srcTx": {
-								"$ref": "#/components/schemas/OnchainTx"
-							},
-							"dstTx": {
-								"$ref": "#/components/schemas/OnchainTx"
-							}
-						}
-					}
-				]
-			},
-			"BridgeDetails": {
-				"type": "object",
-				"properties": {
-					"isBridge": {
-						"type": "boolean",
-						"description": "Whether this transaction involves bridging",
-						"example": true
-					},
-					"bridgeTime": {
-						"type": "number",
-						"nullable": true,
-						"description": "Bridge time in seconds (null if not a bridge)",
-						"example": 420
-					},
-					"txPath": {
-						"type": "array",
-						"items": {
-							"$ref": "#/components/schemas/TxNode"
-						},
-						"description": "Transaction path through different chains"
-					}
-				},
-				"required": ["isBridge", "bridgeTime", "txPath"]
-			},
-			"TxNode": {
-				"type": "object",
-				"properties": {
-					"chainId": {
-						"type": "integer",
-						"description": "Chain ID for this step",
-						"example": 1
-					},
-					"txHash": {
-						"type": "string",
-						"pattern": "^0x[a-fA-F0-9]{64}$",
-						"description": "Transaction hash for this step",
-						"example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
-					},
-					"timestamp": {
-						"type": "string",
-						"description": "Timestamp as bigint string",
-						"example": "1640995200000000000"
-					},
-					"nextBridge": {
-						"type": "string",
-						"description": "Bridge type for the next hop",
-						"example": "layerZero"
-					}
-				}
-			},
-			"OnchainTx": {
-				"type": "object",
-				"properties": {
-					"toAddress": {
-						"type": "string",
-						"pattern": "^0x[a-fA-F0-9]{64}$",
-						"description": "Recipient address",
-						"example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
-					},
-					"txHash": {
-						"type": "string",
-						"pattern": "^0x[a-fA-F0-9]{64}$",
-						"description": "Transaction hash",
-						"example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
-					},
-					"chainId": {
-						"type": "integer",
-						"description": "Chain ID",
-						"example": 1
-					},
-					"value": {
-						"type": "string",
-						"description": "Transaction value as bigint string",
-						"example": "1000000000000000000"
-					},
-					"timestamp": {
-						"type": "string",
-						"description": "Timestamp as bigint string",
-						"example": "1640995200000000000"
-					},
-					"paymentToken": {
-						"$ref": "#/components/schemas/Token"
-					}
-				}
-			},
-			"Token": {
-				"type": "object",
-				"properties": {
-					"name": {
-						"type": "string",
-						"description": "Token name",
-						"example": "Ethereum"
-					},
-					"symbol": {
-						"type": "string",
-						"description": "Token symbol",
-						"example": "ETH"
-					},
-					"decimals": {
-						"type": "integer",
-						"description": "Token decimals",
-						"example": 18
-					},
-					"amount": {
-						"type": "string",
-						"description": "Token amount as bigint string",
-						"example": "1000000000000000000"
-					},
-					"address": {
-						"type": "string",
-						"pattern": "^0x[a-fA-F0-9]{40}$",
-						"description": "Token contract address",
-						"example": "0x1234567890123456789012345678901234567890"
-					}
-				},
-				"required": ["name", "symbol", "decimals", "amount", "address"]
-			},
-			"Org": {
-				"type": "object",
-				"properties": {
-					"appId": {
-						"type": "string",
-						"nullable": true,
-						"description": "Application ID",
-						"example": "app_123"
-					},
-					"affiliateId": {
-						"type": "string",
-						"description": "Affiliate ID",
-						"example": "affiliate_123"
-					}
-				},
-				"required": ["appId", "affiliateId", "appFees"]
-			},
-			"Pagination": {
-				"type": "object",
-				"properties": {
-					"page": {
-						"type": "integer",
-						"description": "Current page number",
-						"example": 1
-					},
-					"limit": {
-						"type": "integer",
-						"description": "Results per page",
-						"example": 25
-					},
-					"total": {
-						"type": "integer",
-						"description": "Total number of results",
-						"example": 150
-					},
-					"totalPages": {
-						"type": "integer",
-						"description": "Total number of pages",
-						"example": 6
-					}
-				},
-				"required": ["page", "limit", "total", "totalPages"]
-			},
-			"get_400__api_getStatusSchema": {
-				"$ref": "#/components/schemas/ErrorResponse"
-			},
-			"post_200__webhooks_registerTxsSchema": {
-				"type": "array",
-				"items": {
-					"$ref": "#/components/schemas/ValidatedTxId"
-				}
-			},
-			"ActionRequest": {
-				"type": "object",
-				"properties": {
-					"actionType": {
-						"$ref": "#/components/schemas/ActionType",
-						"description": "Type of action to perform"
-					},
-					"sender": {
-						"$ref": "#/components/schemas/Address",
-						"description": "The address of the sender/user"
-					},
-					"srcChainId": {
-						"$ref": "#/components/schemas/ChainId",
-						"description": "Source chain ID"
-					},
-					"srcToken": {
-						"$ref": "#/components/schemas/Address",
-						"description": "Source token address"
-					},
-					"dstChainId": {
-						"$ref": "#/components/schemas/ChainId",
-						"description": "Destination chain ID"
-					},
-					"dstToken": {
-						"$ref": "#/components/schemas/Address",
-						"description": "Destination token address"
-					},
-					"slippage": {
-						"type": "number",
-						"format": "float",
-						"minimum": 0,
-						"maximum": 10000,
-						"description": "Slippage tolerance in bps"
-					},
-					"amount": {
-						"type": "string",
-						"pattern": "^[0-9]$",
-						"description": "The exact in or exact out amount of the swap"
-					},
-					"swapDirection": {
-						"$ref": "#/components/schemas/SwapDirection",
-						"description": "Swap direction for the action"
-					},
-					"recipient": {
-						"$ref": "#/components/schemas/Address",
-						"description": "Address to receive the swapped tokens"
-					},
-					"to": {
-						"$ref": "#/components/schemas/Address",
-						"description": "The EVM address of the target contract (20 bytes hex)"
-					},
-					"data": {
-						"$ref": "#/components/schemas/Hex",
-						"description": "Calldata for the transaction"
-					},
-					"value": {
-						"type": "string",
-						"pattern": "^[0-9]$",
-						"description": "Value to send with transaction"
-					},
-					"erc20Amount": {
-						"type": "string",
-						"pattern": "^[0-9]$",
-						"description": "The amount of Erc20 being transferred"
-					},
-					"erc20Spender": {
-						"$ref": "#/components/schemas/Address",
-						"description": "The Erc20 spender requiring approval for the transaction call"
-					},
-					"bridgeIds": {
-						"type": "array",
-						"items": {
-							"$ref": "#/components/schemas/BridgeId"
-						},
-						"description": "Specific bridge protocols to use"
-					},
-					"refundTo": {
-						"$ref": "#/components/schemas/Address",
-						"description": "Alternate address to receive refunds"
-					}
-				},
-				"required": [
-					"actionType",
-					"sender",
-					"srcChainId",
-					"srcToken",
-					"dstChainId",
-					"dstToken",
-					"slippage"
-				]
-			}
-		},
-		"securitySchemes": {
-			"ApiKeyAuth": {
-				"type": "apiKey",
-				"in": "header",
-				"name": "x-api-key",
-				"description": "Limited demo key for API Reference: `5c951bc81da566bbd030ba8e20724063`."
-			}
-		}
-	},
-	"security": [
-		{
-			"ApiKeyAuth": []
-		}
-	]
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Swaps API",
+    "description": "The Swaps API provides instant cross-chain swap and bridge functionality for decentralized applications.\nIt supports multiple virtual machines (EVM, Solana, Bitcoin) and various DEX protocols and bridge solutions.",
+    "version": "3.0.0",
+    "contact": {
+      "name": "Swaps.xyz",
+      "url": "https://swaps.xyz"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api-v2.swaps.xyz/api",
+      "description": "Production server"
+    },
+    {
+      "url": "https://ghost.swaps.xyz/api/v2",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/getAction": {
+      "get": {
+        "summary": "Get Action",
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Indexer API server"
+          }
+        ],
+        "description": "Generates a transaction for cross-chain swaps, bridges, and calls. The action includes transaction data, routing information, and fee calculations for executing the requested operation.",
+        "operationId": "getAction",
+        "parameters": [
+          {
+            "name": "actionType",
+            "in": "query",
+            "required": true,
+            "description": "Type of action to perform",
+            "schema": {
+              "$ref": "#/components/schemas/ActionType"
+            }
+          },
+          {
+            "name": "sender",
+            "in": "query",
+            "required": true,
+            "description": "The address of the sender/user",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "srcChainId",
+            "in": "query",
+            "required": true,
+            "description": "Source chain ID",
+            "schema": {
+              "$ref": "#/components/schemas/ChainId"
+            }
+          },
+          {
+            "name": "srcToken",
+            "in": "query",
+            "required": true,
+            "description": "Source token address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "dstChainId",
+            "in": "query",
+            "required": true,
+            "description": "Destination chain ID",
+            "schema": {
+              "$ref": "#/components/schemas/ChainId"
+            }
+          },
+          {
+            "name": "dstToken",
+            "in": "query",
+            "required": true,
+            "description": "Destination token address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "slippage",
+            "in": "query",
+            "required": true,
+            "description": "Slippage tolerance in bps",
+            "schema": {
+              "type": "number",
+              "format": "float",
+              "minimum": 0,
+              "maximum": 10000
+            }
+          },
+          {
+            "name": "amount",
+            "in": "query",
+            "required": false,
+            "description": "The exact in or exact out amount of the swap\n\n\n`swap-action`",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]$"
+            }
+          },
+          {
+            "name": "swapDirection",
+            "in": "query",
+            "required": false,
+            "description": "Swap direction for the action\n\n`swap-action`",
+            "schema": {
+              "$ref": "#/components/schemas/SwapDirection"
+            }
+          },
+          {
+            "name": "recipient",
+            "in": "query",
+            "required": false,
+            "description": "Address to receive the swapped tokens\n\n`swap-action`",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "description": "The EVM address of the target contract (20 bytes hex)\n\n`evm-calldata-tx`",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "data",
+            "in": "query",
+            "required": false,
+            "description": "Calldata for the transaction\n\n`evm-calldata-tx`",
+            "schema": {
+              "$ref": "#/components/schemas/Hex"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "description": "Value to send with transaction\n\n`evm-calldata-tx`",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]$"
+            }
+          },
+          {
+            "name": "erc20Amount",
+            "in": "query",
+            "required": false,
+            "description": "The amount of Erc20 being transferred\n\n**Optional:** Use for calls requiring Erc20 transfers\n\n`evm-calldata-tx`",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]$"
+            }
+          },
+          {
+            "name": "erc20Spender",
+            "in": "query",
+            "required": false,
+            "description": "The Erc20 spender requiring approval for the transaction call\n\n**Optional:** Will default to the `to` address\n\n`evm-calldata-tx`",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "bridgeIds",
+            "in": "query",
+            "required": false,
+            "description": "Specific bridge protocols to use\n\n**Optional:** Will default to all available protocols",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/BridgeId"
+              }
+            }
+          },
+          {
+            "name": "refundTo",
+            "in": "query",
+            "required": false,
+            "description": "Alternate address to receive refunds\n\n**Optional:** Will default to the `sender`",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "returnDepositAddress",
+            "in": "query",
+            "required": false,
+            "description": "Return a deposit address for deposit-based flows\n\n**Optional:** Set to `true` to receive a deposit address in the response",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with action data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to missing or invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetActionErrorResponse"
+                },
+                "examples": {
+                  "AMOUNT_TOO_HIGH": {
+                    "summary": "Amount Too High",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "AmountTooHighError",
+                      "message": "The specified amount is too high.",
+                      "title": "Amount too high",
+                      "code": "AMOUNT_TOO_HIGH",
+                      "details": {
+                        "srcToken": "0x0000000000000000000000000000000000000000",
+                        "dstToken": "0x0000000000000000000000000000000000000000",
+                        "srcChainId": 1,
+                        "dstChainId": 42161,
+                        "maxAmount": 100000000000000000000
+                      }
+                    }
+                  },
+                  "AMOUNT_TOO_LOW": {
+                    "summary": "Amount Too Low",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "AmountTooLowError",
+                      "message": "The specified amount is too low.",
+                      "title": "Amount too low",
+                      "code": "AMOUNT_TOO_LOW",
+                      "details": {
+                        "srcToken": "0x0000000000000000000000000000000000000000",
+                        "dstToken": "0x0000000000000000000000000000000000000000",
+                        "srcChainId": 1,
+                        "dstChainId": 42161,
+                        "minAmount": 0.000123
+                      }
+                    }
+                  },
+                  "CROSS_VM_RECEIVER_REQUIRED": {
+                    "summary": "Cross VM Receiver Required",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "CrossVmReceiverRequiredError",
+                      "message": "Receiver address is required for swaps across different VMs.",
+                      "title": "Receiver address required",
+                      "code": "CROSS_VM_RECEIVER_REQUIRED",
+                      "details": {
+                        "srcChainId": 1,
+                        "dstChainId": 1399811149
+                      }
+                    }
+                  },
+                  "EXCESSIVE_FEE": {
+                    "summary": "Excessive Fee",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "ExcessiveFeeError",
+                      "message": "The inputted flat fee is too large (over 50% of tx input).",
+                      "title": "Excessive fee",
+                      "code": "EXCESSIVE_FEE"
+                    }
+                  },
+                  "INSUFFICIENT_LIQUIDITY": {
+                    "summary": "Insufficient Liquidity",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "InsufficientLiquidityError",
+                      "message": "There is insufficient liquidity to complete this transaction.",
+                      "title": "Insufficient liquidity",
+                      "code": "INSUFFICIENT_LIQUIDITY"
+                    }
+                  },
+                  "INVALID_ADDRESS_FORMAT": {
+                    "summary": "Invalid Address Format",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "InvalidAddressError",
+                      "message": "The format of the specified address is invalid.",
+                      "title": "Invalid address format",
+                      "code": "INVALID_ADDRESS_FORMAT",
+                      "details": {
+                        "field": "sender",
+                        "address": "0xinvalid",
+                        "reason": "Address must be 40 characters long"
+                      }
+                    }
+                  },
+                  "INVALID_AMOUNT_ZERO": {
+                    "summary": "Invalid Amount Zero",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "InvalidAmountZeroError",
+                      "message": "Amount must be greater than zero.",
+                      "title": "Zero amount not allowed",
+                      "code": "INVALID_AMOUNT_ZERO"
+                    }
+                  },
+                  "INVALID_DESTINATION_TOKEN": {
+                    "summary": "Invalid Destination Token",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "InvalidDstTokenError",
+                      "message": "Destination token is required.",
+                      "title": "Invalid destination token",
+                      "code": "INVALID_DESTINATION_TOKEN"
+                    }
+                  },
+                  "INVALID_PARAMETER": {
+                    "summary": "Invalid Parameter",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "InvalidParameterError",
+                      "message": "The request contains an invalid parameter.",
+                      "title": "Invalid parameter",
+                      "code": "INVALID_PARAMETER",
+                      "details": {
+                        "parameter": "slippage",
+                        "value": "15000",
+                        "reason": "Slippage must be between 0 and 10000 bps"
+                      }
+                    }
+                  },
+                  "INVALID_SOURCE_TOKEN": {
+                    "summary": "Invalid Source Token",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "InvalidSrcTokenError",
+                      "message": "Source token is required.",
+                      "title": "Invalid source token",
+                      "code": "INVALID_SOURCE_TOKEN"
+                    }
+                  },
+                  "MISSING_REQUIRED_FIELD": {
+                    "summary": "Missing Required Field",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "MissingRequiredFieldError",
+                      "message": "The request is missing a required field.",
+                      "title": "Missing required field",
+                      "code": "MISSING_REQUIRED_FIELD",
+                      "details": {
+                        "field": "srcToken",
+                        "context": "Source token address is required for swap actions"
+                      }
+                    }
+                  },
+                  "NO_AVAILABLE_ROUTE": {
+                    "summary": "No Available Route",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "NoAvailableRouteError",
+                      "message": "No route is available for the specified parameters.",
+                      "title": "No available route",
+                      "code": "NO_AVAILABLE_ROUTE",
+                      "details": {
+                        "srcChainId": 1,
+                        "dstChainId": 42161,
+                        "srcToken": "0x0000000000000000000000000000000000000000",
+                        "dstToken": "0x1234567890123456789012345678901234567890"
+                      }
+                    }
+                  },
+                  "UNSUPPORTED_NETWORK": {
+                    "summary": "Unsupported Network",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "UnsupportedNetworkError",
+                      "message": "The network with the specified chainId is not supported.",
+                      "title": "Unsupported network",
+                      "code": "UNSUPPORTED_NETWORK",
+                      "details": {
+                        "chainId": 999999
+                      }
+                    }
+                  },
+                  "UNSUPPORTED_NETWORK_PAIR": {
+                    "summary": "Unsupported Network Pair",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "UnsupportedNetworkPairError",
+                      "message": "Routing between the specified networks is not supported.",
+                      "title": "Unsupported network pair",
+                      "code": "UNSUPPORTED_NETWORK_PAIR",
+                      "details": {
+                        "srcChainId": 1,
+                        "dstChainId": 999999
+                      }
+                    }
+                  },
+                  "UNSUPPORTED_NETWORK_TOKEN_PAIR": {
+                    "summary": "Unsupported Network Token Pair",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "UnsupportedNetworkAndTokenPairError",
+                      "message": "Routing between the specified tokens and networks is not supported.",
+                      "title": "Unsupported network and token pair",
+                      "code": "UNSUPPORTED_NETWORK_TOKEN_PAIR",
+                      "details": {
+                        "srcChainId": 1,
+                        "srcToken": "0x0000000000000000000000000000000000000000",
+                        "dstChainId": 42161,
+                        "dstToken": "0x1234567890123456789012345678901234567890"
+                      }
+                    }
+                  },
+                  "UNSUPPORTED_SWAP_DIRECTION": {
+                    "summary": "Unsupported Swap Direction",
+                    "value": {
+                      "statusCode": 400,
+                      "name": "UnsupportedSwapDirectionError",
+                      "message": "The specified swap direction is not supported.",
+                      "title": "Unsupported swap direction",
+                      "code": "UNSUPPORTED_SWAP_DIRECTION",
+                      "details": {
+                        "swapDirection": "exact-amount-out"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetActionErrorResponse"
+                },
+                "examples": {
+                  "INVALID_API_KEY": {
+                    "summary": "Invalid API Key",
+                    "value": {
+                      "statusCode": 401,
+                      "name": "InvalidApiKeyError",
+                      "message": "The provided API key is invalid.",
+                      "title": "Invalid API key",
+                      "code": "INVALID_API_KEY"
+                    }
+                  },
+                  "MISSING_API_KEY": {
+                    "summary": "Missing API Key",
+                    "value": {
+                      "statusCode": 401,
+                      "name": "MissingApiKeyError",
+                      "message": "API key is required.",
+                      "title": "Missing API key",
+                      "code": "MISSING_API_KEY"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Access denied due to restrictions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetActionErrorResponse"
+                },
+                "examples": {
+                  "GEO_BLOCKED": {
+                    "summary": "Geographic Restriction",
+                    "value": {
+                      "statusCode": 403,
+                      "name": "GeoBlockingError",
+                      "message": "Access denied due to geo-blocking restrictions.",
+                      "title": "Geo-blocking restriction",
+                      "code": "GEO_BLOCKED",
+                      "details": {
+                        "countryCode": "US",
+                        "countryName": "United States",
+                        "reason": "Country is on the blocked list",
+                        "blockedAt": "2024-01-15T10:30:00.000Z"
+                      }
+                    }
+                  },
+                  "WALLET_SCREENED": {
+                    "summary": "Wallet Screening",
+                    "value": {
+                      "statusCode": 403,
+                      "name": "WalletScreeningError",
+                      "message": "Access denied due to wallet screening restrictions.",
+                      "title": "Wallet screening restriction",
+                      "code": "WALLET_SCREENED",
+                      "details": {
+                        "walletAddress": "0x1234567890123456789012345678901234567890",
+                        "chainId": 1,
+                        "riskLevel": "HIGH",
+                        "reason": "Wallet flagged by screening service",
+                        "screenedAt": "2024-01-15T10:30:00.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetActionErrorResponse"
+                },
+                "examples": {
+                  "METHOD_NOT_ALLOWED": {
+                    "summary": "Method Not Allowed",
+                    "value": {
+                      "statusCode": 405,
+                      "name": "MethodNotAllowedError",
+                      "message": "The HTTP request method specified is not allowed.",
+                      "title": "Method not allowed",
+                      "code": "METHOD_NOT_ALLOWED",
+                      "details": {
+                        "method": "POST"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetActionErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_SERVER_ERROR": {
+                    "summary": "Internal Server Error",
+                    "value": {
+                      "statusCode": 500,
+                      "name": "InternalServerError",
+                      "message": "An internal server error occurred while processing the request.",
+                      "title": "Internal server error",
+                      "code": "INTERNAL_SERVER_ERROR"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/registerTxs": {
+      "post": {
+        "summary": "Register Transaction",
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Indexer API server"
+          }
+        ],
+        "description": "Register transactions for indexing. Mandatory for non EVM transactions.",
+        "operationId": "registerTxs",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "title": "Single Transaction",
+                    "$ref": "#/components/schemas/TxRegistrationEvent"
+                  },
+                  {
+                    "title": "Multiple Transactions",
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TxRegistrationEvent"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction registration results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/post_200__webhooks_registerTxsSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getStatus": {
+      "get": {
+        "summary": "Get Status",
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Indexer API server"
+          }
+        ],
+        "description": "Retrieve the status and details of a transaction by transaction hash or transaction ID",
+        "operationId": "getTransactionStatus",
+        "parameters": [
+          {
+            "name": "txHash",
+            "in": "query",
+            "description": "Transaction hash to query (required if txId not provided)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{64}$",
+              "example": "0xd56968cf4fede6a0773f3e6dfad7d1088aacd3994bada55d44faee9596dadff2"
+            }
+          },
+          {
+            "name": "txId",
+            "in": "query",
+            "description": "Transaction ID to query (required if txHash not provided)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "0x49b1d3d38176e45864fd55500c6c1879ab318609e1ed0c8eb9abd818e6c811fd"
+            }
+          },
+          {
+            "name": "chainId",
+            "in": "query",
+            "description": "Source chain ID for the transaction (optional but recommended)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction status response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TxDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getTransactions": {
+      "get": {
+        "summary": "Get Transactions",
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Indexer API server"
+          }
+        ],
+        "description": "Retrieve paginated transaction history with optional filtering",
+        "operationId": "getTransactions",
+        "parameters": [
+          {
+            "name": "appIds",
+            "in": "query",
+            "description": "Comma-separated list of your app IDs. By default, a request to this endpoint will return transactions across all appIds in your org. Each API key has a unique app ID.  Multiple app IDs can exist within a single org ID.",
+            "schema": {
+              "type": "string",
+              "example": "0x5344e5a7,0x5314e6a7"
+            }
+          },
+          {
+            "name": "walletAddress",
+            "in": "query",
+            "description": "Wallet address to filter transactions by user",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$",
+              "example": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+            }
+          },
+          {
+            "name": "chainIds",
+            "in": "query",
+            "description": "Comma-separated list of chain IDs to filter by",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "1,42161,10"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of results per page (max 500)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 25,
+              "example": 25
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "description": "Time period filter",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["day", "week", "month", "allTime"],
+              "default": "allTime",
+              "example": "week"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Start date filter (Unix timestamp)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "1640995200"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "End date filter (Unix timestamp)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "1672531200"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction history response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "txs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TxDetails"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getPaths": {
+      "get": {
+        "summary": "Get Paths",
+        "description": "Retrieves all available token paths across supported chains with configurable filtering options. It’s recommended to call this endpoint after selecting the source and destination tokens to validate route eligibility.",
+        "operationId": "getPaths",
+        "parameters": [
+          {
+            "name": "srcChainId",
+            "in": "query",
+            "required": true,
+            "description": "Source chain ID",
+            "schema": { "$ref": "#/components/schemas/ChainId" }
+          },
+          {
+            "name": "srcToken",
+            "in": "query",
+            "required": true,
+            "description": "Source token address",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "dstChainId",
+            "in": "query",
+            "required": false,
+            "description": "Recommended: destination chain ID",
+            "schema": { "$ref": "#/components/schemas/ChainId" }
+          },
+          {
+            "name": "dstToken",
+            "in": "query",
+            "required": false,
+            "description": "Recommended: destination token address",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "excludeBridgeIds",
+            "in": "query",
+            "required": false,
+            "description": "Bridge IDs to exclude from routing",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/BridgeId" }
+            }
+          },
+          {
+            "name": "excludeDexIds",
+            "in": "query",
+            "required": false,
+            "description": "DEX IDs to exclude from routing",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/DexId" }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paths response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetPathsOutput" }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to missing or invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getChainList": {
+      "get": {
+        "summary": "Get Chain List",
+        "description": "Retrieve a list of supported chains, their names, and virtual machine identifiers. Raw data for the [supported chains list](/resources/chain-list)",
+        "operationId": "getChainList",
+        "responses": {
+          "200": {
+            "description": "List of supported chains",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChainListResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActionResponse": {
+        "type": "object",
+        "required": [
+          "tx",
+          "txId",
+          "vmId",
+          "amountIn",
+          "amountInMax",
+          "amountOutMin",
+          "amountOut",
+          "protocolFee",
+          "applicationFee",
+          "exchangeRate",
+          "estimatedTxTime",
+          "estimatedPriceImpact",
+          "allRoutes",
+          "requiresTokenApproval",
+          "requiresRegisterTransaction"
+        ],
+        "properties": {
+          "tx": {
+            "oneOf": [
+              {
+                "title": "EVM Transaction",
+                "$ref": "#/components/schemas/EvmTransaction"
+              },
+              {
+                "title": "Solana Transaction",
+                "$ref": "#/components/schemas/SerializedSolTransaction"
+              },
+              {
+                "title": "Alt VM Transaction",
+                "$ref": "#/components/schemas/AltVmTransaction"
+              },
+              {
+                "title": "HyperCore Transaction",
+                "$ref": "#/components/schemas/HyperCoreTransaction"
+              }
+            ],
+            "description": "Transaction data for execution"
+          },
+          "txId": {
+            "$ref": "#/components/schemas/Hex",
+            "description": "Transaction ID"
+          },
+          "vmId": {
+            "type": "string",
+            "enum": ["evm", "solana", "alt-vm", "hypercore"],
+            "description": "Virtual machine identifier."
+          },
+          "amountIn": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Expected amount to input (exclusive of slippage - recommended value to display in frontend)"
+          },
+          "amountInMax": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Maximum amount to input (inclusive of slippage)"
+          },
+          "amountOut": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Expected amount delivered to users (exclusive of slippage - recommended value to display in frontend)"
+          },
+          "amountOutMin": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Minimum amount delivered to users (inclusive of slippage)"
+          },
+          "protocolFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Swaps.xyz fee"
+          },
+          "applicationFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Application fee (your fee!)"
+          },
+          "bridgeFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Bridge fee (from aggregated providers)"
+          },
+          "bridgeIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BridgeId"
+            },
+            "description": "Bridge IDs used in the route."
+          },
+          "bridgeRoute": {
+            "$ref": "#/components/schemas/BridgeRoute",
+            "description": "Bridge route information (src chain + token, dst chain + token, BridgeId)"
+          },
+          "exchangeRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Exchange rate for the swap."
+          },
+          "estimatedTxTime": {
+            "type": "number",
+            "format": "float",
+            "description": "Estimated transaction time in seconds."
+          },
+          "estimatedPriceImpact": {
+            "type": "number",
+            "format": "float",
+            "description": "Estimated price impact percentage."
+          },
+          "requiresTokenApproval": {
+            "type": "boolean",
+            "description": "Flag indicating whether the transaction object requires a source token approval check."
+          },
+          "requiresRegisterTransaction": {
+            "type": "boolean",
+            "description": "Flag indicating whether the transaction requires registration via the registerTxs endpoint. Mandatory for non-EVM transactions."
+          },
+          "allRoutes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BaseActionResponse"
+            },
+            "description": "All available routes for the action."
+          }
+        }
+      },
+      "BaseActionResponse": {
+        "type": "object",
+        "required": [
+          "tx",
+          "txId",
+          "amountIn",
+          "vmId",
+          "amountInMax",
+          "amountOutMin",
+          "amountOut",
+          "protocolFee",
+          "applicationFee",
+          "exchangeRate",
+          "estimatedTxTime",
+          "estimatedPriceImpact",
+          "requiresRegisterTransaction"
+        ],
+        "properties": {
+          "tx": {
+            "oneOf": [
+              {
+                "title": "EVM Transaction",
+                "$ref": "#/components/schemas/EvmTransaction"
+              },
+              {
+                "title": "Solana Transaction",
+                "$ref": "#/components/schemas/SerializedSolTransaction"
+              },
+              {
+                "title": "Alt VM Transaction",
+                "$ref": "#/components/schemas/AltVmTransaction"
+              },
+              {
+                "title": "HyperCore Transaction",
+                "$ref": "#/components/schemas/HyperCoreTransaction"
+              }
+            ],
+            "description": "Transaction data for execution"
+          },
+          "txId": {
+            "$ref": "#/components/schemas/Hex",
+            "description": "Transaction ID"
+          },
+          "vmId": {
+            "type": "string",
+            "enum": ["evm", "solana", "alt-vm", "hypercore"],
+            "description": "Virtual machine identifier."
+          },
+          "amountIn": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Expected amount to input (exclusive of slippage - recommended value to display in frontend)"
+          },
+          "amountInMax": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Maximum amount to input (inclusive of slippage)"
+          },
+          "amountOut": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Expected amount delivered to users (exclusive of slippage - recommended value to display in frontend)"
+          },
+          "amountOutMin": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Minimum amount delivered to users (inclusive of slippage)"
+          },
+          "protocolFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Swaps.xyz fee"
+          },
+          "applicationFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Application fee (your fee!)"
+          },
+          "bridgeFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Bridge fee (from aggregated providers)"
+          },
+          "bridgeIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BridgeId"
+            },
+            "description": "Bridge IDs used in the route."
+          },
+          "bridgeRoute": {
+            "$ref": "#/components/schemas/BridgeRoute",
+            "description": "Bridge route information (src chain + token, dst chain + token, BridgeId)"
+          },
+          "exchangeRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Exchange rate for the swap."
+          },
+          "estimatedTxTime": {
+            "type": "number",
+            "format": "float",
+            "description": "Estimated transaction time in seconds."
+          },
+          "estimatedPriceImpact": {
+            "type": "number",
+            "format": "float",
+            "description": "Estimated price impact percentage."
+          },
+          "requiresRegisterTransaction": {
+            "type": "boolean",
+            "description": "Flag indicating whether the transaction requires registration via the registerTxs endpoint. Mandatory for non-EVM transactions."
+          }
+        }
+      },
+      "ChainId": {
+        "type": "integer",
+        "description": "Chain ID. Find in the list of supported networks"
+      },
+      "VmId": {
+        "type": "string",
+        "enum": ["evm", "solana", "alt-vm", "hypercore"],
+        "description": "Virtual machine identifier."
+      },
+      "BridgeId": {
+        "type": "string",
+        "enum": [
+          "optimism",
+          "arbitrum",
+          "oft",
+          "yield-oft",
+          "hyperlane",
+          "ghost",
+          "mayan",
+          "across",
+          "relay",
+          "alt-vm-1",
+          "alt-vm-2"
+        ],
+        "description": "Bridge protocol identifier."
+      },
+      "ActionType": {
+        "type": "string",
+        "enum": ["swap-action", "evm-calldata-tx"],
+        "description": "Type of action to perform."
+      },
+      "SwapDirection": {
+        "type": "string",
+        "enum": ["exact-amount-in", "exact-amount-out"],
+        "description": "Swap direction for the action."
+      },
+      "EvmTransaction": {
+        "type": "object",
+        "required": ["to", "data", "value"],
+        "properties": {
+          "to": {
+            "$ref": "#/components/schemas/EvmAddress"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Hex"
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Value in wei as string"
+          },
+          "chainId": {
+            "$ref": "#/components/schemas/ChainId"
+          }
+        }
+      },
+      "SerializedSolTransaction": {
+        "type": "object",
+        "required": ["base64Tx", "recentBlockhash", "payer"],
+        "properties": {
+          "base64Tx": {
+            "type": "string",
+            "description": "Base64-encoded transaction"
+          },
+          "recentBlockhash": {
+            "type": "string",
+            "description": "Recent blockhash for transaction validity"
+          },
+          "payer": {
+            "$ref": "#/components/schemas/SolanaAddress",
+            "description": "PublicKey who pays fees"
+          }
+        }
+      },
+      "AltVmTransaction": {
+        "type": "object",
+        "required": ["to", "toExtra", "value", "chainId", "chainKey"],
+        "properties": {
+          "to": {
+            "$ref": "#/components/schemas/ExchangeAddress",
+            "description": "Exchange address"
+          },
+          "toExtra": {
+            "type": "string",
+            "nullable": true,
+            "description": "Additional address information (e.g., memo, tag). Can be null."
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Value as string"
+          },
+          "chainId": {
+            "$ref": "#/components/schemas/ChainId"
+          },
+          "chainKey": {
+            "type": "string",
+            "description": "Chain key identifier"
+          }
+        }
+      },
+      "HyperCoreAction": {
+        "type": "string",
+        "enum": ["usdSend"],
+        "description": "HyperCore action type"
+      },
+      "HyperCoreTransaction": {
+        "type": "object",
+        "required": ["type", "destination", "amount", "chainId"],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/HyperCoreAction"
+          },
+          "destination": {
+            "type": "string",
+            "description": "Destination address"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Amount to transfer"
+          },
+          "chainId": {
+            "$ref": "#/components/schemas/ChainId",
+            "description": "Chain ID. 1337 for HyperCore"
+          }
+        }
+      },
+      "Payment": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TokenInfo"
+          },
+          {
+            "type": "object",
+            "required": ["amount"],
+            "properties": {
+              "amount": {
+                "type": "string",
+                "pattern": "^[0-9]+$"
+              },
+              "usdAmount": {
+                "type": "number",
+                "format": "float",
+                "description": "USD value of the payment amount"
+              }
+            }
+          }
+        ]
+      },
+      "ExchangeAddress": {
+        "type": "string",
+        "description": "Exchange address format"
+      },
+      "TokenInfo": {
+        "type": "object",
+        "required": [
+          "chainId",
+          "address",
+          "name",
+          "symbol",
+          "decimals",
+          "isNative"
+        ],
+        "properties": {
+          "chainId": {
+            "$ref": "#/components/schemas/ChainId",
+            "description": "Chain ID for the token"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address",
+            "description": "Token address"
+          },
+          "name": {
+            "type": "string",
+            "description": "Token name"
+          },
+          "symbol": {
+            "type": "string",
+            "description": "Token symbol"
+          },
+          "decimals": {
+            "type": "integer",
+            "description": "Token decimals"
+          },
+          "isNative": {
+            "type": "boolean",
+            "description": "Boolean flag for whether token is the chain's gas token."
+          },
+          "logo": {
+            "type": "string",
+            "nullable": true,
+            "description": "URL to the token's logo image. Can be null if logo is not available."
+          },
+          "swapsXyzCode": {
+            "type": "string",
+            "description": "Internal Swaps.xyz token identifier code."
+          }
+        }
+      },
+      "BridgeStep": {
+        "type": "object",
+        "required": [
+          "srcChainId",
+          "dstChainId",
+          "srcBridgeToken",
+          "dstBridgeToken",
+          "bridgeId"
+        ],
+        "properties": {
+          "srcChainId": {
+            "$ref": "#/components/schemas/ChainId"
+          },
+          "dstChainId": {
+            "$ref": "#/components/schemas/ChainId"
+          },
+          "srcBridgeToken": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "dstBridgeToken": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "bridgeId": {
+            "$ref": "#/components/schemas/BridgeId"
+          }
+        }
+      },
+      "BridgeRoute": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/BridgeStep"
+        },
+        "description": "Array of bridge steps"
+      },
+      "Address": {
+        "type": "string",
+        "pattern": "^[0-9a-fA-F]{40}$",
+        "description": "EVM address (20 bytes hex)"
+      },
+      "EvmAddress": {
+        "type": "string",
+        "pattern": "^[0-9a-fA-F]{40}$",
+        "description": "EVM address (20 bytes hex)"
+      },
+      "SolanaAddress": {
+        "type": "string",
+        "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$",
+        "description": "Solana public key (base58 encoded)"
+      },
+      "Hex": {
+        "type": "string",
+        "pattern": "^0x[a-fA-F0-9]*$",
+        "description": "Hex string with 0x prefix"
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "code": {
+            "type": "integer",
+            "description": "Error code"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details"
+          }
+        }
+      },
+      "GetActionErrorResponse": {
+        "type": "object",
+        "required": ["statusCode", "name", "message", "title", "code"],
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "description": "HTTP status code",
+            "example": 400
+          },
+          "name": {
+            "type": "string",
+            "description": "Error class name",
+            "example": "InvalidAddressError"
+          },
+          "message": {
+            "type": "string",
+            "description": "Detailed error message",
+            "example": "The format of the specified address is invalid."
+          },
+          "title": {
+            "type": "string",
+            "description": "Short, user-friendly error title",
+            "example": "Invalid address format"
+          },
+          "code": {
+            "type": "string",
+            "description": "Error type code for programmatic handling",
+            "enum": [
+              "AMOUNT_TOO_HIGH",
+              "AMOUNT_TOO_LOW",
+              "CROSS_VM_RECEIVER_REQUIRED",
+              "EXCESSIVE_FEE",
+              "GEO_BLOCKED",
+              "INSUFFICIENT_LIQUIDITY",
+              "INVALID_ADDRESS_FORMAT",
+              "INVALID_AMOUNT_ZERO",
+              "INVALID_API_KEY",
+              "INVALID_DESTINATION_TOKEN",
+              "INVALID_PARAMETER",
+              "INVALID_SOURCE_TOKEN",
+              "METHOD_NOT_ALLOWED",
+              "MISSING_API_KEY",
+              "MISSING_REQUIRED_FIELD",
+              "NO_AVAILABLE_ROUTE",
+              "UNSUPPORTED_NETWORK",
+              "UNSUPPORTED_NETWORK_PAIR",
+              "UNSUPPORTED_NETWORK_TOKEN_PAIR",
+              "UNSUPPORTED_SWAP_DIRECTION",
+              "WALLET_SCREENED"
+            ]
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional context about the error, including invalid values and suggestions",
+            "additionalProperties": true,
+            "example": {
+              "field": "srcToken",
+              "address": "0xinvalid",
+              "reason": "Address must be 40 characters long"
+            }
+          }
+        }
+      },
+      "ChainListResponse": {
+        "type": "object",
+        "properties": {
+          "chainId": { "$ref": "#/components/schemas/ChainId" },
+          "name": {
+            "type": "string",
+            "description": "Human-readable chain name"
+          },
+          "vmId": { "$ref": "#/components/schemas/VmId" }
+        },
+        "required": ["chainId", "name", "vmId"]
+      },
+      "DexId": {
+        "type": "string",
+        "description": "DEX identifier (depends on integration)"
+      },
+      "TokenInfoWithAmounts": {
+        "allOf": [
+          { "$ref": "#/components/schemas/TokenInfo" },
+          {
+            "type": "object",
+            "required": ["minAmount", "maxAmount"],
+            "properties": {
+              "minAmount": {
+                "type": "string",
+                "nullable": true,
+                "description": "Minimum amount of source token for exact-out swaps. \n `null` if no min."
+              },
+              "maxAmount": {
+                "type": "string",
+                "description": "Maximum amount of source token for exact-out swaps."
+              }
+            }
+          }
+        ]
+      },
+      "AmountLimits": {
+        "type": "object",
+        "required": ["minAmount", "maxAmount"],
+        "properties": {
+          "minAmount": {
+            "type": "string",
+            "nullable": true,
+            "description": "Minimum amount of source token required for exact-in swaps. \n `null` if no min."
+          },
+          "maxAmount": {
+            "type": "string",
+            "nullable": true,
+            "description": "Maximum amount of source token for exact-in swaps. \n `null` if no max."
+          }
+        }
+      },
+      "ChainPath": {
+        "type": "object",
+        "properties": {
+          "chainId": { "$ref": "#/components/schemas/ChainId" },
+          "tokens": {
+            "description": "Available destination tokens for given source token \n `all` indicates all tokens on destination chain are eligible",
+            "oneOf": [
+              { "title": "Named VM", "type": "string", "enum": ["all"] },
+              {
+                "title": "Token List",
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/TokenInfoWithAmounts" }
+              }
+            ]
+          },
+          "supportsExactAmountIn": { "type": "boolean" },
+          "supportsExactAmountOut": { "type": "boolean" },
+          "amountLimits": {
+            "allOf": [
+              { "$ref": "#/components/schemas/AmountLimits" },
+              {
+                "deprecated": true,
+                "description": "⚠️ This field is maintained for backwards compatibility. Use `srcToken.minAmount` and `srcToken.maxAmount` at the top level of the response instead."
+              }
+            ]
+          }
+        },
+        "required": [
+          "chainId",
+          "tokens",
+          "supportsExactAmountIn",
+          "supportsExactAmountOut"
+        ]
+      },
+      "GetPathsOutput": {
+        "type": "object",
+        "properties": {
+          "srcChainId": {
+            "$ref": "#/components/schemas/ChainId",
+            "description": "The source chain ID"
+          },
+          "srcToken": {
+            "$ref": "#/components/schemas/TokenInfoWithAmounts",
+            "description": "Source token information including amount limits"
+          },
+          "paths": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ChainPath" }
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Response timestamp (ISO string) for cache validation"
+          }
+        },
+        "required": ["srcChainId", "srcToken", "paths", "timestamp"]
+      },
+      "TxRegistrationEvent": {
+        "type": "object",
+        "properties": {
+          "txId": {
+            "type": "string",
+            "description": "Unique transaction identifier",
+            "example": "0x49b1d3d38176e45864fd55500c6c1879ab318609e1ed0c8eb9abd818e6c811fd"
+          },
+          "vmId": {
+            "type": "string",
+            "enum": ["evm", "solana", "alt-vm", "hypercore"],
+            "description": "Virtual machine identifier."
+          },
+          "txHash": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "description": "Transaction hash",
+            "example": "0x62d0e13123852791446c6f923c2d0b9247bda10f1eb5eb48ff5b4bc42d22ab42"
+          },
+          "chainId": {
+            "type": "integer",
+            "description": "Chain ID where the transaction occurred",
+            "example": 42161
+          }
+        },
+        "required": ["txHash", "chainId", "txId", "vmId"]
+      },
+      "ValidatedTxId": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the transaction registration was successful",
+            "example": true
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message if registration failed",
+            "example": null
+          }
+        },
+        "required": ["success"]
+      },
+      "TxStatus": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "pending",
+              "requires refund",
+              "refunded",
+              "failed"
+            ],
+            "description": "Status of the transaction",
+            "example": "success"
+          },
+          "sender": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$",
+            "description": "Sender wallet address",
+            "example": "0x1234567890123456789012345678901234567890"
+          },
+          "srcChainId": {
+            "type": "integer",
+            "description": "Source chain ID",
+            "example": 1
+          },
+          "dstChainId": {
+            "type": "integer",
+            "description": "Destination chain ID",
+            "example": 42161
+          },
+          "srcTxHash": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "description": "Source transaction hash",
+            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          },
+          "dstTxHash": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "description": "Destination transaction hash",
+            "example": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+          },
+          "bridgeDetails": {
+            "$ref": "#/components/schemas/BridgeDetails"
+          },
+          "txId": {
+            "type": "string",
+            "description": "Unique transaction identifier",
+            "example": "0x49b1d3d38176e45864fd55500c6c1879ab318609e1ed0c8eb9abd818e6c811fd"
+          },
+          "actionRequest": {
+            "$ref": "#/components/schemas/ActionRequest",
+            "description": "Original action request parameters"
+          },
+          "actionResponse": {
+            "$ref": "#/components/schemas/ActionResponse",
+            "description": "Original action response data"
+          }
+        }
+      },
+      "TxDetails": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TxStatus"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "org": {
+                "nullable": true,
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Org"
+                  }
+                ]
+              },
+              "usdValue": {
+                "type": "number",
+                "nullable": true,
+                "description": "USD value of the transaction",
+                "example": 100.5
+              },
+              "srcTx": {
+                "$ref": "#/components/schemas/OnchainTx"
+              },
+              "dstTx": {
+                "$ref": "#/components/schemas/OnchainTx"
+              }
+            }
+          }
+        ]
+      },
+      "BridgeDetails": {
+        "type": "object",
+        "properties": {
+          "isBridge": {
+            "type": "boolean",
+            "description": "Whether this transaction involves bridging",
+            "example": true
+          },
+          "bridgeTime": {
+            "type": "number",
+            "nullable": true,
+            "description": "Bridge time in seconds (null if not a bridge)",
+            "example": 420
+          },
+          "txPath": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TxNode"
+            },
+            "description": "Transaction path through different chains"
+          }
+        },
+        "required": ["isBridge", "bridgeTime", "txPath"]
+      },
+      "TxNode": {
+        "type": "object",
+        "properties": {
+          "chainId": {
+            "type": "integer",
+            "description": "Chain ID for this step",
+            "example": 1
+          },
+          "txHash": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "description": "Transaction hash for this step",
+            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp as bigint string",
+            "example": "1640995200000000000"
+          },
+          "nextBridge": {
+            "type": "string",
+            "description": "Bridge type for the next hop",
+            "example": "layerZero"
+          }
+        }
+      },
+      "OnchainTx": {
+        "type": "object",
+        "properties": {
+          "toAddress": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "description": "Recipient address",
+            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          },
+          "txHash": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "description": "Transaction hash",
+            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          },
+          "chainId": {
+            "type": "integer",
+            "description": "Chain ID",
+            "example": 1
+          },
+          "value": {
+            "type": "string",
+            "description": "Transaction value as bigint string",
+            "example": "1000000000000000000"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp as bigint string",
+            "example": "1640995200000000000"
+          },
+          "paymentToken": {
+            "$ref": "#/components/schemas/Token"
+          }
+        }
+      },
+      "Token": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Token name",
+            "example": "Ethereum"
+          },
+          "symbol": {
+            "type": "string",
+            "description": "Token symbol",
+            "example": "ETH"
+          },
+          "decimals": {
+            "type": "integer",
+            "description": "Token decimals",
+            "example": 18
+          },
+          "amount": {
+            "type": "string",
+            "description": "Token amount as bigint string",
+            "example": "1000000000000000000"
+          },
+          "address": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$",
+            "description": "Token contract address",
+            "example": "0x1234567890123456789012345678901234567890"
+          }
+        },
+        "required": ["name", "symbol", "decimals", "amount", "address"]
+      },
+      "Org": {
+        "type": "object",
+        "properties": {
+          "appId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Application ID",
+            "example": "app_123"
+          },
+          "affiliateId": {
+            "type": "string",
+            "description": "Affiliate ID",
+            "example": "affiliate_123"
+          }
+        },
+        "required": ["appId", "affiliateId", "appFees"]
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "Current page number",
+            "example": 1
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Results per page",
+            "example": 25
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of results",
+            "example": 150
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "Total number of pages",
+            "example": 6
+          }
+        },
+        "required": ["page", "limit", "total", "totalPages"]
+      },
+      "get_400__api_getStatusSchema": {
+        "$ref": "#/components/schemas/ErrorResponse"
+      },
+      "post_200__webhooks_registerTxsSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ValidatedTxId"
+        }
+      },
+      "ActionRequest": {
+        "type": "object",
+        "properties": {
+          "actionType": {
+            "$ref": "#/components/schemas/ActionType",
+            "description": "Type of action to perform"
+          },
+          "sender": {
+            "$ref": "#/components/schemas/Address",
+            "description": "The address of the sender/user"
+          },
+          "srcChainId": {
+            "$ref": "#/components/schemas/ChainId",
+            "description": "Source chain ID"
+          },
+          "srcToken": {
+            "$ref": "#/components/schemas/Address",
+            "description": "Source token address"
+          },
+          "dstChainId": {
+            "$ref": "#/components/schemas/ChainId",
+            "description": "Destination chain ID"
+          },
+          "dstToken": {
+            "$ref": "#/components/schemas/Address",
+            "description": "Destination token address"
+          },
+          "slippage": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "Slippage tolerance in bps"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^[0-9]$",
+            "description": "The exact in or exact out amount of the swap"
+          },
+          "swapDirection": {
+            "$ref": "#/components/schemas/SwapDirection",
+            "description": "Swap direction for the action"
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/Address",
+            "description": "Address to receive the swapped tokens"
+          },
+          "to": {
+            "$ref": "#/components/schemas/Address",
+            "description": "The EVM address of the target contract (20 bytes hex)"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Hex",
+            "description": "Calldata for the transaction"
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^[0-9]$",
+            "description": "Value to send with transaction"
+          },
+          "erc20Amount": {
+            "type": "string",
+            "pattern": "^[0-9]$",
+            "description": "The amount of Erc20 being transferred"
+          },
+          "erc20Spender": {
+            "$ref": "#/components/schemas/Address",
+            "description": "The Erc20 spender requiring approval for the transaction call"
+          },
+          "bridgeIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BridgeId"
+            },
+            "description": "Specific bridge protocols to use"
+          },
+          "refundTo": {
+            "$ref": "#/components/schemas/Address",
+            "description": "Alternate address to receive refunds"
+          }
+        },
+        "required": [
+          "actionType",
+          "sender",
+          "srcChainId",
+          "srcToken",
+          "dstChainId",
+          "dstToken",
+          "slippage"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Limited demo key for API Reference: `5c951bc81da566bbd030ba8e20724063`."
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
 }
