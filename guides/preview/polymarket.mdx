@@ -39,7 +39,7 @@ x-api-key: YOUR_API_KEY
 ## Base URL
 
 ```
-https://box-api-git-tw-staging-decent-webapp.vercel.app
+https://box-api-git-polymarket-decent-webapp.vercel.app
 ```
 
 ---
@@ -130,7 +130,7 @@ The API returns an `ActionResponse` object containing:
 ### Example 1: Market Order (FOK) - Buy
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/getAction?\
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/getAction?\
 sender=0x1234567890123456789012345678901234567890&\
 srcChainId=137&\
 srcToken=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&\
@@ -154,7 +154,7 @@ amount=5000000" \
 ### Example 2: Limit Order (GTC) - Sell with Price and Size
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/getAction?\
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/getAction?\
 sender=0x1234567890123456789012345678901234567890&\
 srcChainId=137&\
 srcToken=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&\
@@ -179,7 +179,7 @@ swapDirection=exact-amount-out" \
 ### Example 3: Limit Order (GTD) - Buy with Expiration
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/getAction?\
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/getAction?\
 sender=0x1234567890123456789012345678901234567890&\
 srcChainId=137&\
 srcToken=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&\
@@ -205,7 +205,7 @@ swapDirection=exact-amount-in" \
 ### Example 4: Market Order (FAK) - Buy with Price and Size (amount calculated)
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/getAction?\
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/getAction?\
 sender=0x1234567890123456789012345678901234567890&\
 srcChainId=137&\
 srcToken=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&\
@@ -370,7 +370,7 @@ The `proxyWalletStatus` field uses `ProxyWalletStatus` enum values:
 **cURL Example:**
 
 ```bash
-curl -X POST "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/createOrFetchPolymarketUser" \
+curl -X POST "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/createOrFetchPolymarketUser" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   -d '{
@@ -583,7 +583,7 @@ The response is an array of events with their associated markets, along with pag
 Search with query:
 
 ```bash
-curl -G "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/search?q=patriots&activeOnly=true" \
+curl -G "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/search?q=patriots&activeOnly=true" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -591,7 +591,7 @@ curl -G "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/p
 Search with tags:
 
 ```bash
-curl -G "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/search?tagId=450&tagId=226" \
+curl -G "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/search?tagId=450&tagId=226" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -797,7 +797,7 @@ The response follows the standardized response format with events, tags, and pag
 With comma-separated token IDs:
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?clobTokenIds=tokenId1,tokenId2" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?clobTokenIds=tokenId1,tokenId2" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ````
@@ -805,7 +805,7 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 With multiple token IDs as separate parameters:
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?clobTokenIds=tokenId1&clobTokenIds=tokenId2" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?clobTokenIds=tokenId1&clobTokenIds=tokenId2" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -813,7 +813,7 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 With slugs:
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?slugs=slug1,slug2" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/getMarkets?slugs=slug1,slug2" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -852,7 +852,7 @@ Retrieves the current market price for a specific token and side.
 **cURL Example:**
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getPrice?clobTokenId=80746058984644290629624903019922696017323803605256698757445938534814122585786&side=BUY" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/getPrice?clobTokenId=80746058984644290629624903019922696017323803605256698757445938534814122585786&side=BUY" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -1064,7 +1064,7 @@ The response follows the standardized response format with events, tags, and pag
 **cURL Example:**
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getTrendingMarkets?limit=20" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/getTrendingMarkets?limit=20" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -1123,7 +1123,7 @@ Retrieves trade history for a specific user.
 **cURL Example:**
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getTrades?userId=user_123&limit=50&offset=0" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/getTrades?userId=user_123" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -1181,7 +1181,7 @@ Retrieves activity history for a specific user.
 **cURL Example:**
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getActivity?userId=user_123&limit=50&offset=0" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/getActivity?userId=user_123" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -1248,7 +1248,7 @@ Retrieves current open positions for a specific user.
 Get all current positions:
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getCurrentPositions?userId=user_123&limit=50&offset=0" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/getCurrentPositions?userId=user_123" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -1256,7 +1256,7 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 Get only redeemable positions:
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getCurrentPositions?userId=user_123&redeemable=true" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/getCurrentPositions?userId=user_123&redeemable=true" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -1264,7 +1264,7 @@ curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflo
 Get only mergable positions:
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getCurrentPositions?userId=user_123&mergable=true" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/getCurrentPositions?userId=user_123&mergable=true" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -1327,7 +1327,7 @@ Retrieves closed positions (resolved markets) for a specific user.
 **cURL Example:**
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getClosedPositions?userId=user_123&limit=50&offset=0" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/getClosedPositions?userId=user_123" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -1366,7 +1366,7 @@ Retrieves profit and loss information for a specific user.
 **cURL Example:**
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/getPnL?userId=user_123" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/getPnL?userId=user_123" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -1416,7 +1416,7 @@ Cancels one or more open orders.
 **cURL Example:**
 
 ```bash
-curl -X POST "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/polymarket/cancelOrder" \
+curl -X POST "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/polymarket/cancelOrder" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   -d '{
@@ -1514,7 +1514,7 @@ Retrieves the status of a workflow transaction.
 **cURL Example:**
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/getStatus?txId=0x30e7dc0566713417a7bc136ad3bb4f8525e005e2e024ef696b7b88f497e394e8" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/getStatus?txId=0x30e7dc0566713417a7bc136ad3bb4f8525e005e2e024ef696b7b88f497e394e8" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
@@ -1574,7 +1574,7 @@ Retrieves the status of a workflow transaction.
 **cURL Example:**
 
 ```bash
-curl -X GET "https://box-api-git-tw-staging-decent-webapp.vercel.app/api/workflows/getTags" \
+curl -X GET "https://box-api-git-polymarket-decent-webapp.vercel.app/api/workflows/getTags" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY"
 ```
