@@ -1291,14 +1291,7 @@
       },
       "TokenInfo": {
         "type": "object",
-        "required": [
-          "chainId",
-          "address",
-          "name",
-          "symbol",
-          "decimals",
-          "isNative"
-        ],
+        "required": ["chainId", "address", "name", "symbol", "decimals", "isNative"],
         "properties": {
           "chainId": {
             "$ref": "#/components/schemas/ChainId",
@@ -1337,13 +1330,7 @@
       },
       "BridgeStep": {
         "type": "object",
-        "required": [
-          "srcChainId",
-          "dstChainId",
-          "srcBridgeToken",
-          "dstBridgeToken",
-          "bridgeId"
-        ],
+        "required": ["srcChainId", "dstChainId", "srcBridgeToken", "dstBridgeToken", "bridgeId"],
         "properties": {
           "srcChainId": {
             "$ref": "#/components/schemas/ChainId"
@@ -1549,12 +1536,7 @@
             ]
           }
         },
-        "required": [
-          "chainId",
-          "tokens",
-          "supportsExactAmountIn",
-          "supportsExactAmountOut"
-        ]
+        "required": ["chainId", "tokens", "supportsExactAmountIn", "supportsExactAmountOut"]
       },
       "GetPathsOutput": {
         "type": "object",
@@ -1626,13 +1608,7 @@
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "success",
-              "pending",
-              "requires refund",
-              "refunded",
-              "failed"
-            ],
+            "enum": ["success", "pending", "requires refund", "refunded", "failed"],
             "description": "Status of the transaction",
             "example": "success"
           },
