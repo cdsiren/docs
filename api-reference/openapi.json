@@ -1291,14 +1291,7 @@
       },
       "TokenInfo": {
         "type": "object",
-        "required": [
-          "chainId",
-          "address",
-          "name",
-          "symbol",
-          "decimals",
-          "isNative"
-        ],
+        "required": ["chainId", "address", "name", "symbol", "decimals", "isNative"],
         "properties": {
           "chainId": {
             "$ref": "#/components/schemas/ChainId",
@@ -1337,13 +1330,7 @@
       },
       "BridgeStep": {
         "type": "object",
-        "required": [
-          "srcChainId",
-          "dstChainId",
-          "srcBridgeToken",
-          "dstBridgeToken",
-          "bridgeId"
-        ],
+        "required": ["srcChainId", "dstChainId", "srcBridgeToken", "dstBridgeToken", "bridgeId"],
         "properties": {
           "srcChainId": {
             "$ref": "#/components/schemas/ChainId"
@@ -1371,18 +1358,27 @@
       },
       "Address": {
         "type": "string",
-        "pattern": "^[0-9a-fA-F]{40}$",
-        "description": "EVM address (20 bytes hex)"
+        "description": "Address type - can be EvmAddress, HyperCoreAddress, SolanaAddress, or AltVmAddress."
       },
       "EvmAddress": {
         "type": "string",
-        "pattern": "^[0-9a-fA-F]{40}$",
-        "description": "EVM address (20 bytes hex)"
+        "pattern": "^0x[a-fA-F0-9]{40}$",
+        "description": "EVM address (0x prefix + 40 hex characters)"
+      },
+      "HyperCoreAddress": {
+        "type": "string",
+        "pattern": "^0x([a-fA-F0-9]{32}|[a-fA-F0-9]{40})$",
+        "description": "HyperCore address (0x prefix + 32 or 40 hex characters)"
       },
       "SolanaAddress": {
         "type": "string",
         "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$",
-        "description": "Solana public key (base58 encoded)"
+        "description": "Solana public key (base58 encoded, 32-44 characters)"
+      },
+      "AltVmAddress": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9\\-_]{10,200}$",
+        "description": "AltVM address (alphanumeric with dashes/underscores, 10-200 characters)"
       },
       "Hex": {
         "type": "string",
@@ -1446,6 +1442,7 @@
               "INVALID_DESTINATION_TOKEN",
               "INVALID_PARAMETER",
               "INVALID_SOURCE_TOKEN",
+              "INTERNAL_SERVER_ERROR",
               "METHOD_NOT_ALLOWED",
               "MISSING_API_KEY",
               "MISSING_REQUIRED_FIELD",
@@ -1460,6 +1457,20 @@
           "details": {
             "type": "object",
             "description": "Additional context about the error, including invalid values and suggestions",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "The field that caused the error"
+              },
+              "address": {
+                "type": "string",
+                "description": "The invalid address value"
+              },
+              "reason": {
+                "type": "string",
+                "description": "Explanation of why the value is invalid"
+              }
+            },
             "additionalProperties": true,
             "example": {
               "field": "srcToken",
@@ -1543,18 +1554,14 @@
             "allOf": [
               { "$ref": "#/components/schemas/AmountLimits" },
               {
+                "type": "object",
                 "deprecated": true,
                 "description": "⚠️ This field is maintained for backwards compatibility. Use `srcToken.minAmount` and `srcToken.maxAmount` at the top level of the response instead."
               }
             ]
           }
         },
-        "required": [
-          "chainId",
-          "tokens",
-          "supportsExactAmountIn",
-          "supportsExactAmountOut"
-        ]
+        "required": ["chainId", "tokens", "supportsExactAmountIn", "supportsExactAmountOut"]
       },
       "GetPathsOutput": {
         "type": "object",
@@ -1615,6 +1622,7 @@
           },
           "error": {
             "type": "string",
+            "nullable": true,
             "description": "Error message if registration failed",
             "example": null
           }
@@ -1626,13 +1634,7 @@
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "success",
-              "pending",
-              "requires refund",
-              "refunded",
-              "failed"
-            ],
+            "enum": ["success", "pending", "requires refund", "refunded", "failed"],
             "description": "Status of the transaction",
             "example": "success"
           },
@@ -1844,6 +1846,11 @@
             "type": "string",
             "description": "Affiliate ID",
             "example": "affiliate_123"
+          },
+          "appFees": {
+            "type": "object",
+            "description": "Application fees configuration",
+            "additionalProperties": true
           }
         },
         "required": ["appId", "affiliateId", "appFees"]
