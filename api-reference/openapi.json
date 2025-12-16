@@ -203,6 +203,15 @@
               "type": "boolean",
               "default": false
             }
+          },
+          {
+            "name": "appFees",
+            "in": "query",
+            "required": false,
+            "description": "Application fees configuration as JSON array\n\n**Optional:** Will default to fees configured for the application\n\n **Example:** `[{ \"bps\": 50, \"receiverAddress\": \"0x...\" }]`",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1496,6 +1505,20 @@
         "type": "string",
         "description": "DEX identifier (depends on integration)"
       },
+      "AppFee": {
+        "type": "object",
+        "required": ["bps", "receiverAddress"],
+        "properties": {
+          "bps": {
+            "type": "number",
+            "description": "Fee in basis points"
+          },
+          "receiverAddress": {
+            "$ref": "#/components/schemas/EvmAddress",
+            "description": "EVM address to receive the fee"
+          }
+        }
+      },
       "TokenInfoWithAmounts": {
         "allOf": [
           { "$ref": "#/components/schemas/TokenInfo" },
@@ -1969,6 +1992,14 @@
           "refundTo": {
             "$ref": "#/components/schemas/Address",
             "description": "Alternate address to receive refunds"
+          },
+          "appFees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AppFee"
+            },
+            "maxItems": 2,
+            "description": "Application fees configuration"
           }
         },
         "required": [
