@@ -26,7 +26,7 @@
         "servers": [
           {
             "url": "https://api-v2.swaps.xyz/api",
-            "description": "Indexer API server"
+            "description": "Core Swap API server"
           }
         ],
         "description": "Generates a transaction for cross-chain swaps, bridges, and calls. The action includes transaction data, routing information, and fee calculations for executing the requested operation.",
@@ -102,7 +102,7 @@
             "name": "amount",
             "in": "query",
             "required": false,
-            "description": "The exact in or exact out amount of the swap\n\n\n`swap-action`",
+            "description": "The exact in or exact out amount of the swap\n\n**Required:** for `swap-action`\n\n**Required:** for `polymarket` action type with market orders (FOK/FAK)",
             "schema": {
               "type": "string",
               "pattern": "^[0-9]$"
@@ -112,7 +112,7 @@
             "name": "swapDirection",
             "in": "query",
             "required": false,
-            "description": "Swap direction for the action\n\n`swap-action`",
+            "description": "Swap direction for the action\n\n**Required:** for `swap-action`\n\n**Required:** for `polymarket` action type (use `exact-amount-out`)",
             "schema": {
               "$ref": "#/components/schemas/SwapDirection"
             }
@@ -121,7 +121,7 @@
             "name": "recipient",
             "in": "query",
             "required": false,
-            "description": "Address to receive the swapped tokens\n\n`swap-action`",
+            "description": "Address to receive the swapped tokens\n\n**Optional:** for `swap-action`\n\n**Required:** for `polymarket` action type (should be the proxy wallet address)",
             "schema": {
               "$ref": "#/components/schemas/Address"
             }
@@ -130,7 +130,7 @@
             "name": "to",
             "in": "query",
             "required": false,
-            "description": "The EVM address of the target contract (20 bytes hex)\n\n`evm-calldata-tx`",
+            "description": "The EVM address of the target contract (20 bytes hex)\n\n**Required:** for `evm-calldata-tx` action type",
             "schema": {
               "$ref": "#/components/schemas/Address"
             }
@@ -139,7 +139,7 @@
             "name": "data",
             "in": "query",
             "required": false,
-            "description": "Calldata for the transaction\n\n`evm-calldata-tx`",
+            "description": "Calldata for the transaction\n\n**Required:** for `evm-calldata-tx` action type",
             "schema": {
               "$ref": "#/components/schemas/Hex"
             }
@@ -148,7 +148,7 @@
             "name": "value",
             "in": "query",
             "required": false,
-            "description": "Value to send with transaction\n\n`evm-calldata-tx`",
+            "description": "Value to send with transaction\n\n**Optional:** for `evm-calldata-tx` action type",
             "schema": {
               "type": "string",
               "pattern": "^[0-9]$"
@@ -158,7 +158,7 @@
             "name": "erc20Amount",
             "in": "query",
             "required": false,
-            "description": "The amount of Erc20 being transferred\n\n**Optional:** Use for calls requiring Erc20 transfers\n\n`evm-calldata-tx`",
+            "description": "The amount of Erc20 being transferred\n\n**Optional:** for `evm-calldata-tx` action type (use for calls requiring Erc20 transfers)",
             "schema": {
               "type": "string",
               "pattern": "^[0-9]$"
@@ -168,7 +168,7 @@
             "name": "erc20Spender",
             "in": "query",
             "required": false,
-            "description": "The Erc20 spender requiring approval for the transaction call\n\n**Optional:** Will default to the `to` address\n\n`evm-calldata-tx`",
+            "description": "The Erc20 spender requiring approval for the transaction call\n\n**Optional:** for `evm-calldata-tx` action type (will default to the `to` address)",
             "schema": {
               "$ref": "#/components/schemas/Address"
             }
@@ -211,6 +211,95 @@
             "description": "Application fees configuration as JSON array\n\n**Optional:** Will default to fees configured for the application\n\n **Example:** `[{ \"bps\": 50, \"receiverAddress\": \"0x...\" }]`",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "description": "Polymarket user ID - returned from `POST /getUser`\n\n**Required:** for `polymarket` action type",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "side",
+            "in": "query",
+            "required": false,
+            "description": "Order side for Polymarket orders\n\n**Required:** for `polymarket` action type",
+            "schema": {
+              "type": "string",
+              "enum": ["BUY", "SELL"]
+            }
+          },
+          {
+            "name": "tokenID",
+            "in": "query",
+            "required": false,
+            "description": "Polymarket CLOB token ID\n\n**Required:** for `polymarket` action type",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderType",
+            "in": "query",
+            "required": false,
+            "description": "Polymarket order type\n\n**Required:** for `polymarket` action type\n\n- `FOK`: Fill or Kill (market order)\n- `FAK`: Fill and Kill (market order)",
+            "schema": {
+              "type": "string",
+              "enum": ["FOK", "FAK"]
+            }
+          },
+          {
+            "name": "feeRateBps",
+            "in": "query",
+            "required": false,
+            "description": "Fee rate in basis points (non-negative)\n\n**Required:** for `polymarket` action type",
+            "schema": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "tickSize",
+            "in": "query",
+            "required": false,
+            "description": "Price tick size for Polymarket orders\n\n**Required:** for `polymarket` action type",
+            "schema": {
+              "type": "string",
+              "enum": ["0.01", "0.001", "0.0001"]
+            }
+          },
+          {
+            "name": "negRisk",
+            "in": "query",
+            "required": false,
+            "description": "Negative risk flag for Polymarket\n\n**Required:** for `polymarket` action type",
+            "schema": {
+              "type": "string",
+              "enum": ["true", "false"]
+            }
+          },
+          {
+            "name": "price",
+            "in": "query",
+            "required": false,
+            "description": "Price per share (0-1) for Polymarket limit orders\n\n**Optional:** for market orders (FOK/FAK)",
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "description": "Number of shares (positive) for Polymarket orders\n\n***Optional:** for market orders (FOK/FAK)",
+            "schema": {
+              "type": "number",
+              "minimum": 0
             }
           }
         ],
@@ -584,7 +673,7 @@
         "servers": [
           {
             "url": "https://api-v2.swaps.xyz/api",
-            "description": "Indexer API server"
+            "description": "Core Swap API server"
           }
         ],
         "description": "Register transactions for indexing. Mandatory for non EVM transactions.",
@@ -631,7 +720,7 @@
         "servers": [
           {
             "url": "https://api-v2.swaps.xyz/api",
-            "description": "Indexer API server"
+            "description": "Core Swap API server"
           }
         ],
         "description": "Retrieve the status and details of a transaction by transaction hash or transaction ID",
@@ -689,7 +778,7 @@
         "servers": [
           {
             "url": "https://api-v2.swaps.xyz/api",
-            "description": "Indexer API server"
+            "description": "Core Swap API server"
           }
         ],
         "description": "Retrieve paginated transaction history with optional filtering",
@@ -906,6 +995,349 @@
                   "items": {
                     "$ref": "#/components/schemas/ChainListResponse"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getUser": {
+      "post": {
+        "summary": "Get User",
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Core Swap API Server"
+          }
+        ],
+        "description": "Creates a new Swaps account for a user or fetches an existing one based on the provided EVM address",
+        "operationId": "getUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response with user information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to missing or invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workflows/getStatus": {
+      "get": {
+        "summary": "Get Workflow Status",
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Core Swap API Server"
+          }
+        ],
+        "description": "Retrieves the status of a workflow transaction by transaction ID",
+        "operationId": "getWorkflowStatus",
+        "parameters": [
+          {
+            "name": "txId",
+            "in": "query",
+            "description": "Transaction ID from /getAction request",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "0x1b121f30eeddfc1ee3eeb491c02be6c4b676b0ac0ac3e309fa25f010172c5af4"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Workflow status response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowStatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to missing or invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workflows/polymarket/redeemPosition": {
+      "post": {
+        "summary": "Redeem Position",
+        "tags": ["Polymarket"],
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Core Swap API Server"
+          }
+        ],
+        "description": "Redeems a winning position from a resolved Polymarket market. This endpoint allows users to claim their winnings from a specific market condition where they hold winning outcome tokens.\n\n**Status:** Coming Soon",
+        "operationId": "redeemPosition",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["evmEoa", "conditionId"],
+                "properties": {
+                  "evmEoa": {
+                    "$ref": "#/components/schemas/EvmAddress",
+                    "description": "EVM address (wallet address)"
+                  },
+                  "conditionId": {
+                    "type": "string",
+                    "description": "Polymarket condition ID for the position to redeem",
+                    "example": "0x52f13a5eaf375170189f326e58cc6d217515de1cf9e41bff17be7779ea9a295c"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Position redeemed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["txHash", "status"],
+                  "properties": {
+                    "txHash": {
+                      "$ref": "#/components/schemas/Hex",
+                      "description": "Transaction hash of the redemption"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Status message of the redemption"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to missing or invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workflows/polymarket/sell": {
+      "post": {
+        "summary": "Sell Position TODO!!",
+        "tags": ["Polymarket"],
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Core Swap API Server"
+          }
+        ],
+        "description": "Sells an existing position in a Polymarket market. This endpoint allows users to exit their positions by selling their outcome tokens at market price or with a limit order.\n\n**Status:** Coming Soon",
+        "operationId": "sellPosition",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["evmEoa", "tokenId", "amount"],
+                "properties": {
+                  "evmEoa": {
+                    "$ref": "#/components/schemas/EvmAddress",
+                    "description": "EVM address (wallet address)"
+                  },
+                  "proxyWallet": {
+                    "$ref": "#/components/schemas/EvmAddress",
+                    "description": "Proxy wallet address (optional)"
+                  },
+                  "tokenId": {
+                    "type": "string",
+                    "description": "Polymarket CLOB token ID of the position to sell"
+                  },
+                  "amount": {
+                    "type": "string",
+                    "description": "Amount of tokens to sell"
+                  },
+                  "orderType": {
+                    "type": "string",
+                    "enum": ["FOK", "FAK", "GTC", "GTD"],
+                    "description": "Order type (FOK/FAK for market orders, GTC/GTD for limit orders)"
+                  },
+                  "price": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Limit price (required for GTC/GTD orders)"
+                  },
+                  "slippage": {
+                    "type": "number",
+                    "description": "Slippage tolerance in basis points"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Position sold successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Whether the sell was successful"
+                    },
+                    "orderId": {
+                      "type": "string",
+                      "description": "Order ID of the sell order"
+                    },
+                    "amountSold": {
+                      "type": "string",
+                      "description": "Amount of tokens sold"
+                    },
+                    "proceeds": {
+                      "type": "string",
+                      "description": "Proceeds in USDC"
+                    },
+                    "transactionHash": {
+                      "type": "string",
+                      "description": "Transaction hash of the sell"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to missing or invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1173,7 +1605,7 @@
       },
       "ActionType": {
         "type": "string",
-        "enum": ["swap-action", "evm-calldata-tx"],
+        "enum": ["swap-action", "evm-calldata-tx", "polymarket"],
         "description": "Type of action to perform."
       },
       "SwapDirection": {
@@ -1300,7 +1732,14 @@
       },
       "TokenInfo": {
         "type": "object",
-        "required": ["chainId", "address", "name", "symbol", "decimals", "isNative"],
+        "required": [
+          "chainId",
+          "address",
+          "name",
+          "symbol",
+          "decimals",
+          "isNative"
+        ],
         "properties": {
           "chainId": {
             "$ref": "#/components/schemas/ChainId",
@@ -1339,7 +1778,13 @@
       },
       "BridgeStep": {
         "type": "object",
-        "required": ["srcChainId", "dstChainId", "srcBridgeToken", "dstBridgeToken", "bridgeId"],
+        "required": [
+          "srcChainId",
+          "dstChainId",
+          "srcBridgeToken",
+          "dstBridgeToken",
+          "bridgeId"
+        ],
         "properties": {
           "srcChainId": {
             "$ref": "#/components/schemas/ChainId"
@@ -1584,7 +2029,12 @@
             ]
           }
         },
-        "required": ["chainId", "tokens", "supportsExactAmountIn", "supportsExactAmountOut"]
+        "required": [
+          "chainId",
+          "tokens",
+          "supportsExactAmountIn",
+          "supportsExactAmountOut"
+        ]
       },
       "GetPathsOutput": {
         "type": "object",
@@ -1657,7 +2107,13 @@
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["success", "pending", "requires refund", "refunded", "failed"],
+            "enum": [
+              "success",
+              "pending",
+              "requires refund",
+              "refunded",
+              "failed"
+            ],
             "description": "Status of the transaction",
             "example": "success"
           },
@@ -1704,6 +2160,15 @@
           "actionResponse": {
             "$ref": "#/components/schemas/ActionResponse",
             "description": "Original action response data"
+          },
+          "workflow": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WorkflowData"
+              }
+            ],
+            "nullable": true,
+            "description": "Workflow information if transaction is associated with a workflow"
           }
         }
       },
@@ -2011,6 +2476,341 @@
           "dstToken",
           "slippage"
         ]
+      },
+      "GetUserRequest": {
+        "type": "object",
+        "required": ["evmEoa"],
+        "properties": {
+          "evmEoa": {
+            "$ref": "#/components/schemas/EvmAddress",
+            "description": "EVM address (wallet address)"
+          }
+        }
+      },
+      "GetUserResponse": {
+        "type": "object",
+        "required": ["userCredentials", "newUser", "userId"],
+        "properties": {
+          "userCredentials": {
+            "$ref": "#/components/schemas/UserCredentials",
+            "description": "User credentials object containing wallet information"
+          },
+          "newUser": {
+            "type": "boolean",
+            "description": "Whether this is a newly created user (true) or existing user (false)",
+            "example": true
+          },
+          "userId": {
+            "type": "string",
+            "description": "Polymarket user ID",
+            "example": "user_123"
+          }
+        }
+      },
+      "UserCredentials": {
+        "type": "object",
+        "required": ["evmEoa"],
+        "properties": {
+          "evmEoa": {
+            "$ref": "#/components/schemas/EvmAddress",
+            "description": "The home EOA address (wallet address)"
+          },
+          "proxyWallet": {
+            "$ref": "#/components/schemas/EvmAddress",
+            "description": "Proxy wallet address (if available)",
+            "nullable": true
+          },
+          "proxyWalletStatus": {
+            "$ref": "#/components/schemas/ProxyWalletStatus",
+            "description": "Status of the proxy wallet",
+            "nullable": true
+          }
+        }
+      },
+      "ProxyWalletStatus": {
+        "type": "string",
+        "enum": [
+          "ready",
+          "deploying",
+          "permissioning",
+          "failed-deploy",
+          "failed-permission",
+          "not-created"
+        ],
+        "description": "Status of the proxy wallet"
+      },
+      "WorkflowStatusResponse": {
+        "type": "object",
+        "required": ["txId", "workflow"],
+        "properties": {
+          "txId": {
+            "type": "string",
+            "description": "Transaction ID",
+            "example": "0x30e7dc0566713417a7bc136ad3bb4f8525e005e2e024ef696b7b88f497e394e8"
+          },
+          "workflow": {
+            "$ref": "#/components/schemas/WorkflowData"
+          }
+        }
+      },
+      "WorkflowData": {
+        "type": "object",
+        "required": ["name", "operation", "status", "timestamp", "data"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Workflow name",
+            "example": "polymarket"
+          },
+          "operation": {
+            "type": "string",
+            "description": "Operation type",
+            "example": "placeOrder"
+          },
+          "status": {
+            "type": "string",
+            "description": "Workflow status",
+            "example": "success"
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp when workflow was executed",
+            "example": 1763996274
+          },
+          "data": {
+            "oneOf": [
+              {
+                "title": "Polymarket Data",
+                "$ref": "#/components/schemas/PolyMarketWorkflowData"
+              },
+              {
+                "title": "Generic Workflow Data",
+                "type": "object",
+                "additionalProperties": true
+              }
+            ],
+            "description": "Workflow-specific data"
+          }
+        }
+      },
+      "PolyMarketWorkflowData": {
+        "type": "object",
+        "required": ["userId", "orderRequest", "orderResponse"],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "Polymarket user ID",
+            "example": "0x0797bfec6d2d4f733d461bbee8125805e9e9c892"
+          },
+          "orderRequest": {
+            "$ref": "#/components/schemas/PolymarketOrderRequest"
+          },
+          "orderResponse": {
+            "oneOf": [
+              {
+                "title": "Open Order",
+                "$ref": "#/components/schemas/PolymarketOpenOrder"
+              },
+              {
+                "title": "Error Response",
+                "type": "object",
+                "required": ["error", "status"],
+                "properties": {
+                  "error": {
+                    "type": "string",
+                    "description": "Error message"
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Order status"
+                  }
+                }
+              }
+            ],
+            "description": "Order response from Polymarket"
+          },
+          "relayTx": {
+            "type": "object",
+            "properties": {
+              "txHash": {
+                "type": "string",
+                "pattern": "^0x[a-fA-F0-9]{64}$",
+                "description": "Transaction hash of the relay transaction"
+              },
+              "status": {
+                "type": "string",
+                "description": "Status of the relay transaction"
+              }
+            }
+          }
+        }
+      },
+      "PolymarketOrderRequest": {
+        "type": "object",
+        "required": [
+          "side",
+          "tokenID",
+          "orderType",
+          "feeRateBps",
+          "slippage",
+          "tickSize",
+          "negRisk"
+        ],
+        "properties": {
+          "side": {
+            "type": "string",
+            "enum": ["BUY", "SELL"],
+            "description": "Order side"
+          },
+          "tokenID": {
+            "type": "string",
+            "description": "Polymarket CLOB token ID",
+            "example": "110902308091723190012269532299497167125504426554890434343419495764557291673806"
+          },
+          "orderType": {
+            "type": "string",
+            "enum": ["FOK", "FAK", "GTC", "GTD"],
+            "description": "Order type (FOK/FAK are market orders, GTC/GTD are limit orders)"
+          },
+          "feeRateBps": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Fee rate in basis points",
+            "example": 0
+          },
+          "slippage": {
+            "type": "number",
+            "description": "Slippage tolerance in basis points",
+            "example": 100
+          },
+          "tickSize": {
+            "type": "string",
+            "enum": ["0.01", "0.001", "0.0001"],
+            "description": "Price tick size"
+          },
+          "negRisk": {
+            "type": "boolean",
+            "description": "Negative risk flag"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Amount for market orders (FOK/FAK)",
+            "example": 5
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Price per share (0-1) - required for limit orders, optional for market orders",
+            "example": 0.021
+          },
+          "size": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Number of shares for limit orders",
+            "example": 5
+          }
+        }
+      },
+      "PolymarketOpenOrder": {
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "owner",
+          "maker_address",
+          "market",
+          "asset_id",
+          "side",
+          "original_size",
+          "size_matched",
+          "price",
+          "outcome",
+          "created_at",
+          "expiration",
+          "order_type",
+          "associate_trades"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Order ID",
+            "example": "0xbd2f3c625c1f6f918a74e8645c3afee9e8f2c5adf91f178efa5e1b65f74fb489"
+          },
+          "status": {
+            "type": "string",
+            "description": "Order status",
+            "example": "MATCHED"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Owner ID",
+            "example": "258f7485-b93f-52e5-2327-a53c49a299c1"
+          },
+          "maker_address": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$",
+            "description": "Maker address",
+            "example": "0xBEDcAD563ddf52391573a016Bc5EC7A334Eec756"
+          },
+          "market": {
+            "type": "string",
+            "description": "Market ID",
+            "example": "0xb050c89e1e5738c79e117d28da1f057ac2f193511aab87a01b517b466c7265dc"
+          },
+          "asset_id": {
+            "type": "string",
+            "description": "Asset ID (token ID)",
+            "example": "110902308091723190012269532299497167125504426554890434343419495764557291673806"
+          },
+          "side": {
+            "type": "string",
+            "enum": ["BUY", "SELL"],
+            "description": "Order side"
+          },
+          "original_size": {
+            "type": "string",
+            "description": "Original order size",
+            "example": "5"
+          },
+          "size_matched": {
+            "type": "string",
+            "description": "Size matched",
+            "example": "0"
+          },
+          "price": {
+            "type": "string",
+            "description": "Order price",
+            "example": "0.02"
+          },
+          "outcome": {
+            "type": "string",
+            "description": "Order outcome",
+            "example": "No"
+          },
+          "expiration": {
+            "type": "string",
+            "description": "Expiration timestamp",
+            "example": "1763996360"
+          },
+          "order_type": {
+            "type": "string",
+            "description": "Order type",
+            "example": "GTD"
+          },
+          "associate_trades": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Associated trade IDs"
+          },
+          "created_at": {
+            "type": "integer",
+            "description": "Unix timestamp when order was created",
+            "example": 1763996291
+          }
+        }
       }
     },
     "securitySchemes": {

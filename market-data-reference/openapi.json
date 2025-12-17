@@ -1,0 +1,1400 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Polymarket Data API",
+    "description": "Comprehensive API endpoints for querying Polymarket prediction market data, user positions, trades, and market information.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Swaps.xyz",
+      "url": "https://swaps.xyz"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://box-api-git-polymarket-decent-webapp.vercel.app",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/api/workflows/polymarket/search": {
+      "get": {
+        "summary": "Search Markets",
+        "description": "Search for Polymarket markets and events by query string or tags. Returns standardized event data with pagination.",
+        "operationId": "searchMarkets",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search query string. Use '*' to return all results.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "new-england-patriots"
+          },
+          {
+            "name": "tagIds",
+            "in": "query",
+            "description": "Array of tag IDs to filter by (can be repeated)",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "example": [450, 226]
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit results per type",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "name": "activeOnly",
+            "in": "query",
+            "description": "Only return markets currently accepting orders",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful search response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardizedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/workflows/polymarket/getTags": {
+      "get": {
+        "summary": "Get Tags",
+        "description": "Retrieve all available tags/categories for filtering Polymarket markets.",
+        "operationId": "getTags",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of tags to return",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Zero-based index of first tag to return",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "slug",
+            "in": "query",
+            "description": "Filter by tag slug",
+            "schema": {
+              "type": "string"
+            },
+            "example": "nfl"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of tags",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tag"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/workflows/polymarket/getEvent": {
+      "get": {
+        "summary": "Get Event",
+        "description": "Retrieve detailed information about a specific event, including all associated markets.",
+        "operationId": "getEvent",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "query",
+            "required": true,
+            "description": "Event slug identifier",
+            "schema": {
+              "type": "string"
+            },
+            "example": "largest-company-end-of-2025"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event details with markets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/workflows/polymarket/getMarkets": {
+      "get": {
+        "summary": "Get Markets",
+        "description": "Retrieve market information by CLOB token IDs, slugs, or tag ID.",
+        "operationId": "getMarkets",
+        "parameters": [
+          {
+            "name": "clobTokenIds",
+            "in": "query",
+            "description": "Array of CLOB token IDs (can be repeated)",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "example": ["80746058984644290629624903019922696017323803605256698757445938534814122585786"]
+          },
+          {
+            "name": "slug",
+            "in": "query",
+            "description": "Market slug identifier",
+            "schema": {
+              "type": "string"
+            },
+            "example": "fed-decreases-interest-rates-by-50-bps-after-december-2025-meeting"
+          },
+          {
+            "name": "tagId",
+            "in": "query",
+            "description": "Filter by tag ID",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Standardized response with market events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardizedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/workflows/polymarket/getMarketPrice": {
+      "get": {
+        "summary": "Get Market Price",
+        "description": "Retrieve the current best price for a specific token and side (BUY or SELL).",
+        "operationId": "getMarketPrice",
+        "parameters": [
+          {
+            "name": "clobTokenId",
+            "in": "query",
+            "required": true,
+            "description": "CLOB token ID",
+            "schema": {
+              "type": "string"
+            },
+            "example": "80746058984644290629624903019922696017323803605256698757445938534814122585786"
+          },
+          {
+            "name": "side",
+            "in": "query",
+            "required": true,
+            "description": "Order side (BUY or SELL)",
+            "schema": {
+              "type": "string",
+              "enum": ["BUY", "SELL"]
+            },
+            "example": "BUY"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current market price",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["price"],
+                  "properties": {
+                    "price": {
+                      "type": "string",
+                      "description": "Current best price for the specified side",
+                      "example": "0.52"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/workflows/polymarket/getPriceHistory": {
+      "get": {
+        "summary": "Get Price History",
+        "description": "Retrieve historical price data for a specific token over a given time interval.",
+        "operationId": "getPriceHistory",
+        "parameters": [
+          {
+            "name": "clobTokenId",
+            "in": "query",
+            "required": true,
+            "description": "CLOB token ID",
+            "schema": {
+              "type": "string"
+            },
+            "example": "47380452228751713070322726097676074449505499789775322838989368264459427079864"
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "required": true,
+            "description": "Time interval for price history",
+            "schema": {
+              "type": "string",
+              "enum": ["1hr", "1d", "1w", "1m", "max"]
+            },
+            "example": "1d"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Price history data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["history"],
+                  "properties": {
+                    "history": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["t", "p"],
+                        "properties": {
+                          "t": {
+                            "type": "integer",
+                            "description": "Unix timestamp",
+                            "example": 1735689600
+                          },
+                          "p": {
+                            "type": "number",
+                            "format": "float",
+                            "description": "Price at timestamp",
+                            "example": 0.52
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/workflows/polymarket/getTrendingMarkets": {
+      "get": {
+        "summary": "Get Trending Markets",
+        "description": "Retrieve trending markets sorted by 24-hour volume. Markets must have minimum $150K of volume.",
+        "operationId": "getTrendingMarkets",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of results to return",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trending markets response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardizedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/workflows/polymarket/getCurrentPositions": {
+      "get": {
+        "summary": "Get Current Positions",
+        "description": "Retrieve all current open positions for a specific user.",
+        "operationId": "getCurrentPositions",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "description": "User EVM EOA address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "example": "0x0797bfec6d2d4f733d461bbee8125805e9e9c892"
+          },
+          {
+            "name": "proxyWallet",
+            "in": "query",
+            "description": "Polymarket proxy wallet address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
+            "name": "redeemable",
+            "in": "query",
+            "description": "Filter for redeemable positions only",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "mergable",
+            "in": "query",
+            "description": "Filter for mergable positions only",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of current positions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Position"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/workflows/polymarket/getClosedPositions": {
+      "get": {
+        "summary": "Get Closed Positions",
+        "description": "Retrieve closed positions (resolved markets) for a specific user.",
+        "operationId": "getClosedPositions",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "description": "User EVM EOA address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "example": "0x0797bfec6d2d4f733d461bbee8125805e9e9c892"
+          },
+          {
+            "name": "proxyWallet",
+            "in": "query",
+            "description": "Polymarket proxy wallet address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of closed positions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Position"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/workflows/polymarket/getTrades": {
+      "get": {
+        "summary": "Get Trades",
+        "description": "Retrieve trade history for a specific user.",
+        "operationId": "getTrades",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "description": "User EVM EOA address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "example": "0x0797bfec6d2d4f733d461bbee8125805e9e9c892"
+          },
+          {
+            "name": "proxyWallet",
+            "in": "query",
+            "description": "Polymarket proxy wallet address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of trades",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Activity"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/workflows/polymarket/getActivity": {
+      "get": {
+        "summary": "Get Activity",
+        "description": "Retrieve comprehensive activity history for a specific user, including orders, trades, and other actions.",
+        "operationId": "getActivity",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "description": "User EVM EOA address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "example": "0x0797bfec6d2d4f733d461bbee8125805e9e9c892"
+          },
+          {
+            "name": "proxyWallet",
+            "in": "query",
+            "description": "Polymarket proxy wallet address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of activity items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Activity"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/workflows/polymarket/getPnL": {
+      "get": {
+        "summary": "Get Profit and Loss",
+        "description": "Retrieve aggregate profit and loss information across all positions for a specific user.",
+        "operationId": "getPnL",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "description": "User EVM EOA address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "example": "0x0797bfec6d2d4f733d461bbee8125805e9e9c892"
+          },
+          {
+            "name": "proxyWallet",
+            "in": "query",
+            "description": "Polymarket proxy wallet address",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profit and loss summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PnLResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Address": {
+        "type": "string",
+        "pattern": "^0x[a-fA-F0-9]{40}$",
+        "description": "EVM address (0x prefix + 40 hex characters)",
+        "example": "0x1234567890123456789012345678901234567890"
+      },
+      "Tag": {
+        "type": "object",
+        "required": ["id", "label", "slug"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique tag identifier"
+          },
+          "label": {
+            "type": "string",
+            "description": "Human-readable tag label"
+          },
+          "slug": {
+            "type": "string",
+            "description": "URL-friendly tag identifier"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Tag publication timestamp"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Tag creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Tag last update timestamp"
+          },
+          "event_count": {
+            "type": "integer",
+            "description": "Number of events with this tag"
+          }
+        }
+      },
+      "Market": {
+        "type": "object",
+        "required": [
+          "id",
+          "question",
+          "conditionId",
+          "slug",
+          "description",
+          "outcomes",
+          "outcomePrices",
+          "volume",
+          "liquidity",
+          "active",
+          "closed"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique market identifier"
+          },
+          "question": {
+            "type": "string",
+            "description": "Market question"
+          },
+          "conditionId": {
+            "type": "string",
+            "description": "Condition ID for the market"
+          },
+          "slug": {
+            "type": "string",
+            "description": "URL-friendly market identifier"
+          },
+          "resolutionSource": {
+            "type": "string",
+            "description": "Source for market resolution"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Market end date"
+          },
+          "liquidity": {
+            "type": "string",
+            "description": "Market liquidity"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Market start date"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed market description"
+          },
+          "outcomes": {
+            "type": "string",
+            "description": "JSON string of possible outcomes"
+          },
+          "outcomePrices": {
+            "type": "string",
+            "description": "JSON string of outcome prices"
+          },
+          "volume": {
+            "type": "string",
+            "description": "Market trading volume"
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Whether market is active"
+          },
+          "closed": {
+            "type": "boolean",
+            "description": "Whether market is closed"
+          },
+          "featured": {
+            "type": "boolean",
+            "description": "Whether market is featured"
+          },
+          "restricted": {
+            "type": "boolean",
+            "description": "Whether market has restrictions"
+          },
+          "acceptingOrders": {
+            "type": "boolean",
+            "description": "Whether market is accepting orders"
+          },
+          "negRisk": {
+            "type": "boolean",
+            "description": "Whether market uses negative risk"
+          },
+          "negRiskMarketID": {
+            "type": "string",
+            "description": "Negative risk market ID"
+          },
+          "clobTokenIds": {
+            "type": "string",
+            "description": "JSON string of CLOB token IDs"
+          },
+          "orderPriceMinTickSize": {
+            "type": "number",
+            "format": "float",
+            "description": "Minimum tick size for orders"
+          },
+          "orderMinSize": {
+            "type": "number",
+            "format": "float",
+            "description": "Minimum order size"
+          },
+          "image": {
+            "type": "string",
+            "description": "Market image URL"
+          },
+          "icon": {
+            "type": "string",
+            "description": "Market icon URL"
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "required": [
+          "id",
+          "ticker",
+          "slug",
+          "title",
+          "description",
+          "active",
+          "closed"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique event identifier"
+          },
+          "ticker": {
+            "type": "string",
+            "description": "Event ticker symbol"
+          },
+          "slug": {
+            "type": "string",
+            "description": "URL-friendly event identifier"
+          },
+          "title": {
+            "type": "string",
+            "description": "Event title"
+          },
+          "description": {
+            "type": "string",
+            "description": "Event description"
+          },
+          "resolutionSource": {
+            "type": "string",
+            "description": "Source for event resolution"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Event start date"
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Event creation date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Event end date"
+          },
+          "image": {
+            "type": "string",
+            "description": "Event image URL"
+          },
+          "icon": {
+            "type": "string",
+            "description": "Event icon URL"
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Whether event is active"
+          },
+          "closed": {
+            "type": "boolean",
+            "description": "Whether event is closed"
+          },
+          "archived": {
+            "type": "boolean",
+            "description": "Whether event is archived"
+          },
+          "new": {
+            "type": "boolean",
+            "description": "Whether event is new"
+          },
+          "featured": {
+            "type": "boolean",
+            "description": "Whether event is featured"
+          },
+          "restricted": {
+            "type": "boolean",
+            "description": "Whether event has restrictions"
+          },
+          "volume": {
+            "type": "number",
+            "format": "float",
+            "description": "Total event volume"
+          },
+          "volume24hr": {
+            "type": "number",
+            "format": "float",
+            "description": "24-hour trading volume"
+          },
+          "openInterest": {
+            "type": "number",
+            "format": "float",
+            "description": "Open interest"
+          },
+          "liquidity": {
+            "type": "number",
+            "format": "float",
+            "description": "Total liquidity"
+          },
+          "liquidityClob": {
+            "type": "number",
+            "format": "float",
+            "description": "CLOB liquidity"
+          },
+          "enableOrderBook": {
+            "type": "boolean",
+            "description": "Whether order book is enabled"
+          },
+          "negRisk": {
+            "type": "boolean",
+            "description": "Whether event uses negative risk"
+          },
+          "negRiskMarketID": {
+            "type": "string",
+            "description": "Negative risk market ID"
+          },
+          "commentCount": {
+            "type": "integer",
+            "description": "Number of comments"
+          },
+          "markets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Market"
+            },
+            "description": "Markets associated with this event"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            },
+            "description": "Tags associated with this event"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "required": ["hasMore", "totalResults"],
+        "properties": {
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether more results are available"
+          },
+          "totalResults": {
+            "type": "integer",
+            "description": "Total number of results"
+          }
+        }
+      },
+      "StandardizedResponse": {
+        "type": "object",
+        "required": ["events"],
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            },
+            "description": "Array of events with associated markets and tags"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        }
+      },
+      "Position": {
+        "type": "object",
+        "required": [
+          "proxyWallet",
+          "asset",
+          "conditionId",
+          "size",
+          "avgPrice",
+          "initialValue",
+          "currentValue",
+          "cashPnl",
+          "percentPnl",
+          "totalBought",
+          "realizedPnl",
+          "percentRealizedPnl",
+          "curPrice",
+          "redeemable",
+          "mergeable",
+          "title",
+          "slug",
+          "icon",
+          "eventId",
+          "eventSlug",
+          "outcome",
+          "outcomeIndex",
+          "oppositeOutcome",
+          "oppositeAsset",
+          "endDate",
+          "negativeRisk"
+        ],
+        "properties": {
+          "proxyWallet": {
+            "type": "string",
+            "description": "Proxy wallet address"
+          },
+          "asset": {
+            "type": "string",
+            "description": "Asset token ID"
+          },
+          "conditionId": {
+            "type": "string",
+            "description": "Condition ID"
+          },
+          "size": {
+            "type": "number",
+            "format": "float",
+            "description": "Position size"
+          },
+          "avgPrice": {
+            "type": "number",
+            "format": "float",
+            "description": "Average purchase price"
+          },
+          "initialValue": {
+            "type": "number",
+            "format": "float",
+            "description": "Initial position value"
+          },
+          "currentValue": {
+            "type": "number",
+            "format": "float",
+            "description": "Current position value"
+          },
+          "cashPnl": {
+            "type": "number",
+            "format": "float",
+            "description": "Cash profit/loss"
+          },
+          "percentPnl": {
+            "type": "number",
+            "format": "float",
+            "description": "Percentage profit/loss"
+          },
+          "totalBought": {
+            "type": "number",
+            "format": "float",
+            "description": "Total amount bought"
+          },
+          "realizedPnl": {
+            "type": "number",
+            "format": "float",
+            "description": "Realized profit/loss"
+          },
+          "percentRealizedPnl": {
+            "type": "number",
+            "format": "float",
+            "description": "Percentage realized profit/loss"
+          },
+          "curPrice": {
+            "type": "number",
+            "format": "float",
+            "description": "Current price"
+          },
+          "redeemable": {
+            "type": "boolean",
+            "description": "Whether position is redeemable"
+          },
+          "mergeable": {
+            "type": "boolean",
+            "description": "Whether position is mergeable"
+          },
+          "title": {
+            "type": "string",
+            "description": "Market title"
+          },
+          "slug": {
+            "type": "string",
+            "description": "Market slug"
+          },
+          "icon": {
+            "type": "string",
+            "description": "Market icon URL"
+          },
+          "eventId": {
+            "type": "string",
+            "description": "Event ID"
+          },
+          "eventSlug": {
+            "type": "string",
+            "description": "Event slug"
+          },
+          "outcome": {
+            "type": "string",
+            "description": "Outcome name"
+          },
+          "outcomeIndex": {
+            "type": "integer",
+            "description": "Outcome index"
+          },
+          "oppositeOutcome": {
+            "type": "string",
+            "description": "Opposite outcome name"
+          },
+          "oppositeAsset": {
+            "type": "string",
+            "description": "Opposite asset token ID"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Market end date"
+          },
+          "negativeRisk": {
+            "type": "boolean",
+            "description": "Whether position uses negative risk"
+          }
+        }
+      },
+      "Activity": {
+        "type": "object",
+        "required": [
+          "proxyWallet",
+          "side",
+          "asset",
+          "conditionId",
+          "size",
+          "price",
+          "timestamp",
+          "title",
+          "slug",
+          "icon",
+          "eventSlug",
+          "outcome",
+          "outcomeIndex",
+          "transactionHash"
+        ],
+        "properties": {
+          "proxyWallet": {
+            "type": "string",
+            "description": "Proxy wallet address"
+          },
+          "side": {
+            "type": "string",
+            "enum": ["BUY", "SELL"],
+            "description": "Order side"
+          },
+          "asset": {
+            "type": "string",
+            "description": "Asset token ID"
+          },
+          "conditionId": {
+            "type": "string",
+            "description": "Condition ID"
+          },
+          "size": {
+            "type": "number",
+            "format": "float",
+            "description": "Trade size"
+          },
+          "price": {
+            "type": "number",
+            "format": "float",
+            "description": "Trade price"
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp"
+          },
+          "title": {
+            "type": "string",
+            "description": "Market title"
+          },
+          "slug": {
+            "type": "string",
+            "description": "Market slug"
+          },
+          "icon": {
+            "type": "string",
+            "description": "Market icon URL"
+          },
+          "eventSlug": {
+            "type": "string",
+            "description": "Event slug"
+          },
+          "outcome": {
+            "type": "string",
+            "description": "Outcome name"
+          },
+          "outcomeIndex": {
+            "type": "integer",
+            "description": "Outcome index"
+          },
+          "name": {
+            "type": "string",
+            "description": "User name"
+          },
+          "pseudonym": {
+            "type": "string",
+            "description": "User pseudonym"
+          },
+          "bio": {
+            "type": "string",
+            "description": "User bio"
+          },
+          "profileImage": {
+            "type": "string",
+            "description": "User profile image URL"
+          },
+          "profileImageOptimized": {
+            "type": "string",
+            "description": "Optimized profile image URL"
+          },
+          "transactionHash": {
+            "type": "string",
+            "description": "Transaction hash"
+          }
+        }
+      },
+      "PnLResponse": {
+        "type": "object",
+        "required": ["currentPositions", "closedPositions", "allTime"],
+        "properties": {
+          "currentPositions": {
+            "type": "number",
+            "format": "float",
+            "description": "Total PnL from current open positions"
+          },
+          "closedPositions": {
+            "type": "number",
+            "format": "float",
+            "description": "Total PnL from closed positions"
+          },
+          "allTime": {
+            "type": "number",
+            "format": "float",
+            "description": "All-time total PnL"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "code": {
+            "type": "integer",
+            "description": "Error code"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request due to missing or invalid parameters",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized - Invalid or missing API key",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API key for authentication. Contact Swaps.xyz to obtain an API key."
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}

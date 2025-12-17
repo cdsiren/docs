@@ -1,0 +1,79 @@
+---
+title: "Overview"
+description: "Comprehensive API for querying Polymarket prediction market data, user positions, and trading activity."
+---
+
+import { Callout } from "/snippets/Callout.jsx";
+
+## Overview
+
+The Polymarket Data API provides comprehensive endpoints for accessing prediction market data on Polygon. Query markets, track positions, analyze trading activity, and retrieve real-time price information with ease.
+
+## API Categories
+
+### Market Discovery
+
+Find and explore prediction markets:
+
+- **Search Markets**: Query markets by keywords or tags
+- **Get Trending Markets**: Discover high-volume markets sorted by 24hr trading activity
+- **Get Tags**: Retrieve categories for filtering markets
+
+### Market Information
+
+Access detailed market data:
+
+- **Get Event**: Retrieve complete event details with all associated markets
+- **Get Markets**: Query specific markets by token ID, slug, or category
+- **Get Market Price**: Fetch current best bid/ask prices
+- **Get Price History**: Analyze historical price data across different time intervals
+
+### User Positions & Activity
+
+Track user trading performance:
+
+- **Get Current Positions**: View all open positions with PnL calculations
+- **Get Closed Positions**: Access historical positions from resolved markets
+- **Get Trades**: Retrieve detailed trade history
+- **Get Activity**: Comprehensive activity feed including orders and trades
+- **Get PnL**: Aggregate profit and loss summary
+
+## Key Features
+
+- **Real-time Data**: Access live market prices and trading activity
+- **Comprehensive Filtering**: Filter by tags, time periods, and market status
+- **User Analytics**: Track positions, trades, and profitability across all markets
+- **Historical Data**: Query price history across multiple time intervals
+- **Pagination Support**: Efficient handling of large result sets
+
+## Use Cases
+
+Build powerful prediction market applications:
+
+- **Trading Interfaces**: Create custom UIs for Polymarket trading
+- **Portfolio Trackers**: Monitor user positions and performance
+- **Market Analytics**: Analyze trends and trading patterns
+- **Discovery Tools**: Help users find relevant markets
+- **Price Alerts**: Track market movements and trigger notifications
+
+## Authentication
+
+All API endpoints require authentication using API keys passed via the `x-api-key` header.
+
+```bash
+curl -H "x-api-key: YOUR_API_KEY" \
+  https://api-v2.swaps.xyz/search?q=nfl
+```
+
+## Getting Started
+
+1. **Discover Markets**: Start with the search or trending endpoints to find markets
+2. **Get Details**: Use the market or event endpoints to fetch comprehensive information
+3. **Track Prices**: Monitor real-time prices and historical data
+4. **Analyze Users**: Query positions and activity for wallet addresses
+
+## Related Resources
+
+- [Polymarket Trading Guide](/guides/preview/polymarket) - Learn how to place orders
+- [Swap API Reference](/swap-api-reference/introduction) - Cross-chain swaps and bridging
+

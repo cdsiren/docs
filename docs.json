@@ -1,76 +1,143 @@
 {
-	"$schema": "https://mintlify.com/docs.json",
-	"theme": "mint",
-	"name": "Swaps API Documentation",
-	"colors": {
-		"primary": "#6366F1",
-		"light": "#8B5CF6",
-		"dark": "#4F46E5"
-	},
-	"favicon": "/favicon.svg",
-	"navigation": {
-		"tabs": [
-			{
-				"tab": "Documentation",
-				"groups": [
-					{
-						"group": "Getting started",
-						"pages": ["index"]
-					},
-					{
-						"group": "Guides",
-						"pages": [
-							"/guides/swap",
-							"/guides/calldata-call",
-							"/guides/track-transactions",
-							"/guides/token-approvals",
-							"/guides/preview/gasless",
-							"/guides/preview/polymarket"
-						]
-					},
-					{
-						"group": "Resources",
-						"pages": [
-							"/resources/best-practices",
-							"/resources/chain-list",
-							"/resources/terms-of-service"
-						]
-					}
-				]
-			},
-			{
-				"tab": "API Reference",
-				"groups": [
-					{
-						"group": "Getting Started",
-						"pages": ["api-reference/api-overview"]
-					},
-					{
-						"group": "Endpoints",
-						"openapi": "api-reference/openapi.json"
-					}
-				]
-			}
-		],
-		"global": {
-			"anchors": []
-		}
-	},
-	"logo": {
-		"light": "/logo/light.svg",
-		"dark": "/logo/dark.svg"
-	},
-	"navbar": {
-		"primary": {
-			"type": "button",
-			"label": "Try the APIs",
-			"href": "https://docs.swaps.xyz/api-reference/api-overview"
-		}
-	},
-	"footer": {
-		"socials": {
-			"x": "https://www.linkedin.com/company/moonpay",
-			"linkedin": "https://www.linkedin.com/company/moonpay"
-		}
-	}
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Swaps API Documentation",
+  "colors": {
+    "primary": "#6366F1",
+    "light": "#8B5CF6",
+    "dark": "#4F46E5"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": ["index"]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "/guides/swap",
+              "/guides/calldata-call",
+              "/guides/track-transactions",
+              "/guides/token-approvals",
+              "/guides/preview/gasless",
+              "/guides/preview/polymarket"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "/resources/best-practices",
+              "/resources/chain-list",
+              "/resources/terms-of-service"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Swap API Reference",
+        "openapi": {
+          "source": "swap-api-reference/openapi.json",
+          "directory": "swap-api-reference"
+        },
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": ["swap-api-reference/overview"]
+          },
+          {
+            "group": "Core",
+            "pages": ["GET /getAction", "GET /getStatus", "POST /registerTxs"]
+          },
+          {
+            "group": "Data",
+            "pages": ["GET /getTransactions"]
+          },
+          {
+            "group": "Utilities",
+            "pages": ["GET /getPaths", "GET /getChainList"]
+          },
+          {
+            "group": "Workflows | All",
+            "pages": [
+              "GET /getAction",
+              "POST /getUser",
+              "GET /workflows/getStatus"
+            ]
+          },
+          {
+            "group": "Workflows | Polymarket",
+            "pages": [
+              "POST /workflows/polymarket/redeemPosition",
+              "POST /workflows/polymarket/sell"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Prediction Market Data Reference",
+        "openapi": {
+          "source": "market-data-reference/openapi.json",
+          "directory": "market-data-reference"
+        },
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": ["market-data-reference/overview"]
+          },
+          {
+            "group": "Market Discovery",
+            "pages": [
+              "GET /api/workflows/polymarket/search",
+              "GET /api/workflows/polymarket/getTrendingMarkets",
+              "GET /api/workflows/polymarket/getTags"
+            ]
+          },
+          {
+            "group": "Market Information",
+            "pages": [
+              "GET /api/workflows/polymarket/getEvent",
+              "GET /api/workflows/polymarket/getMarkets",
+              "GET /api/workflows/polymarket/getMarketPrice",
+              "GET /api/workflows/polymarket/getPriceHistory"
+            ]
+          },
+          {
+            "group": "User Positions & Activity",
+            "pages": [
+              "GET /api/workflows/polymarket/getCurrentPositions",
+              "GET /api/workflows/polymarket/getClosedPositions",
+              "GET /api/workflows/polymarket/getTrades",
+              "GET /api/workflows/polymarket/getActivity",
+              "GET /api/workflows/polymarket/getPnL"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": []
+    }
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Get Started",
+      "href": "https://console.swaps.xyz"
+    }
+  },
+  "footer": {
+    "socials": {
+      "x": "https://www.linkedin.com/company/moonpay",
+      "linkedin": "https://www.linkedin.com/company/moonpay"
+    }
+  }
 }
