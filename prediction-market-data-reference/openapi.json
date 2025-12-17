@@ -1,8 +1,8 @@
 {
-  "openapi": "3.0.3",
+  "openapi": "3.1.0",
   "info": {
-    "title": "Polymarket Data API",
-    "description": "Comprehensive API endpoints for querying Polymarket prediction market data, user positions, trades, and market information.",
+    "title": "Market Data API",
+    "description": "Comprehensive API endpoints for querying data from markets supported via workflows.",
     "version": "1.0.0",
     "contact": {
       "name": "Swaps.xyz",
@@ -11,7 +11,7 @@
   },
   "servers": [
     {
-      "url": "https://box-api-git-polymarket-decent-webapp.vercel.app",
+      "url": "https://api-v2.swaps.xyz",
       "description": "Production server"
     }
   ],
@@ -19,7 +19,7 @@
     "/api/workflows/polymarket/search": {
       "get": {
         "summary": "Search Markets",
-        "description": "Search for Polymarket markets and events by query string or tags. Returns standardized event data with pagination.",
+        "description": "Search for markets and events by query string or tags.",
         "operationId": "searchMarkets",
         "parameters": [
           {
@@ -102,7 +102,7 @@
     "/api/workflows/polymarket/getTags": {
       "get": {
         "summary": "Get Tags",
-        "description": "Retrieve all available tags/categories for filtering Polymarket markets.",
+        "description": "Retrieve all available tags for filtering markets.",
         "operationId": "getTags",
         "parameters": [
           {
@@ -222,7 +222,9 @@
             },
             "style": "form",
             "explode": true,
-            "example": ["80746058984644290629624903019922696017323803605256698757445938534814122585786"]
+            "example": [
+              "80746058984644290629624903019922696017323803605256698757445938534814122585786"
+            ]
           },
           {
             "name": "slug",
@@ -245,11 +247,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Standardized response with market events",
+            "description": "Market events",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StandardizedResponse"
+                  "$ref": "#/components/schemas/MarketsResponse"
                 }
               }
             }
@@ -402,7 +404,7 @@
     "/api/workflows/polymarket/getTrendingMarkets": {
       "get": {
         "summary": "Get Trending Markets",
-        "description": "Retrieve trending markets sorted by 24-hour volume. Markets must have minimum $150K of volume.",
+        "description": "Retrieve trending markets sorted by 24-hour volume. Markets must have minimum $150K of 24h volume.",
         "operationId": "getTrendingMarkets",
         "parameters": [
           {
@@ -552,7 +554,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Position"
+                    "$ref": "#/components/schemas/ClosedPosition"
                   }
                 }
               }
@@ -603,7 +605,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Activity"
+                    "$ref": "#/components/schemas/Trade"
                   }
                 }
               }
@@ -731,7 +733,7 @@
       },
       "Tag": {
         "type": "object",
-        "required": ["id", "label", "slug"],
+        "required": ["id"],
         "properties": {
           "id": {
             "type": "string",
@@ -739,284 +741,962 @@
           },
           "label": {
             "type": "string",
+            "nullable": true,
             "description": "Human-readable tag label"
           },
           "slug": {
             "type": "string",
+            "nullable": true,
             "description": "URL-friendly tag identifier"
+          },
+          "forceShow": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Whether to force show this tag"
           },
           "publishedAt": {
             "type": "string",
-            "format": "date-time",
-            "description": "Tag publication timestamp"
+            "nullable": true,
+            "description": "Tag publication timestamp (format: YYYY-MM-DD HH:mm:ss.SSS+00)"
+          },
+          "createdBy": {
+            "type": "integer",
+            "nullable": true,
+            "description": "ID of user who created the tag"
+          },
+          "updatedBy": {
+            "type": "integer",
+            "nullable": true,
+            "description": "ID of user who last updated the tag"
           },
           "createdAt": {
             "type": "string",
             "format": "date-time",
+            "nullable": true,
             "description": "Tag creation timestamp"
           },
           "updatedAt": {
             "type": "string",
             "format": "date-time",
+            "nullable": true,
             "description": "Tag last update timestamp"
           },
-          "event_count": {
-            "type": "integer",
-            "description": "Number of events with this tag"
+          "forceHide": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Whether to force hide this tag"
+          },
+          "isCarousel": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Whether this tag is a carousel tag"
+          }
+        }
+      },
+      "Series": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique series identifier"
+          },
+          "ticker": {
+            "type": ["string", "null"],
+            "description": "Series ticker symbol"
+          },
+          "slug": {
+            "type": ["string", "null"],
+            "description": "URL-friendly series identifier"
+          },
+          "title": {
+            "type": ["string", "null"],
+            "description": "Series title"
+          },
+          "seriesType": {
+            "type": ["string", "null"],
+            "description": "Type of series (e.g., 'single')"
+          },
+          "recurrence": {
+            "type": ["string", "null"],
+            "description": "Recurrence pattern (e.g., 'monthly', 'weekly')"
+          },
+          "image": {
+            "type": ["string", "null"],
+            "description": "Series image URL"
+          },
+          "icon": {
+            "type": ["string", "null"],
+            "description": "Series icon URL"
+          },
+          "active": {
+            "type": ["boolean", "null"],
+            "description": "Whether series is active"
+          },
+          "closed": {
+            "type": ["boolean", "null"],
+            "description": "Whether series is closed"
+          },
+          "archived": {
+            "type": ["boolean", "null"],
+            "description": "Whether series is archived"
+          },
+          "featured": {
+            "type": ["boolean", "null"],
+            "description": "Whether series is featured"
+          },
+          "restricted": {
+            "type": ["boolean", "null"],
+            "description": "Whether series has restrictions"
+          },
+          "createdAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Series creation timestamp"
+          },
+          "updatedAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Series last update timestamp"
+          },
+          "volume": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Total series volume"
+          },
+          "liquidity": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Total series liquidity"
+          },
+          "commentCount": {
+            "type": ["integer", "null"],
+            "description": "Number of comments on series"
           }
         }
       },
       "Market": {
         "type": "object",
-        "required": [
-          "id",
-          "question",
-          "conditionId",
-          "slug",
-          "description",
-          "outcomes",
-          "outcomePrices",
-          "volume",
-          "liquidity",
-          "active",
-          "closed"
-        ],
+        "required": ["id"],
         "properties": {
           "id": {
             "type": "string",
             "description": "Unique market identifier"
           },
           "question": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Market question"
           },
           "conditionId": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Condition ID for the market"
           },
           "slug": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "URL-friendly market identifier"
           },
           "resolutionSource": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Source for market resolution"
           },
           "endDate": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "date-time",
             "description": "Market end date"
           },
           "liquidity": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Market liquidity"
           },
           "startDate": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "date-time",
             "description": "Market start date"
           },
           "description": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Detailed market description"
           },
           "outcomes": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "JSON string of possible outcomes"
           },
           "outcomePrices": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "JSON string of outcome prices"
           },
           "volume": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Market trading volume"
           },
           "active": {
-            "type": "boolean",
+            "type": ["boolean", "null"],
             "description": "Whether market is active"
           },
           "closed": {
-            "type": "boolean",
+            "type": ["boolean", "null"],
             "description": "Whether market is closed"
           },
+          "marketMakerAddress": {
+            "type": ["string", "null"],
+            "description": "Market maker address"
+          },
+          "createdAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Market creation timestamp"
+          },
+          "updatedAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Market last update timestamp"
+          },
+          "new": {
+            "type": ["boolean", "null"],
+            "description": "Whether market is new"
+          },
           "featured": {
-            "type": "boolean",
+            "type": ["boolean", "null"],
             "description": "Whether market is featured"
           },
+          "submitted_by": {
+            "type": ["string", "null"],
+            "description": "Address of user who submitted the market"
+          },
+          "archived": {
+            "type": ["boolean", "null"],
+            "description": "Whether market is archived"
+          },
+          "resolvedBy": {
+            "type": ["string", "null"],
+            "description": "Address of resolver"
+          },
           "restricted": {
-            "type": "boolean",
+            "type": ["boolean", "null"],
             "description": "Whether market has restrictions"
           },
-          "acceptingOrders": {
-            "type": "boolean",
-            "description": "Whether market is accepting orders"
+          "groupItemTitle": {
+            "type": ["string", "null"],
+            "description": "Group item title"
           },
-          "negRisk": {
-            "type": "boolean",
-            "description": "Whether market uses negative risk"
+          "groupItemThreshold": {
+            "type": ["string", "null"],
+            "description": "Group item threshold"
           },
-          "negRiskMarketID": {
-            "type": "string",
-            "description": "Negative risk market ID"
+          "questionID": {
+            "type": ["string", "null"],
+            "description": "Question ID"
           },
-          "clobTokenIds": {
-            "type": "string",
-            "description": "JSON string of CLOB token IDs"
+          "enableOrderBook": {
+            "type": ["boolean", "null"],
+            "description": "Whether order book is enabled"
           },
           "orderPriceMinTickSize": {
-            "type": "number",
+            "type": ["number", "null"],
             "format": "float",
             "description": "Minimum tick size for orders"
           },
           "orderMinSize": {
-            "type": "number",
+            "type": ["number", "null"],
             "format": "float",
             "description": "Minimum order size"
           },
+          "volumeNum": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Numeric volume"
+          },
+          "liquidityNum": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Numeric liquidity"
+          },
+          "endDateIso": {
+            "type": ["string", "null"],
+            "description": "ISO date string of end date"
+          },
+          "startDateIso": {
+            "type": ["string", "null"],
+            "description": "ISO date string of start date"
+          },
+          "hasReviewedDates": {
+            "type": ["boolean", "null"],
+            "description": "Whether dates have been reviewed"
+          },
+          "volume24hr": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "24-hour trading volume"
+          },
+          "volume1wk": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-week trading volume"
+          },
+          "volume1mo": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-month trading volume"
+          },
+          "volume1yr": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-year trading volume"
+          },
+          "clobTokenIds": {
+            "type": ["string", "null"],
+            "description": "JSON string of CLOB token IDs"
+          },
+          "umaBond": {
+            "type": ["string", "null"],
+            "description": "UMA bond amount"
+          },
+          "umaReward": {
+            "type": ["string", "null"],
+            "description": "UMA reward amount"
+          },
+          "volume24hrAmm": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "24-hour AMM volume"
+          },
+          "volume1wkAmm": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-week AMM volume"
+          },
+          "volume1moAmm": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-month AMM volume"
+          },
+          "volume1yrAmm": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-year AMM volume"
+          },
+          "volume24hrClob": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "24-hour CLOB volume"
+          },
+          "volume1wkClob": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-week CLOB volume"
+          },
+          "volume1moClob": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-month CLOB volume"
+          },
+          "volume1yrClob": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-year CLOB volume"
+          },
+          "volumeAmm": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Total AMM volume"
+          },
+          "volumeClob": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Total CLOB volume"
+          },
+          "liquidityAmm": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "AMM liquidity"
+          },
+          "liquidityClob": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "CLOB liquidity"
+          },
+          "acceptingOrders": {
+            "type": ["boolean", "null"],
+            "description": "Whether market is accepting orders"
+          },
+          "negRisk": {
+            "type": ["boolean", "null"],
+            "description": "Whether market uses negative risk"
+          },
+          "negRiskMarketID": {
+            "type": ["string", "null"],
+            "description": "Negative risk market ID"
+          },
+          "negRiskRequestID": {
+            "type": ["string", "null"],
+            "description": "Negative risk request ID"
+          },
+          "ready": {
+            "type": ["boolean", "null"],
+            "description": "Whether market is ready"
+          },
+          "funded": {
+            "type": ["boolean", "null"],
+            "description": "Whether market is funded"
+          },
+          "acceptingOrdersTimestamp": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When market started accepting orders"
+          },
+          "cyom": {
+            "type": ["boolean", "null"],
+            "description": "Create Your Own Market flag"
+          },
+          "competitive": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Competitiveness score"
+          },
+          "pagerDutyNotificationEnabled": {
+            "type": ["boolean", "null"],
+            "description": "Whether PagerDuty notifications are enabled"
+          },
+          "approved": {
+            "type": ["boolean", "null"],
+            "description": "Whether market is approved"
+          },
+          "clobRewards": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object"
+            },
+            "description": "CLOB rewards"
+          },
+          "rewardsMinSize": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Minimum size for rewards"
+          },
+          "rewardsMaxSpread": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Maximum spread for rewards"
+          },
+          "spread": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Current spread"
+          },
+          "oneDayPriceChange": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-day price change"
+          },
+          "oneHourPriceChange": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-hour price change"
+          },
+          "oneWeekPriceChange": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-week price change"
+          },
+          "oneMonthPriceChange": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-month price change"
+          },
+          "oneYearPriceChange": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-year price change"
+          },
+          "lastTradePrice": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Last trade price"
+          },
+          "bestBid": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Best bid price"
+          },
+          "bestAsk": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Best ask price"
+          },
+          "automaticallyActive": {
+            "type": ["boolean", "null"],
+            "description": "Whether market is automatically active"
+          },
+          "clearBookOnStart": {
+            "type": ["boolean", "null"],
+            "description": "Whether to clear book on start"
+          },
+          "seriesColor": {
+            "type": ["string", "null"],
+            "description": "Series color"
+          },
+          "showGmpSeries": {
+            "type": ["boolean", "null"],
+            "description": "Whether to show GMP series"
+          },
+          "showGmpOutcome": {
+            "type": ["boolean", "null"],
+            "description": "Whether to show GMP outcome"
+          },
+          "manualActivation": {
+            "type": ["boolean", "null"],
+            "description": "Whether market requires manual activation"
+          },
+          "negRiskOther": {
+            "type": ["boolean", "null"],
+            "description": "Other negative risk flag"
+          },
+          "umaResolutionStatuses": {
+            "type": ["string", "null"],
+            "description": "JSON string of UMA resolution statuses"
+          },
+          "pendingDeployment": {
+            "type": ["boolean", "null"],
+            "description": "Whether deployment is pending"
+          },
+          "deploying": {
+            "type": ["boolean", "null"],
+            "description": "Whether currently deploying"
+          },
+          "rfqEnabled": {
+            "type": ["boolean", "null"],
+            "description": "Whether RFQ is enabled"
+          },
+          "holdingRewardsEnabled": {
+            "type": ["boolean", "null"],
+            "description": "Whether holding rewards are enabled"
+          },
+          "feesEnabled": {
+            "type": ["boolean", "null"],
+            "description": "Whether fees are enabled"
+          },
           "image": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Market image URL"
           },
           "icon": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Market icon URL"
           }
         }
       },
       "Event": {
         "type": "object",
-        "required": [
-          "id",
-          "ticker",
-          "slug",
-          "title",
-          "description",
-          "active",
-          "closed"
-        ],
+        "required": ["id"],
         "properties": {
           "id": {
             "type": "string",
             "description": "Unique event identifier"
           },
           "ticker": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Event ticker symbol"
           },
           "slug": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "URL-friendly event identifier"
           },
           "title": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Event title"
           },
+          "subtitle": {
+            "type": ["string", "null"],
+            "description": "Event subtitle"
+          },
           "description": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Event description"
           },
           "resolutionSource": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Source for event resolution"
           },
           "startDate": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "date-time",
             "description": "Event start date"
           },
           "creationDate": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "date-time",
             "description": "Event creation date"
           },
           "endDate": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "date-time",
             "description": "Event end date"
           },
           "image": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Event image URL"
           },
           "icon": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Event icon URL"
           },
           "active": {
-            "type": "boolean",
+            "type": ["boolean", "null"],
             "description": "Whether event is active"
           },
           "closed": {
-            "type": "boolean",
+            "type": ["boolean", "null"],
             "description": "Whether event is closed"
           },
           "archived": {
-            "type": "boolean",
+            "type": ["boolean", "null"],
             "description": "Whether event is archived"
           },
           "new": {
-            "type": "boolean",
+            "type": ["boolean", "null"],
             "description": "Whether event is new"
           },
           "featured": {
-            "type": "boolean",
+            "type": ["boolean", "null"],
             "description": "Whether event is featured"
           },
           "restricted": {
-            "type": "boolean",
+            "type": ["boolean", "null"],
             "description": "Whether event has restrictions"
           },
           "volume": {
-            "type": "number",
+            "type": ["number", "null"],
             "format": "float",
             "description": "Total event volume"
           },
           "volume24hr": {
-            "type": "number",
+            "type": ["number", "null"],
             "format": "float",
             "description": "24-hour trading volume"
           },
+          "volume1wk": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-week trading volume"
+          },
+          "volume1mo": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-month trading volume"
+          },
+          "volume1yr": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "1-year trading volume"
+          },
           "openInterest": {
-            "type": "number",
+            "type": ["number", "null"],
             "format": "float",
             "description": "Open interest"
           },
           "liquidity": {
-            "type": "number",
+            "type": ["number", "null"],
             "format": "float",
             "description": "Total liquidity"
           },
+          "liquidityAmm": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "AMM liquidity"
+          },
           "liquidityClob": {
-            "type": "number",
+            "type": ["number", "null"],
             "format": "float",
             "description": "CLOB liquidity"
           },
+          "sortBy": {
+            "type": ["string", "null"],
+            "description": "Sorting field (e.g., 'price')"
+          },
+          "category": {
+            "type": ["string", "null"],
+            "description": "Event category"
+          },
+          "subcategory": {
+            "type": ["string", "null"],
+            "description": "Event subcategory"
+          },
+          "isTemplate": {
+            "type": ["boolean", "null"],
+            "description": "Whether event is a template"
+          },
+          "templateVariables": {
+            "type": ["string", "null"],
+            "description": "Template variables"
+          },
+          "published_at": {
+            "type": ["string", "null"],
+            "description": "Publication timestamp"
+          },
+          "createdBy": {
+            "type": ["string", "null"],
+            "description": "Creator identifier"
+          },
+          "updatedBy": {
+            "type": ["string", "null"],
+            "description": "Last updater identifier"
+          },
+          "createdAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Event creation timestamp"
+          },
+          "updatedAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Event last update timestamp"
+          },
+          "commentsEnabled": {
+            "type": ["boolean", "null"],
+            "description": "Whether comments are enabled"
+          },
+          "competitive": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Competitiveness score (0-1)"
+          },
+          "featuredImage": {
+            "type": ["string", "null"],
+            "description": "Featured image URL"
+          },
+          "disqusThread": {
+            "type": ["string", "null"],
+            "description": "Disqus thread identifier"
+          },
+          "parentEvent": {
+            "type": ["string", "null"],
+            "description": "Parent event identifier"
+          },
           "enableOrderBook": {
-            "type": "boolean",
+            "type": ["boolean", "null"],
             "description": "Whether order book is enabled"
           },
           "negRisk": {
-            "type": "boolean",
+            "type": ["boolean", "null"],
             "description": "Whether event uses negative risk"
           },
           "negRiskMarketID": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Negative risk market ID"
           },
+          "negRiskFeeBips": {
+            "type": ["integer", "null"],
+            "description": "Negative risk fee in basis points"
+          },
           "commentCount": {
-            "type": "integer",
+            "type": ["integer", "null"],
             "description": "Number of comments"
           },
+          "imageOptimized": {
+            "type": ["object", "null"],
+            "description": "Optimized image metadata"
+          },
+          "iconOptimized": {
+            "type": ["object", "null"],
+            "description": "Optimized icon metadata"
+          },
+          "featuredImageOptimized": {
+            "type": ["object", "null"],
+            "description": "Optimized featured image metadata"
+          },
+          "subEvents": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string"
+            },
+            "description": "Sub-event identifiers"
+          },
+          "cyom": {
+            "type": ["boolean", "null"],
+            "description": "Create Your Own Market flag"
+          },
+          "closedTime": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Market close timestamp"
+          },
+          "showAllOutcomes": {
+            "type": ["boolean", "null"],
+            "description": "Whether to show all outcomes"
+          },
+          "showMarketImages": {
+            "type": ["boolean", "null"],
+            "description": "Whether to show market images"
+          },
+          "automaticallyResolved": {
+            "type": ["boolean", "null"],
+            "description": "Whether event is automatically resolved"
+          },
+          "enableNegRisk": {
+            "type": ["boolean", "null"],
+            "description": "Whether negative risk is enabled"
+          },
+          "automaticallyActive": {
+            "type": ["boolean", "null"],
+            "description": "Whether event is automatically active"
+          },
+          "eventDate": {
+            "type": ["string", "null"],
+            "description": "Event date"
+          },
+          "startTime": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Event start time"
+          },
+          "eventWeek": {
+            "type": ["integer", "null"],
+            "description": "Event week number"
+          },
+          "seriesSlug": {
+            "type": ["string", "null"],
+            "description": "Series slug identifier"
+          },
+          "score": {
+            "type": ["string", "null"],
+            "description": "Event score"
+          },
+          "elapsed": {
+            "type": ["string", "null"],
+            "description": "Elapsed time"
+          },
+          "period": {
+            "type": ["string", "null"],
+            "description": "Event period"
+          },
+          "live": {
+            "type": ["boolean", "null"],
+            "description": "Whether event is live"
+          },
+          "ended": {
+            "type": ["boolean", "null"],
+            "description": "Whether event has ended"
+          },
+          "finishedTimestamp": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Event finish timestamp"
+          },
+          "gmpChartMode": {
+            "type": ["string", "null"],
+            "description": "Chart mode (e.g., 'default')"
+          },
+          "eventCreators": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object"
+            },
+            "description": "Event creators"
+          },
+          "tweetCount": {
+            "type": ["integer", "null"],
+            "description": "Number of tweets"
+          },
+          "chats": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object"
+            },
+            "description": "Associated chats"
+          },
+          "featuredOrder": {
+            "type": ["integer", "null"],
+            "description": "Featured ordering position"
+          },
+          "estimateValue": {
+            "type": ["boolean", "null"],
+            "description": "Whether to estimate value"
+          },
+          "cantEstimate": {
+            "type": ["boolean", "null"],
+            "description": "Whether value cannot be estimated"
+          },
+          "estimatedValue": {
+            "type": ["string", "null"],
+            "description": "Estimated value"
+          },
+          "templates": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object"
+            },
+            "description": "Associated templates"
+          },
+          "spreadsMainLine": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Main line for spreads"
+          },
+          "totalsMainLine": {
+            "type": ["number", "null"],
+            "format": "float",
+            "description": "Main line for totals"
+          },
+          "carouselMap": {
+            "type": ["string", "null"],
+            "description": "Carousel mapping"
+          },
+          "negRiskAugmented": {
+            "type": ["boolean", "null"],
+            "description": "Whether negative risk is augmented"
+          },
+          "pendingDeployment": {
+            "type": ["boolean", "null"],
+            "description": "Whether deployment is pending"
+          },
+          "deploying": {
+            "type": ["boolean", "null"],
+            "description": "Whether currently deploying"
+          },
+          "deployingTimestamp": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Deployment timestamp"
+          },
+          "scheduledDeploymentTimestamp": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Scheduled deployment timestamp"
+          },
+          "gameStatus": {
+            "type": ["string", "null"],
+            "description": "Game status"
+          },
           "markets": {
-            "type": "array",
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/Market"
             },
             "description": "Markets associated with this event"
           },
+          "series": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/Series"
+            },
+            "description": "Series associated with this event"
+          },
+          "categories": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object"
+            },
+            "description": "Categories associated with this event"
+          },
+          "collections": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object"
+            },
+            "description": "Collections associated with this event"
+          },
           "tags": {
-            "type": "array",
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/Tag"
             },
@@ -1038,7 +1718,7 @@
           }
         }
       },
-      "StandardizedResponse": {
+      "MarketsResponse": {
         "type": "object",
         "required": ["events"],
         "properties": {
@@ -1048,6 +1728,33 @@
               "$ref": "#/components/schemas/Event"
             },
             "description": "Array of events with associated markets and tags"
+          }
+        }
+      },
+      "StandardizedResponse": {
+        "type": "object",
+        "required": ["events", "pagination"],
+        "properties": {
+          "events": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            },
+            "description": "Array of events with associated markets and tags"
+          },
+          "tags": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            },
+            "description": "Optional array of tags (top-level)"
+          },
+          "profiles": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object"
+            },
+            "description": "Optional array of user profiles (top-level)"
           },
           "pagination": {
             "$ref": "#/components/schemas/Pagination"
@@ -1075,7 +1782,6 @@
           "title",
           "slug",
           "icon",
-          "eventId",
           "eventSlug",
           "outcome",
           "outcomeIndex",
@@ -1087,7 +1793,9 @@
         "properties": {
           "proxyWallet": {
             "type": "string",
-            "description": "Proxy wallet address"
+            "description": "Proxy wallet address",
+            "pattern": "^0x[a-fA-F0-9]{40}$",
+            "example": "0x56687bf447db6ffa42ffe2204a05edaa20f55839"
           },
           "asset": {
             "type": "string",
@@ -1095,7 +1803,9 @@
           },
           "conditionId": {
             "type": "string",
-            "description": "Condition ID"
+            "description": "Condition ID (0x-prefixed 64-hex string)",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "example": "0xdd22472e552920b8438158ea7238bfadfa4f736aa4cee91a6b86c39ead110917"
           },
           "size": {
             "type": "number",
@@ -1169,7 +1879,7 @@
           },
           "eventId": {
             "type": "string",
-            "description": "Event ID"
+            "description": "Event ID (optional field)"
           },
           "eventSlug": {
             "type": "string",
@@ -1201,7 +1911,232 @@
           }
         }
       },
+      "ClosedPosition": {
+        "type": "object",
+        "required": [
+          "proxyWallet",
+          "asset",
+          "conditionId",
+          "avgPrice",
+          "totalBought",
+          "realizedPnl",
+          "curPrice",
+          "timestamp",
+          "title",
+          "slug",
+          "icon",
+          "eventSlug",
+          "outcome",
+          "outcomeIndex",
+          "oppositeOutcome",
+          "oppositeAsset",
+          "endDate"
+        ],
+        "properties": {
+          "proxyWallet": {
+            "type": "string",
+            "description": "Proxy wallet address",
+            "pattern": "^0x[a-fA-F0-9]{40}$",
+            "example": "0x56687bf447db6ffa42ffe2204a05edaa20f55839"
+          },
+          "asset": {
+            "type": "string",
+            "description": "Asset token ID"
+          },
+          "conditionId": {
+            "type": "string",
+            "description": "Condition ID (0x-prefixed 64-hex string)",
+            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "example": "0xdd22472e552920b8438158ea7238bfadfa4f736aa4cee91a6b86c39ead110917"
+          },
+          "avgPrice": {
+            "type": "number",
+            "format": "float",
+            "description": "Average purchase price"
+          },
+          "totalBought": {
+            "type": "number",
+            "format": "float",
+            "description": "Total amount bought"
+          },
+          "realizedPnl": {
+            "type": "number",
+            "format": "float",
+            "description": "Realized profit/loss"
+          },
+          "curPrice": {
+            "type": "number",
+            "format": "float",
+            "description": "Current price"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp"
+          },
+          "title": {
+            "type": "string",
+            "description": "Market title"
+          },
+          "slug": {
+            "type": "string",
+            "description": "Market slug"
+          },
+          "icon": {
+            "type": "string",
+            "description": "Market icon URL"
+          },
+          "eventSlug": {
+            "type": "string",
+            "description": "Event slug"
+          },
+          "outcome": {
+            "type": "string",
+            "description": "Outcome name"
+          },
+          "outcomeIndex": {
+            "type": "integer",
+            "description": "Outcome index"
+          },
+          "oppositeOutcome": {
+            "type": "string",
+            "description": "Opposite outcome name"
+          },
+          "oppositeAsset": {
+            "type": "string",
+            "description": "Opposite asset token ID"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Market end date"
+          }
+        }
+      },
       "Activity": {
+        "type": "object",
+        "required": [
+          "proxyWallet",
+          "timestamp",
+          "conditionId",
+          "type",
+          "size",
+          "usdcSize",
+          "transactionHash",
+          "price",
+          "asset",
+          "side",
+          "outcomeIndex",
+          "title",
+          "slug",
+          "icon",
+          "eventSlug",
+          "outcome",
+          "name",
+          "pseudonym",
+          "bio",
+          "profileImage",
+          "profileImageOptimized"
+        ],
+        "properties": {
+          "proxyWallet": {
+            "type": "string",
+            "description": "User Profile Address (0x-prefixed, 40 hex chars)",
+            "pattern": "^0x[a-fA-F0-9]{40}$"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix timestamp"
+          },
+          "conditionId": {
+            "type": "string",
+            "description": "Condition ID (0x-prefixed 64-hex string)",
+            "pattern": "^0x[a-fA-F0-9]{64}$"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TRADE",
+              "SPLIT",
+              "MERGE",
+              "REDEEM",
+              "REWARD",
+              "CONVERSION"
+            ],
+            "description": "Activity type"
+          },
+          "size": {
+            "type": "number",
+            "description": "Activity size"
+          },
+          "usdcSize": {
+            "type": "number",
+            "description": "USDC value of the activity"
+          },
+          "transactionHash": {
+            "type": "string",
+            "description": "Transaction hash"
+          },
+          "price": {
+            "type": "number",
+            "description": "Trade price"
+          },
+          "asset": {
+            "type": "string",
+            "description": "Asset token ID"
+          },
+          "side": {
+            "type": "string",
+            "enum": ["BUY", "SELL", ""],
+            "description": "Order side (BUY or SELL for trades, empty for non-trade activities)"
+          },
+          "outcomeIndex": {
+            "type": "integer",
+            "description": "Outcome index"
+          },
+          "title": {
+            "type": "string",
+            "description": "Market title"
+          },
+          "slug": {
+            "type": "string",
+            "description": "Market slug"
+          },
+          "icon": {
+            "type": "string",
+            "description": "Market icon URL"
+          },
+          "eventSlug": {
+            "type": "string",
+            "description": "Event slug"
+          },
+          "outcome": {
+            "type": "string",
+            "description": "Outcome name"
+          },
+          "name": {
+            "type": "string",
+            "description": "User name"
+          },
+          "pseudonym": {
+            "type": "string",
+            "description": "User pseudonym"
+          },
+          "bio": {
+            "type": "string",
+            "description": "User bio"
+          },
+          "profileImage": {
+            "type": "string",
+            "description": "User profile image URL"
+          },
+          "profileImageOptimized": {
+            "type": "string",
+            "description": "Optimized profile image URL"
+          }
+        }
+      },
+      "Trade": {
         "type": "object",
         "required": [
           "proxyWallet",
@@ -1217,12 +2152,18 @@
           "eventSlug",
           "outcome",
           "outcomeIndex",
+          "name",
+          "pseudonym",
+          "bio",
+          "profileImage",
+          "profileImageOptimized",
           "transactionHash"
         ],
         "properties": {
           "proxyWallet": {
             "type": "string",
-            "description": "Proxy wallet address"
+            "description": "User Profile Address (0x-prefixed, 40 hex chars)",
+            "pattern": "^0x[a-fA-F0-9]{40}$"
           },
           "side": {
             "type": "string",
@@ -1235,20 +2176,20 @@
           },
           "conditionId": {
             "type": "string",
-            "description": "Condition ID"
+            "description": "Condition ID (0x-prefixed 64-hex string)",
+            "pattern": "^0x[a-fA-F0-9]{64}$"
           },
           "size": {
             "type": "number",
-            "format": "float",
             "description": "Trade size"
           },
           "price": {
             "type": "number",
-            "format": "float",
             "description": "Trade price"
           },
           "timestamp": {
             "type": "integer",
+            "format": "int64",
             "description": "Unix timestamp"
           },
           "title": {

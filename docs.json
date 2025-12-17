@@ -24,8 +24,7 @@
               "/guides/calldata-call",
               "/guides/track-transactions",
               "/guides/token-approvals",
-              "/guides/preview/gasless",
-              "/guides/preview/polymarket"
+              "/guides/preview/gasless"
             ]
           },
           {
@@ -81,13 +80,13 @@
       {
         "tab": "Prediction Market Data Reference",
         "openapi": {
-          "source": "market-data-reference/openapi.json",
-          "directory": "market-data-reference"
+          "source": "prediction-market-data-reference/openapi.json",
+          "directory": "prediction-market-data-reference"
         },
         "groups": [
           {
             "group": "Getting Started",
-            "pages": ["market-data-reference/overview"]
+            "pages": ["prediction-market-data-reference/overview"]
           },
           {
             "group": "Market Discovery",

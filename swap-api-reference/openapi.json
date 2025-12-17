@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.3",
+  "openapi": "3.1.0",
   "info": {
     "title": "Swaps API",
     "description": "The Swaps API provides instant cross-chain swap and bridge functionality for decentralized applications.\nIt supports multiple virtual machines (EVM, Solana, Bitcoin) and various DEX protocols and bridge solutions.",
@@ -102,7 +102,7 @@
             "name": "amount",
             "in": "query",
             "required": false,
-            "description": "The exact in or exact out amount of the swap\n\n**Required:** for `swap-action`\n\n**Required:** for `polymarket` action type with market orders (FOK/FAK)",
+            "description": "The exact in or exact out amount of the swap\n\n**Required:** for `swap-action`\n\n**Required:** for `polymarket` action type",
             "schema": {
               "type": "string",
               "pattern": "^[0-9]$"
@@ -112,7 +112,7 @@
             "name": "swapDirection",
             "in": "query",
             "required": false,
-            "description": "Swap direction for the action\n\n**Required:** for `swap-action`\n\n**Required:** for `polymarket` action type (use `exact-amount-out`)",
+            "description": "Swap direction for the action\n\n**Required:** for `swap-action`\n\n**Required:** for `polymarket` action type (use `exact-amount-in`)",
             "schema": {
               "$ref": "#/components/schemas/SwapDirection"
             }
@@ -279,27 +279,6 @@
             "schema": {
               "type": "string",
               "enum": ["true", "false"]
-            }
-          },
-          {
-            "name": "price",
-            "in": "query",
-            "required": false,
-            "description": "Price per share (0-1) for Polymarket limit orders\n\n**Optional:** for market orders (FOK/FAK)",
-            "schema": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1
-            }
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "required": false,
-            "description": "Number of shares (positive) for Polymarket orders\n\n***Optional:** for market orders (FOK/FAK)",
-            "schema": {
-              "type": "number",
-              "minimum": 0
             }
           }
         ],
@@ -723,7 +702,7 @@
             "description": "Core Swap API server"
           }
         ],
-        "description": "Retrieve the status and details of a transaction by transaction hash or transaction ID",
+        "description": "Retrieve the status and details of a transaction by transaction ID.",
         "operationId": "getTransactionStatus",
         "parameters": [
           {
@@ -781,7 +760,7 @@
             "description": "Core Swap API server"
           }
         ],
-        "description": "Retrieve paginated transaction history with optional filtering",
+        "description": "Retrieve paginated transaction history with optional filtering.",
         "operationId": "getTransactions",
         "parameters": [
           {
@@ -983,7 +962,7 @@
     "/getChainList": {
       "get": {
         "summary": "Get Chain List",
-        "description": "Retrieve a list of supported chains, their names, and virtual machine identifiers. Raw data for the [supported chains list](/resources/chain-list)",
+        "description": "Retrieve a list of supported chains, their names, and virtual machine identifiers. Raw data for the [supported chains list](/resources/chain-list).",
         "operationId": "getChainList",
         "responses": {
           "200": {
@@ -1011,7 +990,7 @@
             "description": "Core Swap API Server"
           }
         ],
-        "description": "Creates a new Swaps account for a user or fetches an existing one based on the provided EVM address",
+        "description": "Creates a new Swaps account for a user or fetches an existing one based on the provided EVM address.",
         "operationId": "getUser",
         "requestBody": {
           "required": true,
@@ -1076,7 +1055,7 @@
             "description": "Core Swap API Server"
           }
         ],
-        "description": "Retrieves the status of a workflow transaction by transaction ID",
+        "description": "Retrieves the status of a workflow transaction by transaction ID.",
         "operationId": "getWorkflowStatus",
         "parameters": [
           {
@@ -1156,7 +1135,7 @@
                 "properties": {
                   "evmEoa": {
                     "$ref": "#/components/schemas/EvmAddress",
-                    "description": "EVM address (wallet address)"
+                    "description": "User's EVM wallet address"
                   },
                   "conditionId": {
                     "type": "string",
@@ -1579,7 +1558,7 @@
       },
       "ChainId": {
         "type": "integer",
-        "description": "Chain ID. Find in the list of supported networks"
+        "description": "Chain ID. Find in the list of supported networks."
       },
       "VmId": {
         "type": "string",
@@ -2168,7 +2147,7 @@
               }
             ],
             "nullable": true,
-            "description": "Workflow information if transaction is associated with a workflow"
+            "description": "Workflow information if transaction is associated with a workflow (only present if the transaction had a workflow)"
           }
         }
       },
@@ -2259,9 +2238,9 @@
         "properties": {
           "toAddress": {
             "type": "string",
-            "pattern": "^0x[a-fA-F0-9]{64}$",
+            "pattern": "^0x[a-fA-F0-9]{40}$",
             "description": "Recipient address",
-            "example": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+            "example": "0x38630c8ec92494cf96ded12060d8136b75e7a8b5"
           },
           "txHash": {
             "type": "string",
@@ -2276,16 +2255,21 @@
           },
           "value": {
             "type": "string",
-            "description": "Transaction value as bigint string",
-            "example": "1000000000000000000"
+            "description": "Transaction value as string (may include bigint notation like '0n')",
+            "example": "0n"
           },
           "timestamp": {
-            "type": "string",
-            "description": "Timestamp as bigint string",
-            "example": "1640995200000000000"
+            "type": "integer",
+            "description": "Unix timestamp in seconds",
+            "example": 1765593607
           },
           "paymentToken": {
             "$ref": "#/components/schemas/Token"
+          },
+          "revertReason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Revert reason if transaction failed, null otherwise"
           }
         }
       },
@@ -2316,32 +2300,54 @@
             "type": "string",
             "pattern": "^0x[a-fA-F0-9]{40}$",
             "description": "Token contract address",
-            "example": "0x1234567890123456789012345678901234567890"
+            "example": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+          },
+          "chainId": {
+            "type": "integer",
+            "description": "Chain ID for the token",
+            "example": 137
+          },
+          "isNative": {
+            "type": "boolean",
+            "description": "Whether the token is the native gas token",
+            "example": false
+          },
+          "usdAmount": {
+            "type": "number",
+            "description": "USD value of the token amount",
+            "example": 4.00687776
           }
         },
-        "required": ["name", "symbol", "decimals", "amount", "address"]
+        "required": [
+          "name",
+          "symbol",
+          "decimals",
+          "amount",
+          "address",
+          "chainId",
+          "isNative"
+        ]
       },
       "Org": {
         "type": "object",
         "properties": {
           "appId": {
             "type": "string",
-            "nullable": true,
             "description": "Application ID",
-            "example": "app_123"
+            "example": "0xb38801d6"
+          },
+          "appName": {
+            "type": "string",
+            "description": "Application name",
+            "example": "Box Examples / Scenarios"
           },
           "affiliateId": {
             "type": "string",
             "description": "Affiliate ID",
-            "example": "affiliate_123"
-          },
-          "appFees": {
-            "type": "object",
-            "description": "Application fees configuration",
-            "additionalProperties": true
+            "example": "0x00000000"
           }
         },
-        "required": ["appId", "affiliateId", "appFees"]
+        "required": ["appId", "affiliateId"]
       },
       "Pagination": {
         "type": "object",
@@ -2541,15 +2547,54 @@
       },
       "WorkflowStatusResponse": {
         "type": "object",
-        "required": ["txId", "workflow"],
+        "required": [
+          "txId",
+          "status",
+          "operation",
+          "timestamp",
+          "name",
+          "data"
+        ],
         "properties": {
           "txId": {
             "type": "string",
             "description": "Transaction ID",
-            "example": "0x30e7dc0566713417a7bc136ad3bb4f8525e005e2e024ef696b7b88f497e394e8"
+            "example": "0x36f51092bdfb6f9793fefd9b2d27529fbf7362b48ded9acb7fa4cc7aea03aeca"
           },
-          "workflow": {
-            "$ref": "#/components/schemas/WorkflowData"
+          "status": {
+            "type": "string",
+            "enum": ["success", "failed", "pending"],
+            "description": "Workflow status",
+            "example": "success"
+          },
+          "operation": {
+            "type": "string",
+            "description": "Operation type",
+            "example": "placeOrder"
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp when workflow was executed",
+            "example": 1765593597
+          },
+          "name": {
+            "type": "string",
+            "description": "Workflow name",
+            "example": "polymarket"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "title": "Polymarket Data",
+                "$ref": "#/components/schemas/PolyMarketWorkflowData"
+              },
+              {
+                "title": "Generic Workflow Data",
+                "type": "object",
+                "additionalProperties": true
+              }
+            ],
+            "description": "Workflow-specific data"
           }
         }
       },
@@ -2631,6 +2676,7 @@
           },
           "relayTx": {
             "type": "object",
+            "nullable": true,
             "properties": {
               "txHash": {
                 "type": "string",
@@ -2641,7 +2687,8 @@
                 "type": "string",
                 "description": "Status of the relay transaction"
               }
-            }
+            },
+            "description": "Relay transaction details (null if not applicable)"
           }
         }
       },
