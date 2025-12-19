@@ -304,214 +304,278 @@
                   "AMOUNT_TOO_HIGH": {
                     "summary": "Amount Too High",
                     "value": {
-                      "statusCode": 400,
-                      "name": "AmountTooHighError",
-                      "message": "The specified amount is too high.",
-                      "title": "Amount too high",
-                      "code": "AMOUNT_TOO_HIGH",
-                      "details": {
-                        "srcToken": "0x0000000000000000000000000000000000000000",
-                        "dstToken": "0x0000000000000000000000000000000000000000",
-                        "srcChainId": 1,
-                        "dstChainId": 42161,
-                        "maxAmount": 100000000000000000000
+                      "success": false,
+                      "error": {
+                        "code": "AMOUNT_TOO_HIGH",
+                        "name": "AmountTooHighError",
+                        "message": "The specified amount is too high.",
+                        "title": "Amount too high",
+                        "statusCode": 400,
+                        "details": {
+                          "srcToken": "0x0000000000000000000000000000000000000000",
+                          "dstToken": "0x0000000000000000000000000000000000000000",
+                          "srcChainId": 1,
+                          "dstChainId": 42161,
+                          "maxAmount": 100000000000000000000
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   },
                   "AMOUNT_TOO_LOW": {
                     "summary": "Amount Too Low",
                     "value": {
-                      "statusCode": 400,
-                      "name": "AmountTooLowError",
-                      "message": "The specified amount is too low.",
-                      "title": "Amount too low",
-                      "code": "AMOUNT_TOO_LOW",
-                      "details": {
-                        "srcToken": "0x0000000000000000000000000000000000000000",
-                        "dstToken": "0x0000000000000000000000000000000000000000",
-                        "srcChainId": 1,
-                        "dstChainId": 42161,
-                        "minAmount": 0.000123
+                      "success": false,
+                      "error": {
+                        "code": "AMOUNT_TOO_LOW",
+                        "name": "AmountTooLowError",
+                        "message": "The specified amount is too low.",
+                        "title": "Amount too low",
+                        "statusCode": 400,
+                        "details": {
+                          "srcToken": "0x0000000000000000000000000000000000000000",
+                          "dstToken": "0x0000000000000000000000000000000000000000",
+                          "srcChainId": 1,
+                          "dstChainId": 42161,
+                          "minAmount": 0.000123
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   },
                   "CROSS_VM_RECEIVER_REQUIRED": {
                     "summary": "Cross VM Receiver Required",
                     "value": {
-                      "statusCode": 400,
-                      "name": "CrossVmReceiverRequiredError",
-                      "message": "Receiver address is required for swaps across different VMs.",
-                      "title": "Receiver address required",
-                      "code": "CROSS_VM_RECEIVER_REQUIRED",
-                      "details": {
-                        "srcChainId": 1,
-                        "dstChainId": 1399811149
+                      "success": false,
+                      "error": {
+                        "code": "CROSS_VM_RECEIVER_REQUIRED",
+                        "name": "CrossVmReceiverRequiredError",
+                        "message": "Receiver address is required for swaps across different VMs.",
+                        "title": "Receiver address required",
+                        "statusCode": 400,
+                        "details": {
+                          "srcChainId": 1,
+                          "dstChainId": 1399811149
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   },
                   "EXCESSIVE_FEE": {
                     "summary": "Excessive Fee",
                     "value": {
-                      "statusCode": 400,
-                      "name": "ExcessiveFeeError",
-                      "message": "The inputted flat fee is too large (over 50% of tx input).",
-                      "title": "Excessive fee",
-                      "code": "EXCESSIVE_FEE"
+                      "success": false,
+                      "error": {
+                        "code": "EXCESSIVE_FEE",
+                        "name": "ExcessiveFeeError",
+                        "message": "The inputted flat fee is too large (over 50% of tx input).",
+                        "title": "Excessive fee",
+                        "statusCode": 400,
+                        "timestamp": "2024-01-01T00:00:00.000Z"
+                      }
                     }
                   },
                   "INSUFFICIENT_LIQUIDITY": {
                     "summary": "Insufficient Liquidity",
                     "value": {
-                      "statusCode": 400,
-                      "name": "InsufficientLiquidityError",
-                      "message": "There is insufficient liquidity to complete this transaction.",
-                      "title": "Insufficient liquidity",
-                      "code": "INSUFFICIENT_LIQUIDITY"
+                      "success": false,
+                      "error": {
+                        "code": "INSUFFICIENT_LIQUIDITY",
+                        "name": "InsufficientLiquidityError",
+                        "message": "There is insufficient liquidity to complete this transaction.",
+                        "title": "Insufficient liquidity",
+                        "statusCode": 400,
+                        "timestamp": "2024-01-01T00:00:00.000Z"
+                      }
                     }
                   },
                   "INVALID_ADDRESS_FORMAT": {
                     "summary": "Invalid Address Format",
                     "value": {
-                      "statusCode": 400,
-                      "name": "InvalidAddressError",
-                      "message": "The format of the specified address is invalid.",
-                      "title": "Invalid address format",
-                      "code": "INVALID_ADDRESS_FORMAT",
-                      "details": {
-                        "field": "sender",
-                        "address": "0xinvalid",
-                        "reason": "Address must be 40 characters long"
+                      "success": false,
+                      "error": {
+                        "code": "INVALID_ADDRESS_FORMAT",
+                        "name": "InvalidAddressError",
+                        "message": "The format of the specified address is invalid.",
+                        "title": "Invalid address format",
+                        "statusCode": 400,
+                        "details": {
+                          "field": "sender",
+                          "address": "0xinvalid",
+                          "reason": "Address must be 40 characters long"
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   },
                   "INVALID_AMOUNT_ZERO": {
                     "summary": "Invalid Amount Zero",
                     "value": {
-                      "statusCode": 400,
-                      "name": "InvalidAmountZeroError",
-                      "message": "Amount must be greater than zero.",
-                      "title": "Zero amount not allowed",
-                      "code": "INVALID_AMOUNT_ZERO"
+                      "success": false,
+                      "error": {
+                        "code": "INVALID_AMOUNT_ZERO",
+                        "name": "InvalidAmountZeroError",
+                        "message": "Amount must be greater than zero.",
+                        "title": "Zero amount not allowed",
+                        "statusCode": 400,
+                        "timestamp": "2024-01-01T00:00:00.000Z"
+                      }
                     }
                   },
                   "INVALID_DESTINATION_TOKEN": {
                     "summary": "Invalid Destination Token",
                     "value": {
-                      "statusCode": 400,
-                      "name": "InvalidDstTokenError",
-                      "message": "Destination token is required.",
-                      "title": "Invalid destination token",
-                      "code": "INVALID_DESTINATION_TOKEN"
+                      "success": false,
+                      "error": {
+                        "code": "INVALID_DESTINATION_TOKEN",
+                        "name": "InvalidDstTokenError",
+                        "message": "Destination token is required.",
+                        "title": "Invalid destination token",
+                        "statusCode": 400,
+                        "timestamp": "2024-01-01T00:00:00.000Z"
+                      }
                     }
                   },
                   "INVALID_PARAMETER": {
                     "summary": "Invalid Parameter",
                     "value": {
-                      "statusCode": 400,
-                      "name": "InvalidParameterError",
-                      "message": "The request contains an invalid parameter.",
-                      "title": "Invalid parameter",
-                      "code": "INVALID_PARAMETER",
-                      "details": {
-                        "parameter": "slippage",
-                        "value": "15000",
-                        "reason": "Slippage must be between 0 and 10000 bps"
+                      "success": false,
+                      "error": {
+                        "code": "INVALID_PARAMETER",
+                        "name": "InvalidParameterError",
+                        "message": "The request contains an invalid parameter.",
+                        "title": "Invalid parameter",
+                        "statusCode": 400,
+                        "details": {
+                          "parameter": "slippage",
+                          "value": "15000",
+                          "reason": "Slippage must be between 0 and 10000 bps"
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   },
                   "INVALID_SOURCE_TOKEN": {
                     "summary": "Invalid Source Token",
                     "value": {
-                      "statusCode": 400,
-                      "name": "InvalidSrcTokenError",
-                      "message": "Source token is required.",
-                      "title": "Invalid source token",
-                      "code": "INVALID_SOURCE_TOKEN"
+                      "success": false,
+                      "error": {
+                        "code": "INVALID_SOURCE_TOKEN",
+                        "name": "InvalidSrcTokenError",
+                        "message": "Source token is required.",
+                        "title": "Invalid source token",
+                        "statusCode": 400,
+                        "timestamp": "2024-01-01T00:00:00.000Z"
+                      }
                     }
                   },
                   "MISSING_REQUIRED_FIELD": {
                     "summary": "Missing Required Field",
                     "value": {
-                      "statusCode": 400,
-                      "name": "MissingRequiredFieldError",
-                      "message": "The request is missing a required field.",
-                      "title": "Missing required field",
-                      "code": "MISSING_REQUIRED_FIELD",
-                      "details": {
-                        "field": "srcToken",
-                        "context": "Source token address is required for swap actions"
+                      "success": false,
+                      "error": {
+                        "code": "MISSING_REQUIRED_FIELD",
+                        "name": "MissingRequiredFieldError",
+                        "message": "The request is missing a required field.",
+                        "title": "Missing required field",
+                        "statusCode": 400,
+                        "details": {
+                          "field": "srcToken",
+                          "context": "Source token address is required for swap actions"
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   },
                   "NO_AVAILABLE_ROUTE": {
                     "summary": "No Available Route",
                     "value": {
-                      "statusCode": 400,
-                      "name": "NoAvailableRouteError",
-                      "message": "No route is available for the specified parameters.",
-                      "title": "No available route",
-                      "code": "NO_AVAILABLE_ROUTE",
-                      "details": {
-                        "srcChainId": 1,
-                        "dstChainId": 42161,
-                        "srcToken": "0x0000000000000000000000000000000000000000",
-                        "dstToken": "0x1234567890123456789012345678901234567890"
+                      "success": false,
+                      "error": {
+                        "code": "NO_AVAILABLE_ROUTE",
+                        "name": "NoAvailableRouteError",
+                        "message": "No route is available for the specified parameters.",
+                        "title": "No available route",
+                        "statusCode": 400,
+                        "details": {
+                          "srcChainId": 1,
+                          "dstChainId": 42161,
+                          "srcToken": "0x0000000000000000000000000000000000000000",
+                          "dstToken": "0x1234567890123456789012345678901234567890"
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   },
                   "UNSUPPORTED_NETWORK": {
                     "summary": "Unsupported Network",
                     "value": {
-                      "statusCode": 400,
-                      "name": "UnsupportedNetworkError",
-                      "message": "The network with the specified chainId is not supported.",
-                      "title": "Unsupported network",
-                      "code": "UNSUPPORTED_NETWORK",
-                      "details": {
-                        "chainId": 999999
+                      "success": false,
+                      "error": {
+                        "code": "UNSUPPORTED_NETWORK",
+                        "name": "UnsupportedNetworkError",
+                        "message": "The network with the specified chainId is not supported.",
+                        "title": "Unsupported network",
+                        "statusCode": 400,
+                        "details": {
+                          "chainId": 999999
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   },
                   "UNSUPPORTED_NETWORK_PAIR": {
                     "summary": "Unsupported Network Pair",
                     "value": {
-                      "statusCode": 400,
-                      "name": "UnsupportedNetworkPairError",
-                      "message": "Routing between the specified networks is not supported.",
-                      "title": "Unsupported network pair",
-                      "code": "UNSUPPORTED_NETWORK_PAIR",
-                      "details": {
-                        "srcChainId": 1,
-                        "dstChainId": 999999
+                      "success": false,
+                      "error": {
+                        "code": "UNSUPPORTED_NETWORK_PAIR",
+                        "name": "UnsupportedNetworkPairError",
+                        "message": "Routing between the specified networks is not supported.",
+                        "title": "Unsupported network pair",
+                        "statusCode": 400,
+                        "details": {
+                          "srcChainId": 1,
+                          "dstChainId": 999999
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   },
                   "UNSUPPORTED_NETWORK_TOKEN_PAIR": {
                     "summary": "Unsupported Network Token Pair",
                     "value": {
-                      "statusCode": 400,
-                      "name": "UnsupportedNetworkAndTokenPairError",
-                      "message": "Routing between the specified tokens and networks is not supported.",
-                      "title": "Unsupported network and token pair",
-                      "code": "UNSUPPORTED_NETWORK_TOKEN_PAIR",
-                      "details": {
-                        "srcChainId": 1,
-                        "srcToken": "0x0000000000000000000000000000000000000000",
-                        "dstChainId": 42161,
-                        "dstToken": "0x1234567890123456789012345678901234567890"
+                      "success": false,
+                      "error": {
+                        "code": "UNSUPPORTED_NETWORK_TOKEN_PAIR",
+                        "name": "UnsupportedNetworkAndTokenPairError",
+                        "message": "Routing between the specified tokens and networks is not supported.",
+                        "title": "Unsupported network and token pair",
+                        "statusCode": 400,
+                        "details": {
+                          "srcChainId": 1,
+                          "srcToken": "0x0000000000000000000000000000000000000000",
+                          "dstChainId": 42161,
+                          "dstToken": "0x1234567890123456789012345678901234567890"
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   },
                   "UNSUPPORTED_SWAP_DIRECTION": {
                     "summary": "Unsupported Swap Direction",
                     "value": {
-                      "statusCode": 400,
-                      "name": "UnsupportedSwapDirectionError",
-                      "message": "The specified swap direction is not supported.",
-                      "title": "Unsupported swap direction",
-                      "code": "UNSUPPORTED_SWAP_DIRECTION",
-                      "details": {
-                        "swapDirection": "exact-amount-out"
+                      "success": false,
+                      "error": {
+                        "code": "UNSUPPORTED_SWAP_DIRECTION",
+                        "name": "UnsupportedSwapDirectionError",
+                        "message": "The specified swap direction is not supported.",
+                        "title": "Unsupported swap direction",
+                        "statusCode": 400,
+                        "details": {
+                          "swapDirection": "exact-amount-out"
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   }
@@ -530,21 +594,29 @@
                   "INVALID_API_KEY": {
                     "summary": "Invalid API Key",
                     "value": {
-                      "statusCode": 401,
-                      "name": "InvalidApiKeyError",
-                      "message": "The provided API key is invalid.",
-                      "title": "Invalid API key",
-                      "code": "INVALID_API_KEY"
+                      "success": false,
+                      "error": {
+                        "code": "INVALID_API_KEY",
+                        "name": "InvalidApiKeyError",
+                        "message": "The provided API key is invalid.",
+                        "title": "Invalid API key",
+                        "statusCode": 401,
+                        "timestamp": "2024-01-01T00:00:00.000Z"
+                      }
                     }
                   },
                   "MISSING_API_KEY": {
                     "summary": "Missing API Key",
                     "value": {
-                      "statusCode": 401,
-                      "name": "MissingApiKeyError",
-                      "message": "API key is required.",
-                      "title": "Missing API key",
-                      "code": "MISSING_API_KEY"
+                      "success": false,
+                      "error": {
+                        "code": "MISSING_API_KEY",
+                        "name": "MissingApiKeyError",
+                        "message": "API key is required.",
+                        "title": "Missing API key",
+                        "statusCode": 401,
+                        "timestamp": "2024-01-01T00:00:00.000Z"
+                      }
                     }
                   }
                 }
@@ -562,33 +634,41 @@
                   "GEO_BLOCKED": {
                     "summary": "Geographic Restriction",
                     "value": {
-                      "statusCode": 403,
-                      "name": "GeoBlockingError",
-                      "message": "Access denied due to geo-blocking restrictions.",
-                      "title": "Geo-blocking restriction",
-                      "code": "GEO_BLOCKED",
-                      "details": {
-                        "countryCode": "US",
-                        "countryName": "United States",
-                        "reason": "Country is on the blocked list",
-                        "blockedAt": "2024-01-15T10:30:00.000Z"
+                      "success": false,
+                      "error": {
+                        "code": "GEO_BLOCKED",
+                        "name": "GeoBlockingError",
+                        "message": "Access denied due to geo-blocking restrictions.",
+                        "title": "Geo-blocking restriction",
+                        "statusCode": 403,
+                        "details": {
+                          "countryCode": "US",
+                          "countryName": "United States",
+                          "reason": "Country is on the blocked list",
+                          "blockedAt": "2024-01-15T10:30:00.000Z"
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   },
                   "WALLET_SCREENED": {
                     "summary": "Wallet Screening",
                     "value": {
-                      "statusCode": 403,
-                      "name": "WalletScreeningError",
-                      "message": "Access denied due to wallet screening restrictions.",
-                      "title": "Wallet screening restriction",
-                      "code": "WALLET_SCREENED",
-                      "details": {
-                        "walletAddress": "0x1234567890123456789012345678901234567890",
-                        "chainId": 1,
-                        "riskLevel": "HIGH",
-                        "reason": "Wallet flagged by screening service",
-                        "screenedAt": "2024-01-15T10:30:00.000Z"
+                      "success": false,
+                      "error": {
+                        "code": "WALLET_SCREENED",
+                        "name": "WalletScreeningError",
+                        "message": "Access denied due to wallet screening restrictions.",
+                        "title": "Wallet screening restriction",
+                        "statusCode": 403,
+                        "details": {
+                          "walletAddress": "0x1234567890123456789012345678901234567890",
+                          "chainId": 1,
+                          "riskLevel": "HIGH",
+                          "reason": "Wallet flagged by screening service",
+                          "screenedAt": "2024-01-15T10:30:00.000Z"
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   }
@@ -607,13 +687,17 @@
                   "METHOD_NOT_ALLOWED": {
                     "summary": "Method Not Allowed",
                     "value": {
-                      "statusCode": 405,
-                      "name": "MethodNotAllowedError",
-                      "message": "The HTTP request method specified is not allowed.",
-                      "title": "Method not allowed",
-                      "code": "METHOD_NOT_ALLOWED",
-                      "details": {
-                        "method": "POST"
+                      "success": false,
+                      "error": {
+                        "code": "METHOD_NOT_ALLOWED",
+                        "name": "MethodNotAllowedError",
+                        "message": "The HTTP request method specified is not allowed.",
+                        "title": "Method not allowed",
+                        "statusCode": 405,
+                        "details": {
+                          "method": "POST"
+                        },
+                        "timestamp": "2024-01-01T00:00:00.000Z"
                       }
                     }
                   }
@@ -632,11 +716,15 @@
                   "INTERNAL_SERVER_ERROR": {
                     "summary": "Internal Server Error",
                     "value": {
-                      "statusCode": 500,
-                      "name": "InternalServerError",
-                      "message": "An internal server error occurred while processing the request.",
-                      "title": "Internal server error",
-                      "code": "INTERNAL_SERVER_ERROR"
+                      "success": false,
+                      "error": {
+                        "code": "INTERNAL_SERVER_ERROR",
+                        "name": "InternalServerError",
+                        "message": "An internal server error occurred while processing the request.",
+                        "title": "Internal Server Error",
+                        "statusCode": 500,
+                        "timestamp": "2024-01-01T00:00:00.000Z"
+                      }
                     }
                   }
                 }
@@ -887,28 +975,36 @@
             "in": "query",
             "required": true,
             "description": "Source chain ID",
-            "schema": { "$ref": "#/components/schemas/ChainId" }
+            "schema": {
+              "$ref": "#/components/schemas/ChainId"
+            }
           },
           {
             "name": "srcToken",
             "in": "query",
             "required": true,
             "description": "Source token address",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "dstChainId",
             "in": "query",
             "required": false,
             "description": "Recommended: destination chain ID",
-            "schema": { "$ref": "#/components/schemas/ChainId" }
+            "schema": {
+              "$ref": "#/components/schemas/ChainId"
+            }
           },
           {
             "name": "dstToken",
             "in": "query",
             "required": false,
             "description": "Recommended: destination token address",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "excludeBridgeIds",
@@ -917,7 +1013,9 @@
             "description": "Bridge IDs to exclude from routing",
             "schema": {
               "type": "array",
-              "items": { "$ref": "#/components/schemas/BridgeId" }
+              "items": {
+                "$ref": "#/components/schemas/BridgeId"
+              }
             }
           },
           {
@@ -927,7 +1025,9 @@
             "description": "DEX IDs to exclude from routing",
             "schema": {
               "type": "array",
-              "items": { "$ref": "#/components/schemas/DexId" }
+              "items": {
+                "$ref": "#/components/schemas/DexId"
+              }
             }
           }
         ],
@@ -936,7 +1036,9 @@
             "description": "Paths response",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/GetPathsOutput" }
+                "schema": {
+                  "$ref": "#/components/schemas/GetPathsOutput"
+                }
               }
             }
           },
@@ -944,7 +1046,9 @@
             "description": "Bad request due to missing or invalid parameters",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
               }
             }
           },
@@ -952,7 +1056,9 @@
             "description": "Internal server error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
               }
             }
           }
@@ -1820,95 +1926,142 @@
       },
       "ErrorResponse": {
         "type": "object",
+        "required": ["success", "error"],
         "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Always false for error responses",
+            "enum": [false],
+            "example": false
+          },
           "error": {
-            "type": "string",
-            "description": "Error message"
-          },
-          "code": {
-            "type": "integer",
-            "description": "Error code"
-          },
-          "details": {
             "type": "object",
-            "description": "Additional error details"
+            "required": ["code", "name", "message", "title", "statusCode", "timestamp"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error type code for programmatic handling"
+              },
+              "name": {
+                "type": "string",
+                "description": "Error class name"
+              },
+              "message": {
+                "type": "string",
+                "description": "Detailed error message"
+              },
+              "title": {
+                "type": "string",
+                "description": "Short, user-friendly error title"
+              },
+              "statusCode": {
+                "type": "integer",
+                "description": "HTTP status code"
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional error details",
+                "additionalProperties": true
+              },
+              "timestamp": {
+                "type": "string",
+                "description": "ISO 8601 timestamp when the error occurred"
+              }
+            }
           }
         }
       },
       "GetActionErrorResponse": {
         "type": "object",
-        "required": ["statusCode", "name", "message", "title", "code"],
+        "required": ["success", "error"],
         "properties": {
-          "statusCode": {
-            "type": "integer",
-            "description": "HTTP status code",
-            "example": 400
+          "success": {
+            "type": "boolean",
+            "description": "Always false for error responses",
+            "enum": [false],
+            "example": false
           },
-          "name": {
-            "type": "string",
-            "description": "Error class name",
-            "example": "InvalidAddressError"
-          },
-          "message": {
-            "type": "string",
-            "description": "Detailed error message",
-            "example": "The format of the specified address is invalid."
-          },
-          "title": {
-            "type": "string",
-            "description": "Short, user-friendly error title",
-            "example": "Invalid address format"
-          },
-          "code": {
-            "type": "string",
-            "description": "Error type code for programmatic handling",
-            "enum": [
-              "AMOUNT_TOO_HIGH",
-              "AMOUNT_TOO_LOW",
-              "CROSS_VM_RECEIVER_REQUIRED",
-              "EXCESSIVE_FEE",
-              "GEO_BLOCKED",
-              "INSUFFICIENT_LIQUIDITY",
-              "INVALID_ADDRESS_FORMAT",
-              "INVALID_AMOUNT_ZERO",
-              "INVALID_API_KEY",
-              "INVALID_DESTINATION_TOKEN",
-              "INVALID_PARAMETER",
-              "INVALID_SOURCE_TOKEN",
-              "INTERNAL_SERVER_ERROR",
-              "METHOD_NOT_ALLOWED",
-              "MISSING_API_KEY",
-              "MISSING_REQUIRED_FIELD",
-              "NO_AVAILABLE_ROUTE",
-              "UNSUPPORTED_NETWORK",
-              "UNSUPPORTED_NETWORK_PAIR",
-              "UNSUPPORTED_NETWORK_TOKEN_PAIR",
-              "UNSUPPORTED_SWAP_DIRECTION",
-              "WALLET_SCREENED"
-            ]
-          },
-          "details": {
+          "error": {
             "type": "object",
-            "description": "Additional context about the error, including invalid values and suggestions",
+            "required": ["code", "name", "message", "title", "statusCode", "timestamp"],
             "properties": {
-              "field": {
+              "code": {
                 "type": "string",
-                "description": "The field that caused the error"
+                "description": "Error type code for programmatic handling",
+                "enum": [
+                  "AMOUNT_TOO_HIGH",
+                  "AMOUNT_TOO_LOW",
+                  "CROSS_VM_RECEIVER_REQUIRED",
+                  "EXCESSIVE_FEE",
+                  "GEO_BLOCKED",
+                  "INSUFFICIENT_LIQUIDITY",
+                  "INVALID_ADDRESS_FORMAT",
+                  "INVALID_AMOUNT_ZERO",
+                  "INVALID_API_KEY",
+                  "INVALID_DESTINATION_TOKEN",
+                  "INVALID_PARAMETER",
+                  "INVALID_SOURCE_TOKEN",
+                  "INTERNAL_SERVER_ERROR",
+                  "METHOD_NOT_ALLOWED",
+                  "MISSING_API_KEY",
+                  "MISSING_REQUIRED_FIELD",
+                  "NO_AVAILABLE_ROUTE",
+                  "UNSUPPORTED_NETWORK",
+                  "UNSUPPORTED_NETWORK_PAIR",
+                  "UNSUPPORTED_NETWORK_TOKEN_PAIR",
+                  "UNSUPPORTED_SWAP_DIRECTION",
+                  "WALLET_SCREENED"
+                ]
               },
-              "address": {
+              "name": {
                 "type": "string",
-                "description": "The invalid address value"
+                "description": "Error class name",
+                "example": "InvalidAddressError"
               },
-              "reason": {
+              "message": {
                 "type": "string",
-                "description": "Explanation of why the value is invalid"
+                "description": "Detailed error message",
+                "example": "The format of the specified address is invalid."
+              },
+              "title": {
+                "type": "string",
+                "description": "Short, user-friendly error title",
+                "example": "Invalid address format"
+              },
+              "statusCode": {
+                "type": "integer",
+                "description": "HTTP status code",
+                "example": 400
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional context about the error, including invalid values and suggestions",
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "description": "The field that caused the error"
+                  },
+                  "address": {
+                    "type": "string",
+                    "description": "The invalid address value"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "description": "Explanation of why the value is invalid"
+                  }
+                },
+                "additionalProperties": true,
+                "example": {
+                  "field": "srcToken",
+                  "address": "0xinvalid",
+                  "reason": "Address must be 40 characters long"
+                }
+              },
+              "timestamp": {
+                "type": "string",
+                "description": "ISO 8601 timestamp when the error occurred",
+                "example": "2024-01-01T00:00:00.000Z"
               }
-            },
-            "additionalProperties": true,
-            "example": {
-              "field": "srcToken",
-              "address": "0xinvalid",
-              "reason": "Address must be 40 characters long"
             }
           }
         }
@@ -1916,12 +2069,16 @@
       "ChainListResponse": {
         "type": "object",
         "properties": {
-          "chainId": { "$ref": "#/components/schemas/ChainId" },
+          "chainId": {
+            "$ref": "#/components/schemas/ChainId"
+          },
           "name": {
             "type": "string",
             "description": "Human-readable chain name"
           },
-          "vmId": { "$ref": "#/components/schemas/VmId" }
+          "vmId": {
+            "$ref": "#/components/schemas/VmId"
+          }
         },
         "required": ["chainId", "name", "vmId"]
       },
@@ -1945,7 +2102,9 @@
       },
       "TokenInfoWithAmounts": {
         "allOf": [
-          { "$ref": "#/components/schemas/TokenInfo" },
+          {
+            "$ref": "#/components/schemas/TokenInfo"
+          },
           {
             "type": "object",
             "required": ["minAmount", "maxAmount"],
@@ -1983,23 +2142,37 @@
       "ChainPath": {
         "type": "object",
         "properties": {
-          "chainId": { "$ref": "#/components/schemas/ChainId" },
+          "chainId": {
+            "$ref": "#/components/schemas/ChainId"
+          },
           "tokens": {
             "description": "Available destination tokens for given source token \n `all` indicates all tokens on destination chain are eligible",
             "oneOf": [
-              { "title": "Named VM", "type": "string", "enum": ["all"] },
+              {
+                "title": "Named VM",
+                "type": "string",
+                "enum": ["all"]
+              },
               {
                 "title": "Token List",
                 "type": "array",
-                "items": { "$ref": "#/components/schemas/TokenInfoWithAmounts" }
+                "items": {
+                  "$ref": "#/components/schemas/TokenInfoWithAmounts"
+                }
               }
             ]
           },
-          "supportsExactAmountIn": { "type": "boolean" },
-          "supportsExactAmountOut": { "type": "boolean" },
+          "supportsExactAmountIn": {
+            "type": "boolean"
+          },
+          "supportsExactAmountOut": {
+            "type": "boolean"
+          },
           "amountLimits": {
             "allOf": [
-              { "$ref": "#/components/schemas/AmountLimits" },
+              {
+                "$ref": "#/components/schemas/AmountLimits"
+              },
               {
                 "type": "object",
                 "deprecated": true,
@@ -2028,7 +2201,9 @@
           },
           "paths": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/ChainPath" }
+            "items": {
+              "$ref": "#/components/schemas/ChainPath"
+            }
           },
           "timestamp": {
             "type": "string",
