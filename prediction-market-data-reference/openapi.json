@@ -1,8 +1,8 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Market Data API",
-    "description": "Comprehensive API endpoints for querying data from markets supported via workflows.",
+    "title": "Prediction Market Data API",
+    "description": "Comprehensive API endpoints for querying data from prediction markets supported via workflows.",
     "version": "1.0.0",
     "contact": {
       "name": "Swaps.xyz",

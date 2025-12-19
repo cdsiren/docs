@@ -981,9 +981,9 @@
         }
       }
     },
-    "/getUser": {
+    "/workflows/polymarket/createOrFetchPolymarketUser": {
       "post": {
-        "summary": "Get User",
+        "summary": "Create or Fetch User",
         "servers": [
           {
             "url": "https://api-v2.swaps.xyz/api",
@@ -991,13 +991,13 @@
           }
         ],
         "description": "Creates a new Swaps account for a user or fetches an existing one based on the provided EVM address.",
-        "operationId": "getUser",
+        "operationId": "createOrFetchPolymarketUser",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/GetUserRequest"
+                "$ref": "#/components/schemas/CreateOrFetchPolymarketUserRequest"
               }
             }
           }
@@ -1008,7 +1008,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserResponse"
+                  "$ref": "#/components/schemas/CreateOrFetchPolymarketUserResponse"
                 }
               }
             }
@@ -2483,7 +2483,7 @@
           "slippage"
         ]
       },
-      "GetUserRequest": {
+      "CreateOrFetchPolymarketUserRequest": {
         "type": "object",
         "required": ["evmEoa"],
         "properties": {
@@ -2493,7 +2493,7 @@
           }
         }
       },
-      "GetUserResponse": {
+      "CreateOrFetchPolymarketUserResponse": {
         "type": "object",
         "required": ["userCredentials", "newUser", "userId"],
         "properties": {
