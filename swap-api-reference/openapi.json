@@ -2761,8 +2761,8 @@
           },
           "userId": {
             "type": "string",
-            "description": "Polymarket user ID",
-            "example": "user_123"
+            "description": "Polymarket user ID (EVM address)",
+            "example": "0x0797bfec6d2d4f733d461bbee8125805e9e9c892"
           }
         }
       },

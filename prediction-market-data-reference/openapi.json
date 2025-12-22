@@ -790,6 +790,11 @@
             "type": "boolean",
             "nullable": true,
             "description": "Whether this tag is a carousel tag"
+          },
+          "requiresTranslation": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Whether this tag requires translation"
           }
         }
       },
@@ -1666,6 +1671,10 @@
           "gameStatus": {
             "type": ["string", "null"],
             "description": "Game status"
+          },
+          "requiresTranslation": {
+            "type": ["boolean", "null"],
+            "description": "Whether the event requires translation"
           },
           "markets": {
             "type": ["array", "null"],
