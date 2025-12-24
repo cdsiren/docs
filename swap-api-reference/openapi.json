@@ -1229,7 +1229,7 @@
             "description": "Core Swap API Server"
           }
         ],
-        "description": "Redeems a winning position from a resolved Polymarket market. This endpoint allows users to claim their winnings from a specific market condition where they hold winning outcome tokens.\n\n**Status:** Coming Soon",
+        "description": "Redeems a winning position from a resolved Polymarket market. This endpoint allows users to claim their winnings from a specific market condition where they hold winning outcome tokens.",
         "operationId": "redeemPosition",
         "requestBody": {
           "required": true,
