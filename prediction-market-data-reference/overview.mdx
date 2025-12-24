@@ -1,0 +1,55 @@
+---
+title: "Overview"
+description: "Comprehensive API for querying prediction market data, user positions, and trading activity."
+---
+
+import { Callout } from "/snippets/Callout.jsx";
+
+Swaps enables users to trade on [Polymarket](https://polymarket.com) directly from their wallet using any token on any chain. The prediction market data endpoints provide real time market information to build comprehensive applications on Polymarket.
+
+## Endpoint reference
+
+### Market Discovery
+
+| API                                                          | Description                                                                                        |
+| :----------------------------------------------------------- | :------------------------------------------------------------------------------------------------- |
+| [Search Markets](/api-reference/search-markets)              | Query markets by keywords or tags                                                                  |
+| [Get Trending Markets](/api-reference/get-trending-markets)  | Discover high-volume markets sorted by 24hr trading activity                                       |
+| [Get Tags](/api-reference/get-tags)                          | Retrieve categories for filtering markets                                                          |
+
+### Market Information
+
+| API                                                          | Description                                                                                        |
+| :----------------------------------------------------------- | :------------------------------------------------------------------------------------------------- |
+| [Get Event](/api-reference/get-event)                        | Retrieve complete event details with all associated markets                                        |
+| [Get Markets](/api-reference/get-markets)                    | Query specific markets by token ID, slug, or category                                              |
+| [Get Market Price](/api-reference/get-market-price)          | Fetch current best bid/ask prices                                                                  |
+| [Get Price History](/api-reference/get-price-history)        | Analyze historical price data across different time intervals                                      |
+
+### User Positions & Activity
+
+| API                                                          | Description                                                                                        |
+| :----------------------------------------------------------- | :------------------------------------------------------------------------------------------------- |
+| [Get Current Positions](/api-reference/get-current-positions)| View all open positions with PnL calculations                                                      |
+| [Get Closed Positions](/api-reference/get-closed-positions)  | Access historical positions from resolved markets                                                  |
+| [Get Trades](/api-reference/get-trades)                      | Retrieve detailed trade history                                                                    |
+| [Get Activity](/api-reference/get-activity)                  | Comprehensive activity feed including orders and trades                                            |
+| [Get PnL](/api-reference/get-pnl)                            | Aggregate profit and loss summary                                                                  |
+
+## Authentication
+
+All API endpoints require authentication using API keys passed via the `x-api-key` header. We have provided a highly ratelimited API key for testing in the API playground.
+
+<Callout type="info">Create a key in the [Console](https://console.swaps.xyz).</Callout>
+
+## Getting Started
+
+1. **Discover Markets**: Start with the search or trending endpoints to find markets
+2. **Get Details**: Use the market or event endpoints to fetch comprehensive information
+3. **Track Prices**: Monitor real-time prices and historical data
+4. **Analyze Users**: Query positions and activity for wallet addresses
+
+## Related Resources
+
+- [Polymarket Trading Guide](/guides/preview/polymarket) - Learn how to place orders
+- [Swap API Reference](/swap-api-reference/introduction) - Cross-chain swaps and bridging
