@@ -486,9 +486,9 @@
             }
           },
           {
-            "name": "mergable",
+            "name": "mergeable",
             "in": "query",
-            "description": "Filter for mergable positions only",
+            "description": "Filter for mergeable positions only",
             "schema": {
               "type": "boolean",
               "default": false
