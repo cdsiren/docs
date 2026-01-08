@@ -1237,7 +1237,7 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["evmEoa", "conditionId"],
+                "required": ["evmEoa", "conditionId", "assetId"],
                 "properties": {
                   "evmEoa": {
                     "$ref": "#/components/schemas/EvmAddress",

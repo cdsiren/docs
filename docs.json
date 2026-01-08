@@ -68,8 +68,9 @@
             "group": "Workflows | Polymarket",
             "pages": [
               "POST /workflows/polymarket/createOrFetchPolymarketUser",
+              "POST /workflows/polymarket/sellPosition",
               "POST /workflows/polymarket/redeemPosition",
-              "POST /workflows/polymarket/sellPosition"
+              "POST /workflows/polymarket/mergePositions"
             ]
           }
         ]
