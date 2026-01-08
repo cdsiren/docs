@@ -1229,8 +1229,102 @@
             "description": "Core Swap API Server"
           }
         ],
-        "description": "Redeems a winning position from a resolved Polymarket market. This endpoint allows users to claim their winnings from a specific market condition where they hold winning outcome tokens.",
+        "description": "Redeems position from a resolved Polymarket market. For positions with a current value > 0, this endpoint allows users to claim their winnings from a specific market condition. For losing positions with a current value = 0, this endpoint allows users to burn their position tokens to clean up their account. \n Endpoint awaits successful execution of the redemption transaction before returning the transaction hash.",
         "operationId": "redeemPosition",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["evmEoa", "conditionId"],
+                "properties": {
+                  "evmEoa": {
+                    "$ref": "#/components/schemas/EvmAddress",
+                    "description": "User's EVM wallet address"
+                  },
+                  "conditionId": {
+                    "type": "string",
+                    "description": "Polymarket condition ID for the position to redeem",
+                    "example": "0x52f13a5eaf375170189f326e58cc6d217515de1cf9e41bff17be7779ea9a295c"
+                  },
+                  "assetId": {
+                    "type": "string",
+                    "description": "Polymarket asset ID for the asset to redeem",
+                    "example": "25851216745091725550702226389795916287148711992808817855215289655518936398397"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Position redeemed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["txHash", "status"],
+                  "properties": {
+                    "txHash": {
+                      "$ref": "#/components/schemas/Hex",
+                      "description": "Transaction hash of the redemption"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Status message of the redemption"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to missing or invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workflows/polymarket/mergePositions": {
+      "post": {
+        "summary": "Merge Position",
+        "tags": ["Polymarket"],
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Core Swap API Server"
+          }
+        ],
+        "description": "Merges a full set of position tokens back into collateral by burning them. Can be used to claim winnings from resolved markets or clean up positions. Endpoint awaits successful execution of the merge transaction before returning the transaction hash.",
+        "operationId": "mergePositions",
         "requestBody": {
           "required": true,
           "content": {
@@ -1255,7 +1349,7 @@
         },
         "responses": {
           "200": {
-            "description": "Position redeemed successfully",
+            "description": "Positions merged successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -1268,7 +1362,7 @@
                     },
                     "status": {
                       "type": "string",
-                      "description": "Status message of the redemption"
+                      "description": "Status message of the merge"
                     }
                   }
                 }
