@@ -882,26 +882,14 @@
             }
           },
           {
-            "name": "page",
-            "in": "query",
-            "description": "Page number for pagination",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "default": 1,
-              "example": 1
-            }
-          },
-          {
             "name": "limit",
             "in": "query",
-            "description": "Number of results per page (max 500)",
+            "description": "Number of results per page (max 50)",
             "required": false,
             "schema": {
               "type": "integer",
               "minimum": 1,
-              "maximum": 500,
+              "maximum": 50,
               "default": 25,
               "example": 25
             }
@@ -913,8 +901,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["day", "week", "month", "allTime"],
-              "default": "allTime",
+              "enum": ["day", "week", "month"],
               "example": "week"
             }
           },
@@ -936,6 +923,16 @@
             "schema": {
               "type": "string",
               "example": "1672531200"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "Pagination cursor from previous response. Use the `cursor.next` value from the response to fetch the next page.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "NjgxNGU5YzQ1ZTJjNjYwMDAxMjM0NTY3XzE3MDY3NDU2MDA="
             }
           }
         ],
@@ -1975,14 +1972,7 @@
       },
       "TokenInfo": {
         "type": "object",
-        "required": [
-          "chainId",
-          "address",
-          "name",
-          "symbol",
-          "decimals",
-          "isNative"
-        ],
+        "required": ["chainId", "address", "name", "symbol", "decimals", "isNative"],
         "properties": {
           "chainId": {
             "$ref": "#/components/schemas/ChainId",
@@ -2021,13 +2011,7 @@
       },
       "BridgeStep": {
         "type": "object",
-        "required": [
-          "srcChainId",
-          "dstChainId",
-          "srcBridgeToken",
-          "dstBridgeToken",
-          "bridgeId"
-        ],
+        "required": ["srcChainId", "dstChainId", "srcBridgeToken", "dstBridgeToken", "bridgeId"],
         "properties": {
           "srcChainId": {
             "$ref": "#/components/schemas/ChainId"
@@ -2094,14 +2078,7 @@
           },
           "error": {
             "type": "object",
-            "required": [
-              "code",
-              "name",
-              "message",
-              "title",
-              "statusCode",
-              "timestamp"
-            ],
+            "required": ["code", "name", "message", "title", "statusCode", "timestamp"],
             "properties": {
               "code": {
                 "type": "string",
@@ -2148,14 +2125,7 @@
           },
           "error": {
             "type": "object",
-            "required": [
-              "code",
-              "name",
-              "message",
-              "title",
-              "statusCode",
-              "timestamp"
-            ],
+            "required": ["code", "name", "message", "title", "statusCode", "timestamp"],
             "properties": {
               "code": {
                 "type": "string",
@@ -2353,12 +2323,7 @@
             ]
           }
         },
-        "required": [
-          "chainId",
-          "tokens",
-          "supportsExactAmountIn",
-          "supportsExactAmountOut"
-        ]
+        "required": ["chainId", "tokens", "supportsExactAmountIn", "supportsExactAmountOut"]
       },
       "GetPathsOutput": {
         "type": "object",
@@ -2433,13 +2398,7 @@
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "success",
-              "pending",
-              "requires refund",
-              "refunded",
-              "failed"
-            ],
+            "enum": ["success", "pending", "requires refund", "refunded", "failed"],
             "description": "Status of the transaction",
             "example": "success"
           },
@@ -2665,15 +2624,7 @@
             "example": 4.00687776
           }
         },
-        "required": [
-          "name",
-          "symbol",
-          "decimals",
-          "amount",
-          "address",
-          "chainId",
-          "isNative"
-        ]
+        "required": ["name", "symbol", "decimals", "amount", "address", "chainId", "isNative"]
       },
       "Org": {
         "type": "object",
@@ -2894,14 +2845,7 @@
       },
       "WorkflowStatusResponse": {
         "type": "object",
-        "required": [
-          "txId",
-          "status",
-          "operation",
-          "timestamp",
-          "name",
-          "data"
-        ],
+        "required": ["txId", "status", "operation", "timestamp", "name", "data"],
         "properties": {
           "txId": {
             "type": "string",
