@@ -950,8 +950,16 @@
                         "$ref": "#/components/schemas/TxDetails"
                       }
                     },
-                    "pagination": {
-                      "$ref": "#/components/schemas/Pagination"
+                    "cursor": {
+                      "type": "object",
+                      "properties": {
+                        "next": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "Cursor for fetching the next page of results. Null if no more pages.",
+                          "example": "NjgxNGU5YzQ1ZTJjNjYwMDAxMjM0NTY3XzE3MDY3NDU2MDA="
+                        }
+                      }
                     }
                   }
                 }
