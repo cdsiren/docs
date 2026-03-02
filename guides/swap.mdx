@@ -5,9 +5,9 @@ description: "Generate and broadcast a swap or bridge transaction."
 
 import { Callout } from "/snippets/Callout.jsx";
 
-**API Reference:** [Get Action](/api-reference/get-action#swap)
+**API Reference:** [Get Action](/swap-api-reference/get-action#swap)
 
-Submitting transactions differs by source chain VM. Reference available transaction types [here](/api-reference/get-action#response-tx).
+Submitting transactions differs by source chain VM. Reference available transaction types [here](/swap-api-reference/get-action#response-tx).
 
 **Examples below demonstrate the swap process for each VM.**
 
@@ -54,7 +54,7 @@ const actionRequest = {
 
 <Step title="Generate the transaction">
 
-Please visit the [Get Action](/api-reference/get-action) API reference for type definitions, including the `ActionRequest` and `ActionResponse`. This API endpoint will return a transaction object we will use to actually execute this transaction.
+Please visit the [Get Action](/swap-api-reference/get-action) API reference for type definitions, including the `ActionRequest` and `ActionResponse`. This API endpoint will return a transaction object we will use to actually execute this transaction.
 
 ```typescript
 import { sendTransaction } from "@wagmi/core";
@@ -103,7 +103,7 @@ async function getAction({ actionRequest }): Promise<ActionResponse> {
 
 In this step, we will broadcast the transaction we generated above on Base. This method will work for any EVM chain.
 
-View the EVM transaction type [here](/api-reference/get-action#evm-transaction).
+View the EVM transaction type [here](/swap-api-reference/get-action#evm-transaction).
 
 <Steps>
 <Step title="Import the recommended libraries">
@@ -155,7 +155,7 @@ export async function broadcastOnEvm({ actionRequest }): Promise<Hash> {
 
 Let's assume we set Solana as the source chain in the `actionRequest` used to generate our transaction. Let's see how we can broadcast it on Solana.
 
-View the Solana transaction type [here](/api-reference/get-action#solana-transaction).
+View the Solana transaction type [here](/swap-api-reference/get-action#solana-transaction).
 
 <Steps>
 <Step title="Import the recommended libraries">
@@ -212,7 +212,7 @@ export async function broadcastOnSolana({ actionRequest }): Promise<string> {
 
 Let's assume we set Bitcoin as the source chain in the `actionRequest` used to generate our transaction. Let's see how we can broadcast it on Bitcoin.
 
-View the alt VM transaction type [here](/api-reference/get-action#alt-vm-transaction).
+View the alt VM transaction type [here](/swap-api-reference/get-action#alt-vm-transaction).
 
 Alt VM transactions are all deposits: the transaction will transfer funds from
 the `sender` to the `to` field specified in the `AltVmTransaction` response.
@@ -435,7 +435,7 @@ export function prepareBtcTx({
 
 Let's assume we set HyperCore as the source chain in the `actionRequest` used to generate our transaction. Let's see how we can broadcast it on HyperCore.
 
-View the HyperCore transaction type [here](/api-reference/get-action#hypercore-transaction).
+View the HyperCore transaction type [here](/swap-api-reference/get-action#hypercore-transaction).
 
 <Steps>
 <Step title="Install recommended package">
