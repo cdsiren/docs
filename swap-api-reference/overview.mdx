@@ -11,37 +11,37 @@ import { Callout } from "/snippets/Callout.jsx";
 
 | API                                                          | Description                                                                                        |
 | :----------------------------------------------------------- | :------------------------------------------------------------------------------------------------- |
-| [Get Action](/api-reference/get-action)                      | Generate a bridge, swap, or cross-chain call transaction.                                          |
-| [Get Status](/api-reference/get-status)                      | Track the status of a transaction based on its hash or ID.                                         |
-| [Register Transaction](/api-reference/register-transactions) | Trigger indexing for one or multiple broadcasted transactions.                                     |
+| [Get Action](/swap-api-reference/get-action)                      | Generate a bridge, swap, or cross-chain call transaction.                                          |
+| [Get Status](/swap-api-reference/get-status)                      | Track the status of a transaction based on its hash or ID.                                         |
+| [Register Transaction](/swap-api-reference/register-transaction) | Trigger indexing for one or multiple broadcasted transactions.                                     |
 
 ### Data
 
 | API                                                          | Description                                                                                        |
 | :----------------------------------------------------------- | :------------------------------------------------------------------------------------------------- |
-| [Get Transactions](/api-reference/get-transactions)          | Return transaction history based on desired filters.                                               |
+| [Get Transactions](/swap-api-reference/get-transactions)          | Return transaction history based on desired filters.                                               |
 
 ### Utilities
 
 | API                                                          | Description                                                                                        |
 | :----------------------------------------------------------- | :------------------------------------------------------------------------------------------------- |
-| [Get Paths](/api-reference/get-paths)                        | Retrieve available swap routes for given source token based on desired filters.                    |
-| [Get Chain List](/api-reference/get-chain-list)              | Return list of all supported chains and their `VmId`s.                                             |
+| [Get Paths](/swap-api-reference/get-paths)                        | Retrieve available swap routes for given source token based on desired filters.                    |
+| [Get Chain List](/swap-api-reference/get-chain-list)              | Return list of all supported chains and their `VmId`s.                                             |
 
 ### Workflows | All
 
 | API                                                          | Description                                                                                        |
 | :----------------------------------------------------------- | :------------------------------------------------------------------------------------------------- |
-| [Get Action](/api-reference/get-action)                      | Append a post execution hook to a bridge or swap transaction. **Enables prediction market routes.**                                      |
-| [Get User](/api-reference/get-user)                          | Retrieve a Swaps Account for a user. Required for workflows.                                       |
-| [Get Workflow Status](/api-reference/get-workflow-status)    | Track the status of a workflow execution.                                                          |
+| [Get Action](/swap-api-reference/get-action)                      | Append a post execution hook to a bridge or swap transaction. **Enables prediction market routes.**                                      |
+| [Get User](/swap-api-reference/get-user)                          | Retrieve a Swaps Account for a user. Required for workflows.                                       |
+| [Get Workflow Status](/swap-api-reference/get-workflow-status)    | Track the status of a workflow execution.                                                          |
 
 ### Workflows | Polymarket
 
 | API                                                          | Description                                                                                        |
 | :----------------------------------------------------------- | :------------------------------------------------------------------------------------------------- |
-| [Redeem Position](/api-reference/redeem-position)            | Redeem a Polymarket position.                                                                      |
-| [Sell Position](/api-reference/sellPosition)                 | Sell a Polymarket position.                                                                        |
+| [Redeem Position](/swap-api-reference/polymarket/redeem-position) | Redeem a Polymarket position.                                                                      |
+| [Sell Position](/swap-api-reference/polymarket/sell-position)     | Sell a Polymarket position.                                                                        |
 
 ## Authentication
 

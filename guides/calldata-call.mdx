@@ -5,7 +5,7 @@ description: "Execute cross-chain transactions."
 
 import { Callout } from "/snippets/Callout.jsx";
 
-**API Reference:** [Get Action](/api-reference/get-action#swap)
+**API Reference:** [Get Action](/swap-api-reference/get-action#swap)
 
 This guide will only cover the process of generating calldata transactions. You can submit this transaction exactly as outlined in the [swap broadcast flows](/guides/swap#broadcast-on-evm).
 
@@ -71,7 +71,7 @@ const txConfig: ActionRequest = {
 
 <Step title="Generate the transaction">
 
-Please visit the [Get Action](/api-reference/get-action) API reference for type definitions, including the `ActionRequest` and `ActionResponse`. This API endpoint will return a transaction object we will use to actually execute this transaction.
+Please visit the [Get Action](/swap-api-reference/get-action) API reference for type definitions, including the `ActionRequest` and `ActionResponse`. This API endpoint will return a transaction object we will use to actually execute this transaction.
 
 ```typescript
 async function getAction({ actionRequest }): Promise<ActionResponse> {

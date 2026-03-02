@@ -11,7 +11,7 @@ For transactions originating on alt VMs (e.g., Bitcoin, Ripple), you will need t
 
 ## Get status
 
-**API Reference:** [Get Status](/api-reference/get-status)
+**API Reference:** [Get Status](/swap-api-reference/get-status)
 
 The status endpoint supports three query parameters:
 
@@ -23,7 +23,7 @@ The status endpoint supports three query parameters:
 
 We recommend using the source chain ID and the transaction hash. The example below assumes this approach.
 
-The status endpoint will return a [`TxDetails` object](/api-reference/get-status#response-status-message).
+The status endpoint will return a [`TxDetails` object](/swap-api-reference/get-status#response-status-message).
 
 ```typescript
 async function getStatus(
@@ -48,11 +48,11 @@ async function getStatus(
 
 ## Register transaction
 
-**API Reference:** [Register Transaction](/api-reference/register-transaction)
+**API Reference:** [Register Transaction](/swap-api-reference/register-transaction)
 
 Registering a transaction triggers indexing after it is broadcasted on the source chain.
 
-This is required for any transactions that return an `alt-vm-*` bridge ID in the [Action Response](/api-reference/get-action). The Action Response also includes a `requiresRegisterTx` flag. The request used to generate the transaction will return a `vmId` in the response. If the `vmId` is `alt-vm` or `solana`, you know you will need to register your transaction. This is covered in the [alt VM broadcast guide](/guides/swap#broadcast-on-altvm). Swaps will automatically register any transaction submitted to a named VM. If you believe we have missed a transaction, calling the register transaction endpoint will trigger indexing.
+This is required for any transactions that return an `alt-vm-*` bridge ID in the [Action Response](/swap-api-reference/get-action). The Action Response also includes a `requiresRegisterTx` flag. The request used to generate the transaction will return a `vmId` in the response. If the `vmId` is `alt-vm` or `solana`, you know you will need to register your transaction. This is covered in the [alt VM broadcast guide](/guides/swap#broadcast-on-altvm). Swaps will automatically register any transaction submitted to a named VM. If you believe we have missed a transaction, calling the register transaction endpoint will trigger indexing.
 
 This endpoint does support registering multiple transactions in a single call.
 
@@ -99,7 +99,7 @@ Swaps can emit webhooks on transaction creation and completion (success or failu
 
 Swaps' webhooks are sent with a `x-signature-256` header that hashes the raw request body and delivery timestamp. This signature ensures that neither the request body nor the timestamp were modified and can be trusted as sent from Swaps.
 
-The webhook body mirrors the [`TxDetails` object](/api-reference/get-status#response-status-message) returned from the `/getStatus` endpoint. The schema is:
+The webhook body mirrors the [`TxDetails` object](/swap-api-reference/get-status#response-status-message) returned from the `/getStatus` endpoint. The schema is:
 
 ```typescript
 type WebhookBody = {
