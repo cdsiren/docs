@@ -174,6 +174,15 @@
             }
           },
           {
+            "name": "solanaSponsor",
+            "in": "query",
+            "required": false,
+            "description": "Solana address that pays for tx fees and rent (e.g. ATA creation). Only used for Solana same chain swaps. Transaction must be signed by both the user and the sponsor.\n\n**Optional:** When provided, the sponsor covers transaction costs on behalf of the user.",
+            "schema": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          {
             "name": "bridgeIds",
             "in": "query",
             "required": false,
