@@ -2374,24 +2374,14 @@
             "description": "Unique transaction identifier",
             "example": "0x49b1d3d38176e45864fd55500c6c1879ab318609e1ed0c8eb9abd818e6c811fd"
           },
-          "vmId": {
-            "type": "string",
-            "enum": ["evm", "solana", "alt-vm", "hypercore"],
-            "description": "Virtual machine identifier."
-          },
           "txHash": {
             "type": "string",
             "pattern": "^0x[a-fA-F0-9]{64}$",
             "description": "Transaction hash",
             "example": "0x62d0e13123852791446c6f923c2d0b9247bda10f1eb5eb48ff5b4bc42d22ab42"
-          },
-          "chainId": {
-            "type": "integer",
-            "description": "Chain ID where the transaction occurred",
-            "example": 42161
           }
         },
-        "required": ["txHash", "chainId", "txId", "vmId"]
+        "required": ["txId"]
       },
       "ValidatedTxId": {
         "type": "object",
