@@ -289,6 +289,16 @@
               "type": "string",
               "enum": ["true", "false"]
             }
+          },
+          {
+            "name": "gasless",
+            "in": "query",
+            "required": false,
+            "description": "Request gasless execution. When `true`, the response includes an `executions` array of signed steps to relay through the gasless provider instead of broadcasting a transaction directly.\n\n**Optional:** Only supported on chains with a configured gasless provider (currently Tron). Requires the API key to have gasless enabled.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "responses": {
@@ -1601,6 +1611,66 @@
           }
         }
       }
+    },
+    "/submitTx": {
+      "post": {
+        "summary": "Submit Gasless Transaction",
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Core Swap API server"
+          }
+        ],
+        "description": "Submits signed executions obtained from a gasless `GET /getAction` response for relay broadcast. The backend validates each signature, simulates the transactions, then broadcasts them via the configured relay provider.\n\nCall this endpoint only when `executionsType` is `GASLESS` in the `getAction` response. Sign all items in the `executions` array in order before submitting.",
+        "operationId": "submitTx",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitTxRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction accepted for relay broadcast",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitTxResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request — invalid signature, unknown txId, or malformed executions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1723,6 +1793,22 @@
               "$ref": "#/components/schemas/BaseActionResponse"
             },
             "description": "All available routes for the action."
+          },
+          "executionsType": {
+            "type": "string",
+            "enum": ["DEFAULT", "GASLESS"],
+            "description": "Indicates the execution mode. `GASLESS` when `gasless=true` was requested and a relay provider is available; `DEFAULT` otherwise."
+          },
+          "executions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Execution"
+            },
+            "description": "Ordered list of signing steps the client must complete before calling `POST /submitTx`. Only present when `executionsType` is `GASLESS`."
+          },
+          "relayerFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Fee charged by the relay provider, denominated in USDT. If non-zero, the user must hold USDT in addition to the source token. Only present when `executionsType` is `GASLESS`."
           }
         }
       },
@@ -1831,12 +1917,136 @@
           "requiresRegisterTransaction": {
             "type": "boolean",
             "description": "Flag indicating whether the transaction requires registration via the registerTxs endpoint. Mandatory for non-EVM transactions."
+          },
+          "executionsType": {
+            "type": "string",
+            "enum": ["DEFAULT", "GASLESS"],
+            "description": "Indicates the execution mode. `GASLESS` when `gasless=true` was requested and a relay provider is available; `DEFAULT` otherwise."
+          },
+          "executions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Execution"
+            },
+            "description": "Ordered list of signing steps the client must complete before calling `POST /submitTx`. Only present when `executionsType` is `GASLESS`."
+          },
+          "relayerFee": {
+            "$ref": "#/components/schemas/Payment",
+            "description": "Fee charged by the relay provider, denominated in USDT. If non-zero, the user must hold USDT in addition to the source token. Only present when `executionsType` is `GASLESS`."
           }
         }
       },
       "ChainId": {
         "type": "integer",
         "description": "Chain ID. Find in the list of supported networks."
+      },
+      "Eip712Domain": {
+        "type": "object",
+        "required": ["name", "version", "chainId", "verifyingContract"],
+        "properties": {
+          "name": { "type": "string", "description": "EIP-712 domain name" },
+          "version": { "type": "string", "description": "EIP-712 domain version" },
+          "chainId": { "type": "integer", "description": "Chain ID the typed data is bound to" },
+          "verifyingContract": { "type": "string", "description": "Address of the contract verifying the signature" }
+        }
+      },
+      "Eip712Data": {
+        "type": "object",
+        "required": ["domain", "types", "message"],
+        "properties": {
+          "domain": { "$ref": "#/components/schemas/Eip712Domain" },
+          "types": {
+            "type": "object",
+            "description": "EIP-712 type definitions (field name → array of {name, type} pairs)",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "type": { "type": "string" }
+                }
+              }
+            }
+          },
+          "message": {
+            "type": "object",
+            "description": "The typed data message payload",
+            "additionalProperties": true
+          }
+        }
+      },
+      "TronTransactionSignExecution": {
+        "type": "object",
+        "required": ["txType", "data", "signature"],
+        "properties": {
+          "txType": { "type": "string", "enum": ["tronTransactionSign"] },
+          "data": { "type": "string", "description": "JSON string of an unsigned Tron transaction (TronWeb `raw_data` shape)" },
+          "signature": { "type": "string", "description": "Hex-encoded signature from TronLink or compatible Tron wallet" }
+        }
+      },
+      "EvmSignTypedDataExecution": {
+        "type": "object",
+        "required": ["txType", "to", "data", "signature"],
+        "properties": {
+          "txType": { "type": "string", "enum": ["evmSignTypedData"] },
+          "to": { "type": "string", "description": "Address of the verifying contract" },
+          "data": { "$ref": "#/components/schemas/Eip712Data", "description": "EIP-712 typed data to sign" },
+          "signature": { "type": "string", "description": "Hex-encoded EIP-712 signature" }
+        }
+      },
+      "Execution": {
+        "description": "A single signing step returned in the `executions` array of a gasless `getAction` response. Only available for Tron same-chain swaps. The client must sign each item in order and include the signatures when calling `POST /submitTx`.",
+        "oneOf": [
+          { "$ref": "#/components/schemas/TronTransactionSignExecution" },
+          { "$ref": "#/components/schemas/EvmSignTypedDataExecution" }
+        ],
+        "discriminator": {
+          "propertyName": "txType",
+          "mapping": {
+            "tronTransactionSign": "#/components/schemas/TronTransactionSignExecution",
+            "evmSignTypedData": "#/components/schemas/EvmSignTypedDataExecution"
+          }
+        }
+      },
+      "SubmitTxRequest": {
+        "type": "object",
+        "required": ["txId", "chainId", "executions"],
+        "properties": {
+          "txId": {
+            "type": "string",
+            "description": "The `txId` from the `GET /getAction` quote response. Used to correlate the signed executions with the original action on the relay."
+          },
+          "chainId": {
+            "$ref": "#/components/schemas/ChainId",
+            "description": "Source chain ID of the swap."
+          },
+          "executions": {
+            "type": "array",
+            "description": "All execution steps from the `getAction` response, each with a `signature` field populated by the user's wallet. Must be in the same order as returned by `getAction`.",
+            "items": {
+              "$ref": "#/components/schemas/Execution"
+            }
+          }
+        }
+      },
+      "SubmitTxResponse": {
+        "type": "object",
+        "required": ["success"],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the relay broadcast was accepted."
+          },
+          "txId": {
+            "type": "string",
+            "description": "Internal transaction ID. Pass this to `GET /getStatus` to poll for completion — the status endpoint will return the on-chain transaction hash once the relay broadcast confirms."
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message when `success` is `false`."
+          }
+        }
       },
       "VmId": {
         "type": "string",

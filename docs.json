@@ -53,6 +53,10 @@
             "pages": ["GET /getAction", "GET /getStatus", "POST /registerTxs"]
           },
           {
+            "group": "Gasless",
+            "pages": ["POST /submitTx"]
+          },
+          {
             "group": "Data",
             "pages": ["GET /getTransactions"]
           },

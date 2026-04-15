@@ -1,229 +1,284 @@
-# Gasless Transactions
+---
+title: "Gasless Transactions"
+description: "Execute sponsored meta-transactions without requiring users to hold native tokens for gas."
+---
 
-> Execute sponsored meta-transactions without requiring users to hold native tokens for gas.
+import { Callout } from "/snippets/Callout.jsx";
+
+**API Reference:** [GET /getAction](/swap-api-reference/overview) · [POST /submitTx](/swap-api-reference/overview)
 
 This guide extends the standard [Swaps.xyz swap flow](https://docs.swaps.xyz/guides/swap) with optional gasless execution.
 
 ## Overview
 
-Gasless transactions allow users to execute swaps and bridges without paying gas fees directly. The API handles meta-transaction encoding and submission to a relay service.
+Gasless transactions allow users to execute swaps without paying gas fees directly. When `gasless=true` is passed to `getAction`, the API returns a set of signing steps (`executions`) instead of a raw transaction. The user signs each step and submits them to `POST /submitTx`, which handles relay and broadcast.
 
-**Supported Chains:** Tron (EVM chains coming soon)
+**Supported Chains:** Tron same-chain swaps only (cross-chain and EVM chains coming soon)
+
+<Callout type="info">
+  Gasless execution requires your API key to have gasless enabled. Contact the Swaps team if you need access.
+</Callout>
 
 ---
 
 ## Requesting Gasless Execution
 
-Add the optional `gasless` parameter to your `ActionRequest`:
+Add the optional `gasless` query parameter to your `getAction` request:
 
 ```typescript
-const actionRequest = {
+const params = new URLSearchParams({
   actionType: "swap-action",
   sender: "TRiskt1RqdWMfvWEU8CMxSBh3MPSPP9UoL",
   srcToken: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", // USDT on Tron
   dstToken: "0x0000000000000000000000000000000000000000", // TRX on Tron
-  srcChainId: 728126428, // Tron
-  dstChainId: 728126428,
-  slippage: 100,
+  srcChainId: "728126428",
+  dstChainId: "728126428",
+  slippage: "100",
   swapDirection: "exact-amount-in",
-  amount: 1000000n,
+  amount: "1000000",
   recipient: "TRiskt1RqdWMfvWEU8CMxSBh3MPSPP9UoL",
-  gasless: true, // ← Request gasless execution
-};
+  gasless: "true", // ← Request gasless execution
+});
+
+const actionResponse = await fetch(
+  `https://api-v2.swaps.xyz/api/getAction?${params}`,
+  { headers: { "x-api-key": YOUR_API_KEY } }
+).then((r) => r.json());
 ```
 
-> **Note:** Omit `gasless` or set to `false` for standard transactions.
+> **Note:** Omit `gasless` or set it to `false` for standard transactions.
 
 ---
 
 ## Understanding the Response
 
-The API response includes an `execute` field that describes how to execute the transaction:
+When `gasless=true` is requested and a relay provider is available for the source chain, the response includes:
+
+| Field | Description |
+|-------|-------------|
+| `executionsType` | `"GASLESS"` — indicates relay execution |
+| `executions` | Ordered array of signing steps |
+| `relayerFee` | Fee charged by the relay, denominated in USDT. If non-zero, the user must hold USDT in addition to the source token |
+| `txId` | Unique action ID returned by `getAction` — required when calling `POST /submitTx` |
 
 ```typescript
-interface ActionResponse {
-  tx: Transaction;
-  execute: {
-    type: "STANDARD" | "GASLESS";
-    approval: ExecutionStep | null;
-    tx: ExecutionStep;
-  };
-  // ... other fields
-}
-```
-
-### Standard Execution
-
-```typescript
+// Example gasless getAction response (simplified)
 {
-  type: "STANDARD",
-  approval: null,
-  tx: {
-    type: "BROADCAST",
-    input: { to, data, value, chainId } // Standard transaction
-  }
-}
-```
-
-**Action:** Broadcast `tx` directly on-chain (see [Swaps.xyz broadcast guide](https://docs.swaps.xyz/guides/swap)).
-
-### Gasless Execution
-
-```typescript
-{
-  type: "GASLESS",
-  approval: null,
-  tx: {
-    type: "SIGN_TYPED_DATA",
-    input: {
-      domain: { name, version, chainId, verifyingContract },
-      types: { MetaTransaction: [...] },
-      message: { nonce, from, functionSignature }
+  txId: "0xabc123...",
+  executionsType: "GASLESS",
+  relayerFee: { amount: "5000000", token: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", ... },
+  executions: [
+    // Step 1 (if needed): approve relay fee transfer
+    {
+      txType: "tronTransactionSign",
+      data: "{...unsigned Tron transaction JSON...}"
+    },
+    // Step 2: sign the swap meta-transaction
+    {
+      txType: "evmSignTypedData",
+      to: "TTRr81XJt6zESpJw2zHgJNAsxcsyT5MVYv",
+      data: {
+        domain: { name: "SunSwapProxy", version: "1", chainId: 728126428, verifyingContract: "..." },
+        types: { MetaTransaction: [{ name: "nonce", type: "uint256" }, ...] },
+        message: { nonce: 0, from: "0x...", functionSignature: "0x..." }
+      }
     }
-  }
+  ],
+  // ... standard fields: amountIn, amountOut, tx, etc.
 }
 ```
 
-**Action:** Sign the EIP-712 data and submit to `/api/submit`.
+If `executionsType` is `"DEFAULT"` (relay unavailable or `gasless` not set), broadcast `tx` directly as a standard transaction — see the [swap guide](https://docs.swaps.xyz/guides/swap).
 
 ---
 
 ## Executing Gasless Transactions
 
-### Step 1: Handle Approval (if required)
+<Steps>
+<Step title="Check executionsType">
 
-If `execute.approval` exists, sign it first before the main transaction:
+Always check the response before proceeding:
 
 ```typescript
-const { execute } = actionResponse;
-
-if (execute.approval) {
-  if (execute.approval.type === "SIGN_TYPED_DATA") {
-    const { domain, types, message } = execute.approval.input;
-    execute.approval.output = await wallet.signTypedData(
-      domain,
-      types,
-      message
-    );
-  } else if (execute.approval.type === "SIGN_TRANSACTION") {
-    const signedTx = await wallet.signTransaction(execute.approval.input);
-    execute.approval.output = signedTx;
-  }
+if (actionResponse.executionsType !== "GASLESS") {
+  // Fall back to standard broadcast
+  return broadcastStandardTx(actionResponse.tx);
 }
 ```
 
-### Step 2: Sign Main Transaction
+</Step>
+<Step title="Sign each execution in order">
+
+Iterate `executions` and sign each step with the appropriate wallet method:
 
 ```typescript
-if (execute.tx.type === "SIGN_TYPED_DATA") {
-  const { domain, types, message } = execute.tx.input;
-  execute.tx.output = await wallet.signTypedData(domain, types, message);
-} else if (execute.tx.type === "SIGN_TRANSACTION") {
-  const signedTx = await wallet.signTransaction(execute.tx.input);
-  execute.tx.output = signedTx;
-}
+const signedExecutions = await Promise.all(
+  actionResponse.executions.map(async (execution) => {
+    if (execution.txType === "tronTransactionSign") {
+      // Sign an unsigned Tron transaction
+      const unsignedTx = JSON.parse(execution.data);
+      const signedTx = await tronWeb.trx.sign(unsignedTx);
+      return {
+        ...execution,
+        signature: signedTx.signature[0],
+        data: JSON.stringify(signedTx),
+      };
+    }
+
+    if (execution.txType === "evmSignTypedData") {
+      // Sign EIP-712 typed data (swap meta-transaction)
+      const { domain, types, message } = execution.data;
+      const signature = await tronWeb.trx.signTypedData(domain, types, message);
+      return { ...execution, signature };
+    }
+
+    return execution;
+  })
+);
 ```
 
-### Step 3: Submit to Backend
+> **Order matters.** Fee approval steps (if present) must be signed and submitted before the swap step. The array is already in the correct order.
+
+</Step>
+<Step title="Submit to POST /submitTx">
+
+Send the signed executions along with the `txId` from the `getAction` response:
 
 ```typescript
-const response = await fetch("https://api-v2.swaps.xyz/api/submit", {
+const submitResponse = await fetch("https://api-v2.swaps.xyz/api/submitTx", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
     "x-api-key": YOUR_API_KEY,
   },
   body: JSON.stringify({
-    chainId: actionRequest.srcChainId,
-    approval: execute.approval, // null or SignedExecutionStep
-    tx: execute.tx, // SignedExecutionStep
+    txId: actionResponse.txId,
+    chainId: 728126428, // srcChainId
+    executions: signedExecutions,
   }),
 });
 
-const result = await response.json();
-// { success: true, id: "relay-task-id" }
+const result = await submitResponse.json();
+// { success: true, txId: "internal-tx-id" }
+// Pass txId to GET /getStatus to poll for the on-chain transaction hash
 ```
 
----
-
-## Notes
-
-- **Approval Handling:** The `approval` step (if present) must be signed before the main transaction. It can be either `SIGN_TRANSACTION` (for airdrop approvals) or `SIGN_TYPED_DATA` (for permit approvals)
-- **Standard Fallback:** Always check `execute.type` - if `"STANDARD"`, broadcast the `tx` directly (see [Swaps.xyz broadcast guide](https://docs.swaps.xyz/guides/swap))
-- **Error Handling:** The `/api/submit` endpoint validates signatures and simulates transactions before broadcasting
+</Step>
+</Steps>
 
 ---
 
 ## Complete Example
 
 ```typescript
+const YOUR_API_KEY = "...";
+const TRON_CHAIN_ID = 728126428;
+
 // 1. Request gasless action
-const actionRequest = { ...params, gasless: true };
-const actionResponse = await getAction(actionRequest);
+const params = new URLSearchParams({
+  actionType: "swap-action",
+  sender: "TRiskt1RqdWMfvWEU8CMxSBh3MPSPP9UoL",
+  srcToken: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+  dstToken: "0x0000000000000000000000000000000000000000",
+  srcChainId: String(TRON_CHAIN_ID),
+  dstChainId: String(TRON_CHAIN_ID),
+  slippage: "100",
+  swapDirection: "exact-amount-in",
+  amount: "1000000",
+  recipient: "TRiskt1RqdWMfvWEU8CMxSBh3MPSPP9UoL",
+  gasless: "true",
+});
 
-// 2. Check execution type
-if (actionResponse.execute.type === "GASLESS") {
-  const { execute } = actionResponse;
+const actionResponse = await fetch(
+  `https://api-v2.swaps.xyz/api/getAction?${params}`,
+  { headers: { "x-api-key": YOUR_API_KEY } }
+).then((r) => r.json());
 
-  // 3. Sign approval if required
-  if (execute.approval) {
-    const { domain, types, message } = execute.approval.input;
-    execute.approval.output = await wallet.signTypedData(
-      domain,
-      types,
-      message
-    );
-  }
-
-  // 4. Sign main transaction
-  const { domain, types, message } = execute.tx.input;
-  execute.tx.output = await wallet.signTypedData(domain, types, message);
-
-  // 5. Submit for broadcast
-  const submitResponse = await fetch("/api/submit", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": YOUR_API_KEY,
-    },
-    body: JSON.stringify({
-      chainId: actionRequest.srcChainId,
-      approval: execute.approval,
-      tx: execute.tx,
-    }),
-  });
-
-  const { success, id } = await submitResponse.json();
-  console.log(`Transaction submitted: ${id}`);
+// 2. Fall back to standard flow if relay unavailable
+if (actionResponse.executionsType !== "GASLESS") {
+  return broadcastStandardTx(actionResponse.tx);
 }
+
+// 3. Sign each execution in order
+const signedExecutions = await Promise.all(
+  actionResponse.executions.map(async (execution) => {
+    if (execution.txType === "tronTransactionSign") {
+      const unsignedTx = JSON.parse(execution.data);
+      const signedTx = await tronWeb.trx.sign(unsignedTx);
+      return { ...execution, signature: signedTx.signature[0], data: JSON.stringify(signedTx) };
+    }
+    if (execution.txType === "evmSignTypedData") {
+      const { domain, types, message } = execution.data;
+      const signature = await tronWeb.trx.signTypedData(domain, types, message);
+      return { ...execution, signature };
+    }
+    return execution;
+  })
+);
+
+// 4. Submit for relay broadcast
+const { success, txId } = await fetch("https://api-v2.swaps.xyz/api/submitTx", {
+  method: "POST",
+  headers: { "Content-Type": "application/json", "x-api-key": YOUR_API_KEY },
+  body: JSON.stringify({
+    txId: actionResponse.txId,
+    chainId: TRON_CHAIN_ID,
+    executions: signedExecutions,
+  }),
+}).then((r) => r.json());
+
+// Poll GET /getStatus with txId to get the on-chain transaction hash
+console.log(`Relay accepted. Poll getStatus with txId: ${txId}`);
 ```
+
+---
+
+## Notes
+
+- **Standard fallback:** Always check `executionsType` — if `"DEFAULT"`, broadcast `tx` directly (see [swap guide](https://docs.swaps.xyz/guides/swap)).
+- **Error handling:** `POST /submitTx` validates signatures and simulates transactions before broadcasting. A `400` response indicates a bad signature or expired `txId`.
+- **Relayer fee:** The `relayerFee` field shows the fee deducted from `amountIn` to pay the relay. Display it to users alongside the swap quote.
 
 ---
 
 ## Type Definitions
 
 ```typescript
-type ExecutionStepType = "BROADCAST" | "SIGN_TRANSACTION" | "SIGN_TYPED_DATA";
+type ExecutionTxType = "tronTransactionSign" | "evmSignTypedData";
 
-interface ExecutionStep {
-  type: ExecutionStepType;
-  input: Transaction | EIP712TypedData;
+interface BaseExecution {
+  txType: ExecutionTxType;
+  signature: string; // populated by the client after signing
 }
 
-interface SignedExecutionStep extends ExecutionStep {
-  output: string; // Signature or signed transaction
+interface TronTransactionSignExecution extends BaseExecution {
+  txType: "tronTransactionSign";
+  data: string; // JSON string of unsigned Tron transaction (TronWeb raw_data shape)
 }
 
-interface PostSubmitRequest {
+interface EvmSignTypedDataExecution extends BaseExecution {
+  txType: "evmSignTypedData";
+  to: string; // verifying contract address
+  data: Eip712Data;
+}
+
+type Execution = TronTransactionSignExecution | EvmSignTypedDataExecution;
+
+interface Eip712Data {
+  domain: { name: string; version: string; chainId: number; verifyingContract: string };
+  types: Record<string, { name: string; type: string }[]>;
+  message: Record<string, unknown>;
+}
+
+interface SubmitTxRequest {
+  txId: string;
   chainId: number;
-  approval: SignedExecutionStep | null;
-  tx: SignedExecutionStep;
+  executions: Execution[];
 }
 
-interface PostSubmitResponse {
+interface SubmitTxResponse {
   success: boolean;
-  id?: string; // Relay task ID
+  txId?: string; // internal ID — pass to GET /getStatus to get the on-chain transaction hash
+  error?: string;
 }
 ```
-
----
