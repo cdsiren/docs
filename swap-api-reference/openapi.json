@@ -13,10 +13,6 @@
     {
       "url": "https://api-v2.swaps.xyz/api",
       "description": "Production server"
-    },
-    {
-      "url": "https://ghost.swaps.xyz/api/v2",
-      "description": "Production server"
     }
   ],
   "paths": {
@@ -991,6 +987,12 @@
     "/getPaths": {
       "get": {
         "summary": "Get Paths",
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Core Swap API server"
+          }
+        ],
         "description": "Retrieves all available token paths across supported chains with configurable filtering options. It’s recommended to call this endpoint after selecting the source and destination tokens to validate route eligibility.",
         "operationId": "getPaths",
         "parameters": [
@@ -1092,6 +1094,12 @@
     "/getChainList": {
       "get": {
         "summary": "Get Chain List",
+        "servers": [
+          {
+            "url": "https://api-v2.swaps.xyz/api",
+            "description": "Core Swap API server"
+          }
+        ],
         "description": "Retrieve a list of supported chains, their names, and virtual machine identifiers. Raw data for the [supported chains list](/resources/chain-list).",
         "operationId": "getChainList",
         "responses": {
