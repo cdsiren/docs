@@ -70,7 +70,7 @@ When `gasless=true` is requested and a relay provider is available for the sourc
   executions: [
     // Step 1 (if needed): approve relay fee transfer
     {
-      txType: "tronTransactionSign",
+      txType: "evmTransactionSign",
       data: "{...unsigned Tron transaction JSON...}"
     },
     // Step 2: sign the swap meta-transaction
@@ -114,7 +114,7 @@ Iterate `executions` and sign each step with the appropriate wallet method:
 ```typescript
 const signedExecutions = await Promise.all(
   actionResponse.executions.map(async (execution) => {
-    if (execution.txType === "tronTransactionSign") {
+    if (execution.txType === "evmTransactionSign") {
       // Sign an unsigned Tron transaction
       const unsignedTx = JSON.parse(execution.data);
       const signedTx = await tronWeb.trx.sign(unsignedTx);
@@ -202,7 +202,7 @@ if (actionResponse.executionsType !== "GASLESS") {
 // 3. Sign each execution in order
 const signedExecutions = await Promise.all(
   actionResponse.executions.map(async (execution) => {
-    if (execution.txType === "tronTransactionSign") {
+    if (execution.txType === "evmTransactionSign") {
       const unsignedTx = JSON.parse(execution.data);
       const signedTx = await tronWeb.trx.sign(unsignedTx);
       return { ...execution, signature: signedTx.signature[0], data: JSON.stringify(signedTx) };
@@ -244,16 +244,16 @@ console.log(`Relay accepted. Poll getStatus with txId: ${txId}`);
 ## Type Definitions
 
 ```typescript
-type ExecutionTxType = "tronTransactionSign" | "evmSignTypedData";
+type ExecutionTxType = "evmTransactionSign" | "evmSignTypedData";
 
 interface BaseExecution {
   txType: ExecutionTxType;
   signature: string; // populated by the client after signing
 }
 
-interface TronTransactionSignExecution extends BaseExecution {
-  txType: "tronTransactionSign";
-  data: string; // JSON string of unsigned Tron transaction (TronWeb raw_data shape)
+interface EvmTransactionSignExecution extends BaseExecution {
+  txType: "evmTransactionSign";
+  data: string; // JSON string of unsigned transaction (TronWeb raw_data shape for Tron)
 }
 
 interface EvmSignTypedDataExecution extends BaseExecution {
@@ -262,7 +262,7 @@ interface EvmSignTypedDataExecution extends BaseExecution {
   data: Eip712Data;
 }
 
-type Execution = TronTransactionSignExecution | EvmSignTypedDataExecution;
+type Execution = EvmTransactionSignExecution | EvmSignTypedDataExecution;
 
 interface Eip712Data {
   domain: { name: string; version: string; chainId: number; verifyingContract: string };
