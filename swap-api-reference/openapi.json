@@ -2063,20 +2063,7 @@
       },
       "BridgeId": {
         "type": "string",
-        "enum": [
-          "optimism",
-          "arbitrum",
-          "oft",
-          "yield-oft",
-          "hyperlane",
-          "ghost",
-          "mayan",
-          "across",
-          "relay",
-          "alt-vm-1",
-          "alt-vm-2"
-        ],
-        "description": "Bridge protocol identifier."
+        "description": "Bridge protocol identifier (e.g. \"across\", \"relay\", \"mayan\")."
       },
       "ActionType": {
         "type": "string",
